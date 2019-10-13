@@ -1,16 +1,27 @@
 import React from 'react';
 import './App.css';
-import {parseJwt, postData} from './util/util';
+import {getData, parseJwt} from './util/util';
 import {LoginDialog} from "./components/LoginDialog";
 import {AppBar, Button, Grid} from "@material-ui/core";
+import {AppBarUserMenu} from "./components/AppBarUserMenu";
 
 
 interface Props {
 
 }
 
-interface AppState {
-  userID: number | null
+export interface AppState {
+    userID: number | null
+    userData?: UserData | any,
+
+}
+
+// @TODO think about State in App
+interface UserData {
+    email: string,
+    name?: string | null,
+    role: string,
+    registered_on: string,
 }
 
 
@@ -25,7 +36,10 @@ export class App extends React.Component<Props, AppState> {
 
             if (payload !== null) {
                 let id = payload.sub;
-                this.state = {userID: id};
+                if (id !== null) {
+                    this.state = {userID: id};
+                    this.updateUserId(id);
+                }
                 return;
             }
         }
@@ -35,12 +49,28 @@ export class App extends React.Component<Props, AppState> {
 
 
     updateUserId = (id: number) => {
-        this.setState({userID: id});
-        console.log(id);
+        let token = localStorage.getItem("auth_token");
+
+        getData("http://localhost:5000/user/" + id + "/meta", {"Authorization": token}).then(
+            resp => {
+                if (resp['status'] === "Expired") {
+                    // TODO do refresh or logout
+                }
+                else if (resp['status'] === "Invalid") {
+                    this.logout();
+                    return;
+                }
+
+                this.setState({userID: id, userData: resp});
+                console.log(id);
+                console.log(resp);
+            }
+        );
+
     };
 
     logout = () => {
-        this.setState({userID: null});
+        this.setState({userID: null, userData: null});
         localStorage.removeItem("auth_token");
     };
 
@@ -57,7 +87,7 @@ export class App extends React.Component<Props, AppState> {
                     >
                         <Grid item>
                             {this.state.userID === null && <LoginDialog updateId={this.updateUserId}/>}
-                            {this.state.userID && <Button onClick={this.logout}> Logged in </Button>}
+                            {this.state.userID && <AppBarUserMenu logout={this.logout} appState={this.state}/>}
                         </Grid>
                     </Grid>
                 </AppBar>

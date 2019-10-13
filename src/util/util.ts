@@ -35,3 +35,24 @@ export async function postData(url = '', data = {}, auth_header= {}) {
       return response.json(); // parses JSON response into native JavaScript objects
   }
 }
+
+export async function getData(url = '', auth_header= {}) {
+  // Default options are marked with *
+  const response = await fetch(url, {
+    method: 'GET', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+      ...auth_header,
+    },
+    redirect: 'follow', // manual, *follow, error
+    referrer: 'no-referrer', // no-referrer, *client
+  })
+      .catch(e => {
+          console.log(e);
+      });
+  if (typeof response === "object") {
+      return response.json(); // parses JSON response into native JavaScript objects
+  }
+}
