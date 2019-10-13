@@ -22,38 +22,40 @@ const createEmptyLogin = (): LoginEntity => ({
 
 interface LoginProps {
     updateId: (id: number) => void;
+    openRegister: () => void;
 }
 
 
 const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    container: {
-      display: 'flex',
-      flexWrap: 'wrap',
-    },
-    textField: {
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
-      width: 200,
-    },
-    dense: {
-      marginTop: 19,
-    },
-    menu: {
-      width: 200,
-    },
-  }),
+    createStyles({
+        container: {
+            display: 'flex',
+            flexWrap: 'wrap',
+        },
+        textField: {
+            marginLeft: theme.spacing(1),
+            marginRight: theme.spacing(1),
+            width: 200,
+        },
+        dense: {
+            marginTop: 19,
+        },
+        menu: {
+            width: 200,
+        },
+    }),
 );
 
 
 
-export const Login: FunctionComponent<LoginProps> = ({updateId}) => {
+export const Login: FunctionComponent<LoginProps> = ({updateId, openRegister}) => {
     const classes = useStyles();
     const [loginInfo, setLoginInfo] = React.useState<LoginEntity>(
         createEmptyLogin()
     );
 
     async function onLogin() {
+        // @FIXME replace with production url
         const url = "http://localhost:5000/login";
 
         const data = {"email": loginInfo.login, "password": loginInfo.password};
@@ -71,10 +73,10 @@ export const Login: FunctionComponent<LoginProps> = ({updateId}) => {
                     return;
                 }
                 setLoginInfo({...loginInfo, 'server_fail': false});
-                const payload = parseJwt(resp['JWT']);
+                const payload = parseJwt(resp['token']);
                 if (payload !== null) {
                     if (payload.sub !== null) {
-                        localStorage.setItem("jwt", resp['JWT']);
+                        localStorage.setItem("jwt", resp['token']);
                         updateId(payload.sub);
                         // cancel state update, as component is going to unmount
                         cancel = true;
@@ -97,7 +99,7 @@ export const Login: FunctionComponent<LoginProps> = ({updateId}) => {
         });
     };
 
-    const onTexFieldChange = (fieldId: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onTextFieldChange = (fieldId: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
         onUpdateLoginField(fieldId, e.currentTarget.value);
     };
 
@@ -116,7 +118,6 @@ export const Login: FunctionComponent<LoginProps> = ({updateId}) => {
             return;
         }
 
-        console.log("handling close");
         setLoginInfo({...loginInfo, 'fail': false});
     };
 
@@ -128,54 +129,53 @@ export const Login: FunctionComponent<LoginProps> = ({updateId}) => {
         setLoginInfo({...loginInfo, 'server_fail': false});
     };
 
-  return (
-      <div>
-          <form className={classes.container} noValidate>
-              <TextField
-                  label="Email"
-                  value={loginInfo.login}
-                  className={classes.textField}
-                  onChange={onTexFieldChange("login")}
-                  onKeyDown={onKeyDown}
-                  autoFocus={true}
-              />
-              <TextField
-                  label="Password"
-                  type="password"
-                  value={loginInfo.password}
-                  className={classes.textField}
-                  onChange={onTexFieldChange("password")}
-                  onKeyDown={onKeyDown}
-              />
+    return (
+        <div>
+            <form className={classes.container} noValidate>
+                <TextField
+                    error={loginInfo.fail}
+                    label="Email"
+                    value={loginInfo.login}
+                    className={classes.textField}
+                    onChange={onTextFieldChange("login")}
+                    onKeyDown={onKeyDown}
+                    autoFocus={true}
+                />
+                <TextField
+                    error={loginInfo.fail}
+                    label="Password"
+                    type="password"
+                    value={loginInfo.password}
+                    className={classes.textField}
+                    onChange={onTextFieldChange("password")}
+                    onKeyDown={onKeyDown}
+                />
 
 
-              <Button variant="contained" color="primary" onClick={onLogin}>
-                  Login
-              </Button>
-          </form>
-          <Button color="inherit">
-              Register
-          </Button>
-          <Snackbar open={loginInfo.fail && !loginInfo.server_fail}>
-              <SnackbarContentWrapper
-                  open={loginInfo.fail}
-                  variant="error"
-                  message="login failed, check credentials"
-                  onClose={handleFailClose}
-              />
-          </Snackbar>
+                <Button variant="contained" color="primary" onClick={onLogin}>
+                    Login
+                </Button>
+            </form>
+            <Button color="inherit" onClick={openRegister}>
+                Register
+            </Button>
+            <Snackbar open={loginInfo.fail && !loginInfo.server_fail}>
+                <SnackbarContentWrapper
+                    open={loginInfo.fail}
+                    variant="error"
+                    message="login failed, check credentials"
+                    onClose={handleFailClose}
+                />
+            </Snackbar>
 
-          <Snackbar open={loginInfo.server_fail}>
-              <SnackbarContentWrapper
-                  open={loginInfo.server_fail}
-                  variant="error"
-                  message="Server Error, contact administrators"
-                  onClose={handleServerFailClose}
-              />
-          </Snackbar>
-      </div>
-
-
-  );
-
+            <Snackbar open={loginInfo.server_fail}>
+                <SnackbarContentWrapper
+                    open={loginInfo.server_fail}
+                    variant="error"
+                    message="Server Error, contact administrators"
+                    onClose={handleServerFailClose}
+                />
+            </Snackbar>
+        </div>
+    );
 };
