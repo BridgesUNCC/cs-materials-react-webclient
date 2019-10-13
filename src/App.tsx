@@ -1,9 +1,8 @@
 import React from 'react';
 import './App.css';
 import {parseJwt} from './util/util';
-import {Login} from "./components/Login";
 import {LoginDialog} from "./components/LoginDialog";
-import {AppBar, Button, Card, Grid} from "@material-ui/core";
+import {AppBar, Button, Grid} from "@material-ui/core";
 
 
 interface Props {

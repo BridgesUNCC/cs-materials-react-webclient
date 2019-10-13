@@ -1,8 +1,8 @@
-import React, {FormEvent, FunctionComponent, SyntheticEvent} from "react";
+import React, {FunctionComponent, SyntheticEvent} from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import {postData, parseJwt} from "../util/util";
-import {Card, createStyles, makeStyles, Theme} from "@material-ui/core";
+import {createStyles, makeStyles, Theme} from "@material-ui/core";
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContentWrapper from "./SnackbarContentWrapper";
 
