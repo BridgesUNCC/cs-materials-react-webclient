@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import {parseJwt} from './util/util';
-import {Login} from "./components/login";
+import {Login} from "./components/Login";
 import {LoginDialog} from "./components/LoginDialog";
 import {AppBar, Button, Card} from "@material-ui/core";
 
