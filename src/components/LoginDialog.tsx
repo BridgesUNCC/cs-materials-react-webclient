@@ -6,11 +6,19 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {Login} from "./Login";
 import makeStyles from "@material-ui/core/styles/makeStyles";
+import {createStyles, Theme} from "@material-ui/core";
 
 
-const useStyles = makeStyles(theme => {
-
-});
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    margin: {
+      margin: theme.spacing(1),
+    },
+    extendedIcon: {
+      marginRight: theme.spacing(1),
+    },
+  }),
+);
 
 interface LoginProps {
     updateId: (id: number) => void;
@@ -19,6 +27,7 @@ interface LoginProps {
 
 export const LoginDialog: FunctionComponent<LoginProps> = ({updateId}) => {
   const [open, setOpen] = React.useState(false);
+  const classes = useStyles();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -30,7 +39,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({updateId}) => {
 
   return (
     <div>
-      <Button color="inherit" onClick={handleClickOpen}>
+      <Button className={classes.margin} variant="contained" color="primary" onClick={handleClickOpen}>
           Login
       </Button>
       <Dialog

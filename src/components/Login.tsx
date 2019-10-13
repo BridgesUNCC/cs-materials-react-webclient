@@ -59,28 +59,35 @@ export const Login: FunctionComponent<LoginProps> = ({updateId}) => {
         const data = {"email": loginInfo.login, "password": loginInfo.password};
         // assume failure, to flash message
         let fail = true;
+        let server_fail = false;
+        let cancel = false;
         try {
             postData(url, data).then(resp => {
                 console.log(resp);
                 if (resp === undefined) {
                     console.log("API SERVER ERROR");
-                    setLoginInfo({...loginInfo, 'server_fail': true});
+                    fail = false;
+                    server_fail = true;
                     return;
                 }
                 setLoginInfo({...loginInfo, 'server_fail': false});
                 const payload = parseJwt(resp['JWT']);
                 if (payload !== null) {
                     if (payload.sub !== null) {
-                        updateId(payload.sub);
                         localStorage.setItem("jwt", resp['JWT']);
-                        fail = false;
+                        updateId(payload.sub);
+                        // cancel state update, as component is going to unmount
+                        cancel = true;
                     }
+                }
+            }).finally(() => {
+                if (!cancel) {
+                    setLoginInfo({...loginInfo, 'fail': fail, 'server_fail': server_fail});
                 }
             });
         } catch (err) {
             console.log(err);
         }
-        setLoginInfo({...loginInfo, 'fail': fail});
     }
 
     const onUpdateLoginField = (name: string, value: string) => {
@@ -100,7 +107,6 @@ export const Login: FunctionComponent<LoginProps> = ({updateId}) => {
 
             event.preventDefault();
             event.stopPropagation();
-            setLoginInfo({...loginInfo, 'fail': false});
             onLogin();
         }
     };
@@ -110,6 +116,7 @@ export const Login: FunctionComponent<LoginProps> = ({updateId}) => {
             return;
         }
 
+        console.log("handling close");
         setLoginInfo({...loginInfo, 'fail': false});
     };
 
@@ -122,7 +129,6 @@ export const Login: FunctionComponent<LoginProps> = ({updateId}) => {
     };
 
   return (
-
       <div>
           <form className={classes.container} noValidate>
               <TextField
@@ -150,14 +156,22 @@ export const Login: FunctionComponent<LoginProps> = ({updateId}) => {
           <Button color="inherit">
               Register
           </Button>
-          <Snackbar open={loginInfo.fail || loginInfo.server_fail}>
+          <Snackbar open={loginInfo.fail && !loginInfo.server_fail}>
               <SnackbarContentWrapper
+                  open={loginInfo.fail}
                   variant="error"
-                  message={loginInfo.fail ? "Login Failed, check credentials":
-                    "Server Error, contact Administrators"}
-                  onClose={loginInfo.fail ? handleFailClose : handleServerFailClose}
+                  message="login failed, check credentials"
+                  onClose={handleFailClose}
               />
-              }
+          </Snackbar>
+
+          <Snackbar open={loginInfo.server_fail}>
+              <SnackbarContentWrapper
+                  open={loginInfo.server_fail}
+                  variant="error"
+                  message="Server Error, contact administrators"
+                  onClose={handleServerFailClose}
+              />
           </Snackbar>
       </div>
 

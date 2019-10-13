@@ -3,7 +3,7 @@ import './App.css';
 import {parseJwt} from './util/util';
 import {Login} from "./components/Login";
 import {LoginDialog} from "./components/LoginDialog";
-import {AppBar, Button, Card} from "@material-ui/core";
+import {AppBar, Button, Card, Grid} from "@material-ui/core";
 
 
 interface Props {
@@ -49,10 +49,18 @@ export class App extends React.Component<Props, AppState> {
             <div className="App">
                 <header className="App-header">
                 </header>
-                    <AppBar>
-                        { this.state.userID === null && <LoginDialog updateId={this.updateUserId}/>}
-                        { this.state.userID && <Button onClick={this.logout}> Logged in </Button>}
-                    </AppBar>
+                <AppBar color="secondary">
+                    <Grid
+                        justify="flex-end"
+                        container
+                        spacing={4}
+                    >
+                        <Grid item>
+                        {this.state.userID === null && <LoginDialog updateId={this.updateUserId}/>}
+                        {this.state.userID && <Button onClick={this.logout}> Logged in </Button>}
+                        </Grid>
+                    </Grid>
+                </AppBar>
             </div>
         );
     }
