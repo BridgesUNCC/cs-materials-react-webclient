@@ -13,7 +13,7 @@ export function parseJwt(token: string) : JwtPayload | null {
 };
 
 
-export async function postData(url = '', data = {}) {
+export async function postData(url = '', data = {}, auth_header= {}) {
   // Default options are marked with *
   const response = await fetch(url, {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -21,8 +21,8 @@ export async function postData(url = '', data = {}) {
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
     credentials: 'same-origin', // include, *same-origin, omit
     headers: {
+      ...auth_header,
       'Content-Type': 'application/json'
-      // 'Content-Type': 'application/x-www-form-urlencoded',
     },
     redirect: 'follow', // manual, *follow, error
     referrer: 'no-referrer', // no-referrer, *client

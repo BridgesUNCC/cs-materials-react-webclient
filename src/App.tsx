@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {parseJwt} from './util/util';
+import {parseJwt, postData} from './util/util';
 import {LoginDialog} from "./components/LoginDialog";
 import {AppBar, Button, Grid} from "@material-ui/core";
 
@@ -18,7 +18,7 @@ export class App extends React.Component<Props, AppState> {
 
     constructor(props: Props) {
         super(props);
-        let jwt = localStorage.getItem("jwt");
+        let jwt = localStorage.getItem("auth_token");
 
         if (typeof jwt == "string") {
             let payload = parseJwt(jwt);
@@ -36,11 +36,12 @@ export class App extends React.Component<Props, AppState> {
 
     updateUserId = (id: number) => {
         this.setState({userID: id});
+        console.log(id);
     };
 
     logout = () => {
         this.setState({userID: null});
-        localStorage.removeItem("jwt");
+        localStorage.removeItem("auth_token");
     };
 
     render () {
@@ -55,8 +56,8 @@ export class App extends React.Component<Props, AppState> {
                         spacing={4}
                     >
                         <Grid item>
-                        {this.state.userID === null && <LoginDialog updateId={this.updateUserId}/>}
-                        {this.state.userID && <Button onClick={this.logout}> Logged in </Button>}
+                            {this.state.userID === null && <LoginDialog updateId={this.updateUserId}/>}
+                            {this.state.userID && <Button onClick={this.logout}> Logged in </Button>}
                         </Grid>
                     </Grid>
                 </AppBar>
