@@ -4,6 +4,7 @@ import {getData, parseJwt} from './util/util';
 import {LoginDialog} from "./components/LoginDialog";
 import {AppBar, Button, Grid} from "@material-ui/core";
 import {AppBarUserMenu} from "./components/AppBarUserMenu";
+import {Route, Switch} from "react-router";
 
 
 interface Props {
@@ -79,18 +80,28 @@ export class App extends React.Component<Props, AppState> {
             <div className="App">
                 <header className="App-header">
                 </header>
-                <AppBar color="secondary">
-                    <Grid
-                        justify="flex-end"
-                        container
-                        spacing={4}
-                    >
-                        <Grid item>
-                            {this.state.userID === null && <LoginDialog updateId={this.updateUserId}/>}
-                            {this.state.userID && <AppBarUserMenu logout={this.logout} appState={this.state}/>}
-                        </Grid>
-                    </Grid>
-                </AppBar>
+
+                <Switch>
+                    <Route path="/">
+                        <AppBar color="secondary">
+                            <Grid
+                                justify="flex-end"
+                                container
+                                spacing={4}
+                            >
+                                <Grid item>
+                                    {this.state.userID === null &&
+                                        <Route render={(props) => (
+                                            <LoginDialog {...props} updateId={this.updateUserId}/>
+                                        )}
+                                        />
+                                    }
+                                    {this.state.userID && <AppBarUserMenu logout={this.logout} appState={this.state}/>}
+                                </Grid>
+                            </Grid>
+                        </AppBar>
+                    </Route>
+                </Switch>
             </div>
         );
     }

@@ -7,7 +7,10 @@ import {Login} from "./Login";
 import {Register} from "./Register";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import {createStyles, Theme} from "@material-ui/core";
-
+import {
+    RouteComponentProps,
+} from "react-router-dom";
+import LinearProgress from "@material-ui/core/LinearProgress";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -20,47 +23,78 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-interface LoginProps {
+interface LoginProps extends RouteComponentProps {
     updateId: (id: number) => void;
 }
 
 interface RegisterLoginEntity {
     login: boolean;
     register: boolean;
+    loading: boolean;
 }
 
-const createEmptyEntity = (): RegisterLoginEntity => ({
-   login: false,
-   register: false,
-});
-
-
-export const LoginDialog: FunctionComponent<LoginProps> = ({updateId}) => {
-  const [registerLogin, setRegisterLogin] = React.useState<RegisterLoginEntity>(
-      createEmptyEntity()
-  );
-  const classes = useStyles();
-
-  const handleLoginOpen = () => {
-    setRegisterLogin({
-        login: true,
-        register: false,
-    });
-  };
-
-  const handleRegisterOpen = () => {
-      setRegisterLogin({
-          login: false,
-          register: true,
-      });
-  };
-
-  const handleClose = () => {
-    setRegisterLogin({
+const createInitialEntity = (location: any, loading?: boolean): RegisterLoginEntity => {
+    if (typeof location === "string") {
+        return {
+            login: location.endsWith("/login"),
+            register: location.endsWith("/register"),
+            loading: loading || false
+        };
+    }
+    return {
         login: false,
         register: false,
-    });
-  };
+        loading: loading || false,
+    };
+};
+
+
+export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, updateId}) => {
+    let [registerLogin, updateRegisterLogin] = React.useState(createInitialEntity(location.pathname));
+    const classes = useStyles();
+    registerLogin = createInitialEntity(location.pathname, registerLogin.loading);
+
+
+    const handleLoginOpen = () => {
+        let new_location = location.pathname.endsWith("/register") ? location.pathname.slice(0, -9) : location.pathname;
+        let prepend = new_location.endsWith("/") ? new_location.slice(0, -1) : new_location;
+        history.push({
+                pathname: prepend + '/login',
+            }
+        );
+    };
+
+    const handleRegisterOpen = () => {
+        let new_location = location.pathname.endsWith("/login") ? location.pathname.slice(0, -6) : location.pathname;
+        let prepend = new_location.endsWith("/") ? new_location.slice(0, -1) : new_location;
+
+        history.push({
+                pathname: prepend + '/register',
+            }
+        );
+    };
+
+    const handleClose = () => {
+        let new_location = location.pathname.endsWith("/login") ? location.pathname.slice(0, -6) : location.pathname;
+        new_location = new_location.endsWith("/register") ? new_location.slice(0, -9) : new_location;
+        if (new_location.length === 0) {
+            new_location = "/";
+        }
+            history.push({
+                pathname: new_location,
+            }
+        );
+    };
+
+    const setLoading = (loading: boolean) => {
+        console.log(loading)
+        updateRegisterLogin(
+            {
+                ...registerLogin,
+                'loading': loading
+            }
+        );
+    };
 
     return (
         <div>
@@ -73,9 +107,14 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({updateId}) => {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
+                {registerLogin.loading && <LinearProgress/>}
                 <DialogTitle id="alert-dialog-title">{"Register"}</DialogTitle>
                 <DialogContent>
-                    <Register updateId={updateId} openLogin={handleLoginOpen}/>
+                    <Register updateId={updateId}
+                              openLogin={handleLoginOpen}
+                              handleDialogClose={handleClose}
+                              setLoading={setLoading}
+                    />
                 </DialogContent>
             </Dialog>
 
@@ -89,9 +128,14 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({updateId}) => {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
+                {registerLogin.loading && <LinearProgress/>}
                 <DialogTitle id="alert-dialog-title">{"Login"}</DialogTitle>
                 <DialogContent>
-                    <Login updateId={updateId} openRegister={handleRegisterOpen}/>
+                    <Login updateId={updateId}
+                           openRegister={handleRegisterOpen}
+                           handleDialogClose={handleClose}
+                           setLoading={setLoading}
+                    />
                 </DialogContent>
             </Dialog>
         </div>

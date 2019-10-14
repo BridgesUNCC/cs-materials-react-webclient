@@ -36,6 +36,7 @@ interface RegistrationEntity {
     duplicate: boolean;
     fail: boolean;
     server_fail: boolean;
+    mail_error: boolean;
 }
 
 const createEmptyRegistration = (): RegistrationEntity => ({
@@ -45,14 +46,17 @@ const createEmptyRegistration = (): RegistrationEntity => ({
     duplicate: false,
     fail: false,
     server_fail: false,
+    mail_error: false,
 });
 
 interface RegistrationProps {
     updateId: (id: number) => void;
     openLogin: () => void;
+    handleDialogClose: () => void;
+    setLoading: (loading: boolean) => void;
 }
 
-export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLogin}) => {
+export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLogin, handleDialogClose, setLoading}) => {
     const classes = useStyles();
     const [registrationInfo, setRegistrationInfo] = React.useState<RegistrationEntity>(
         createEmptyRegistration()
@@ -63,7 +67,7 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
         // @FIXME replace with production url
         const url = "http://localhost:5000/register";
 
-
+        setLoading(true);
         // if empty, default to null
         const data = {
             "email": registrationInfo.login === "" ? null: registrationInfo.login,
@@ -74,6 +78,7 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
         // assume failure, to flash message
         let duplicate = true;
         let fail = true;
+        let mail_error = true;
         let server_fail = false;
         let cancel = false;
         try {
@@ -83,21 +88,29 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
                     console.log("API SERVER ERROR");
                     fail = false;
                     duplicate = false;
+                    mail_error = false;
                     server_fail = true;
                     return;
                 }
                 if (resp['status'] === "Invalid") {
                     fail = true;
                     duplicate = false;
+                    mail_error = false;
                 } else if(resp['status'] === "Duplicate") {
                     fail = false;
                     duplicate = true;
+                    mail_error = false;
+                } else if(resp['status'] === "Mail Error") {
+                    fail = false;
+                    duplicate = false;
+                    mail_error = true;
                 }
                 setRegistrationInfo({...registrationInfo, 'server_fail': false});
                 const payload = parseJwt(resp['token']);
                 if (payload !== null) {
                     if (payload.sub !== null) {
                         localStorage.setItem("jwt", resp['token']);
+                        handleDialogClose();
                         updateId(payload.sub);
                         // cancel state update, as component is going to unmount
                         cancel = true;
@@ -105,10 +118,13 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
                 }
             }).finally(() => {
                 if (!cancel) {
+                    setLoading(false);
                     setRegistrationInfo({...registrationInfo,
                         'fail': fail,
                         'server_fail': server_fail,
-                        'duplicate': duplicate});
+                        'duplicate': duplicate,
+                        'mail_error': mail_error,
+                    });
                 }
             });
         } catch (err) {
@@ -240,6 +256,14 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
                     open={registrationInfo.server_fail}
                     variant="error"
                     message="Server Error, contact administrators"
+                    onClose={handleServerFailClose}
+                />
+            </Snackbar>
+            <Snackbar open={registrationInfo.mail_error}>
+                <SnackbarContentWrapper
+                    open={registrationInfo.mail_error}
+                    variant="error"
+                    message="Email Error, unable to send confirmation email"
                     onClose={handleServerFailClose}
                 />
             </Snackbar>

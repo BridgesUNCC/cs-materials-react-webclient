@@ -23,6 +23,8 @@ const createEmptyLogin = (): LoginEntity => ({
 interface LoginProps {
     updateId: (id: number) => void;
     openRegister: () => void;
+    handleDialogClose: () => void;
+    setLoading: (loading: boolean) => void;
 }
 
 
@@ -48,7 +50,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 
 
-export const Login: FunctionComponent<LoginProps> = ({updateId, openRegister}) => {
+export const Login: FunctionComponent<LoginProps> = ({updateId, openRegister, handleDialogClose, setLoading}) => {
     const classes = useStyles();
     const [loginInfo, setLoginInfo] = React.useState<LoginEntity>(
         createEmptyLogin()
@@ -59,6 +61,9 @@ export const Login: FunctionComponent<LoginProps> = ({updateId, openRegister}) =
         const url = "http://localhost:5000/login";
 
         const data = {"email": loginInfo.login, "password": loginInfo.password};
+
+
+        setLoading(true);
         // assume failure, to flash message
         let fail = true;
         let server_fail = false;
@@ -77,6 +82,7 @@ export const Login: FunctionComponent<LoginProps> = ({updateId, openRegister}) =
                 if (payload !== null) {
                     if (payload.sub !== null) {
                         localStorage.setItem("auth_token", resp['auth_token']);
+                        handleDialogClose();
                         updateId(payload.sub);
                         // cancel state update, as component is going to unmount
                         cancel = true;
@@ -84,6 +90,7 @@ export const Login: FunctionComponent<LoginProps> = ({updateId, openRegister}) =
                 }
             }).finally(() => {
                 if (!cancel) {
+                    setLoading(false);
                     setLoginInfo({...loginInfo, 'fail': fail, 'server_fail': server_fail});
                 }
             });
