@@ -30,7 +30,7 @@ export class App extends React.Component<Props, AppState> {
 
     constructor(props: Props) {
         super(props);
-        let jwt = localStorage.getItem("auth_token");
+        let jwt = localStorage.getItem("access_token");
 
         if (typeof jwt == "string") {
             let payload = parseJwt(jwt);
@@ -50,9 +50,9 @@ export class App extends React.Component<Props, AppState> {
 
 
     updateUserId = (id: number) => {
-        let token = localStorage.getItem("auth_token");
+        let token = localStorage.getItem("access_token");
 
-        getData("http://localhost:5000/user/" + id + "/meta", {"Authorization": token}).then(
+        getData("http://localhost:5000/user/" + id + "/meta", {"Authorization": "bearer " + token}).then(
             resp => {
                 if (resp['status'] === "Expired") {
                     // TODO do refresh or logout
@@ -71,8 +71,21 @@ export class App extends React.Component<Props, AppState> {
     };
 
     logout = () => {
-        this.setState({userID: null, userData: null});
-        localStorage.removeItem("auth_token");
+        let token = localStorage.getItem("access_token");
+        getData("http://localhost:5000/logout", {"Authorization": "bearer " + token}).then (
+            resp => {
+                if (resp['status'] === "Expired") {
+                    // OK do Nothing
+                }
+                else if (resp['status'] === "Invalid") {
+                    // OK, strange
+                }
+
+                this.setState({userID: null, userData: null});
+
+                console.log(resp);
+            }
+        );
     };
 
     render () {

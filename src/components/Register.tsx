@@ -105,11 +105,10 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
                     duplicate = false;
                     mail_error = true;
                 }
-                setRegistrationInfo({...registrationInfo, 'server_fail': false});
-                const payload = parseJwt(resp['token']);
+                const payload = parseJwt(resp['access_token']);
                 if (payload !== null) {
                     if (payload.sub !== null) {
-                        localStorage.setItem("jwt", resp['token']);
+                        localStorage.setItem("access_token", resp['access_token']);
                         handleDialogClose();
                         updateId(payload.sub);
                         // cancel state update, as component is going to unmount

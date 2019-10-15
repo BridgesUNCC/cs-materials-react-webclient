@@ -77,11 +77,10 @@ export const Login: FunctionComponent<LoginProps> = ({updateId, openRegister, ha
                     server_fail = true;
                     return;
                 }
-                setLoginInfo({...loginInfo, 'server_fail': false});
-                const payload = parseJwt(resp['auth_token']);
+                const payload = parseJwt(resp['access_token']);
                 if (payload !== null) {
                     if (payload.sub !== null) {
-                        localStorage.setItem("auth_token", resp['auth_token']);
+                        localStorage.setItem("access_token", resp['access_token']);
                         handleDialogClose();
                         updateId(payload.sub);
                         // cancel state update, as component is going to unmount
