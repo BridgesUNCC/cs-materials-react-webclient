@@ -5,6 +5,7 @@ import {postData, parseJwt} from "../util/util";
 import {createStyles, makeStyles, Theme} from "@material-ui/core";
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContentWrapper from "./SnackbarContentWrapper";
+import Grid from "@material-ui/core/Grid";
 
 interface LoginEntity {
     login: string;
@@ -35,8 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
             flexWrap: 'wrap',
         },
         textField: {
-            marginLeft: theme.spacing(1),
-            marginRight: theme.spacing(1),
+            margin: theme.spacing(2),
             width: 200,
         },
         dense: {
@@ -137,34 +137,53 @@ export const Login: FunctionComponent<LoginProps> = ({updateId, openRegister, ha
 
     return (
         <div>
-            <form className={classes.container} noValidate>
-                <TextField
-                    error={loginInfo.fail}
-                    label="Email"
-                    value={loginInfo.login}
-                    className={classes.textField}
-                    onChange={onTextFieldChange("login")}
-                    onKeyDown={onKeyDown}
-                    autoFocus={true}
-                />
-                <TextField
-                    error={loginInfo.fail}
-                    label="Password"
-                    type="password"
-                    value={loginInfo.password}
-                    className={classes.textField}
-                    onChange={onTextFieldChange("password")}
-                    onKeyDown={onKeyDown}
-                />
+            <Grid
+                container
+                direction="column"
+                justify="flex-start"
+            >
+                <Grid
+                    item
+                >
+                    <TextField
+                        error={loginInfo.fail}
+                        label="Email"
+                        value={loginInfo.login}
+                        className={classes.textField}
+                        onChange={onTextFieldChange("login")}
+                        onKeyDown={onKeyDown}
+                        autoFocus={true}
+                    />
 
-
-                <Button variant="contained" color="primary" onClick={onLogin}>
-                    Login
-                </Button>
-            </form>
-            <Button color="inherit" onClick={openRegister}>
-                Register
-            </Button>
+                </Grid>
+                <Grid
+                    item
+                >
+                    <TextField
+                        error={loginInfo.fail}
+                        label="Password"
+                        type="password"
+                        value={loginInfo.password}
+                        className={classes.textField}
+                        onChange={onTextFieldChange("password")}
+                        onKeyDown={onKeyDown}
+                    />
+                </Grid>
+                <Grid
+                    item
+                >
+                    <Button variant="contained" color="primary" onClick={onLogin}>
+                        Login
+                    </Button>
+                </Grid>
+                <Grid
+                    item
+                >
+                    <Button color="inherit" onClick={openRegister}>
+                        Register
+                    </Button>
+                </Grid>
+            </Grid>
             <Snackbar open={loginInfo.fail && !loginInfo.server_fail}>
                 <SnackbarContentWrapper
                     open={loginInfo.fail}
