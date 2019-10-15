@@ -26,6 +26,7 @@ interface LoginProps {
     openRegister: () => void;
     handleDialogClose: () => void;
     setLoading: (loading: boolean) => void;
+    openForgot: () => void;
 }
 
 
@@ -50,7 +51,13 @@ const useStyles = makeStyles((theme: Theme) =>
 
 
 
-export const Login: FunctionComponent<LoginProps> = ({updateId, openRegister, handleDialogClose, setLoading}) => {
+export const Login: FunctionComponent<LoginProps> = ({
+                                                         updateId,
+                                                         openRegister,
+                                                         handleDialogClose,
+                                                         setLoading,
+                                                         openForgot,
+                                                     }) => {
     const classes = useStyles();
     const [loginInfo, setLoginInfo] = React.useState<LoginEntity>(
         createEmptyLogin()
@@ -183,6 +190,15 @@ export const Login: FunctionComponent<LoginProps> = ({updateId, openRegister, ha
                         Register
                     </Button>
                 </Grid>
+                <Grid
+                    item
+                >
+                    <Button color="inherit" onClick={openForgot}>
+                        Forgot Password
+                    </Button>
+                </Grid>
+
+
             </Grid>
             <Snackbar open={loginInfo.fail && !loginInfo.server_fail}>
                 <SnackbarContentWrapper

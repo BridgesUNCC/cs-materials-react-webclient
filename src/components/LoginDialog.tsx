@@ -30,6 +30,7 @@ interface LoginProps extends RouteComponentProps {
 interface RegisterLoginEntity {
     login: boolean;
     register: boolean;
+    forgot: boolean;
     loading: boolean;
 }
 
@@ -38,12 +39,14 @@ const createInitialEntity = (location: any, loading?: boolean): RegisterLoginEnt
         return {
             login: location.endsWith("/login"),
             register: location.endsWith("/register"),
+            forgot: location.endsWith("/forgot"),
             loading: loading || false
         };
     }
     return {
         login: false,
         register: false,
+        forgot: false,
         loading: loading || false,
     };
 };
@@ -57,6 +60,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
 
     const handleLoginOpen = () => {
         let new_location = location.pathname.endsWith("/register") ? location.pathname.slice(0, -9) : location.pathname;
+        new_location = new_location.endsWith("/forgot") ? new_location.slice(0, -7) : new_location;
         let prepend = new_location.endsWith("/") ? new_location.slice(0, -1) : new_location;
         history.push({
                 pathname: prepend + '/login',
@@ -66,6 +70,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
 
     const handleRegisterOpen = () => {
         let new_location = location.pathname.endsWith("/login") ? location.pathname.slice(0, -6) : location.pathname;
+        new_location = new_location.endsWith("/forgot") ? new_location.slice(0, -7) : new_location;
         let prepend = new_location.endsWith("/") ? new_location.slice(0, -1) : new_location;
 
         history.push({
@@ -74,9 +79,22 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
         );
     };
 
+    const handleForgotOpen = () => {
+        let new_location = location.pathname.endsWith("/login") ? location.pathname.slice(0, -6) : location.pathname;
+        new_location = new_location.endsWith("/register") ? new_location.slice(0, -9) : new_location;
+        let prepend = new_location.endsWith("/") ? new_location.slice(0, -1) : new_location;
+
+        history.push({
+                pathname: prepend + '/forgot',
+            }
+        );
+
+    };
+
     const handleClose = () => {
         let new_location = location.pathname.endsWith("/login") ? location.pathname.slice(0, -6) : location.pathname;
         new_location = new_location.endsWith("/register") ? new_location.slice(0, -9) : new_location;
+        new_location = new_location.endsWith("/forgot") ? new_location.slice(0, -7) : new_location;
         if (new_location.length === 0) {
             new_location = "/";
         }
@@ -87,7 +105,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
     };
 
     const setLoading = (loading: boolean) => {
-        console.log(loading)
+        console.log(loading);
         updateRegisterLogin(
             {
                 ...registerLogin,
@@ -133,9 +151,21 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                 <DialogContent>
                     <Login updateId={updateId}
                            openRegister={handleRegisterOpen}
+                           openForgot={handleForgotOpen}
                            handleDialogClose={handleClose}
                            setLoading={setLoading}
                     />
+                </DialogContent>
+            </Dialog>
+            <Dialog
+                open={registerLogin.forgot}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                {registerLogin.loading && <LinearProgress/>}
+                <DialogTitle id="alert-dialog-title">{"Forgot Password"}</DialogTitle>
+                <DialogContent>
                 </DialogContent>
             </Dialog>
         </div>

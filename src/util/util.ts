@@ -10,7 +10,7 @@ export function parseJwt(token: string) : JwtPayload | null {
   } catch (e) {
     return null;
   }
-};
+}
 
 
 export async function postJSONData(url = '', data = {}, auth_header= {}) {
