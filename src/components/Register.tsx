@@ -32,21 +32,25 @@ const useStyles = makeStyles((theme: Theme) =>
 interface RegistrationEntity {
     login: string;
     password: string;
+    confirm_pass: string;
     name: string;
     duplicate: boolean;
     fail: boolean;
     server_fail: boolean;
     mail_error: boolean;
+    pass_mismatch: boolean;
 }
 
 const createEmptyRegistration = (): RegistrationEntity => ({
     login: "",
     password: "",
+    confirm_pass: "",
     name: "",
     duplicate: false,
     fail: false,
     server_fail: false,
     mail_error: false,
+    pass_mismatch: false,
 });
 
 interface RegistrationProps {
@@ -66,6 +70,11 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
     async function onRegister() {
         // @FIXME replace with production url
         const url = "http://localhost:5000/register";
+
+        if (registrationInfo.password !== registrationInfo.confirm_pass) {
+            setRegistrationInfo({...registrationInfo, 'pass_mismatch': true});
+            return;
+        }
 
         setLoading(true);
         // if empty, default to null
@@ -160,6 +169,15 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
         setRegistrationInfo({...registrationInfo, 'fail': false});
     };
 
+
+    const handleMismatchClose =  (event?: SyntheticEvent, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setRegistrationInfo({...registrationInfo, 'pass_mismatch': false});
+    };
+
     const handleDuplicateClose =  (event?: SyntheticEvent, reason?: string) => {
         if (reason === 'clickaway') {
             return;
@@ -201,13 +219,27 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
                     item
                 >
                     <TextField
-                        error={registrationInfo.fail}
+                        error={registrationInfo.fail || registrationInfo.pass_mismatch}
                         required
                         label="Password"
                         type="password"
                         value={registrationInfo.password}
                         className={classes.textField}
                         onChange={onTextFieldChange("password")}
+                        onKeyDown={onKeyDown}
+                    />
+                </Grid>
+                 <Grid
+                    item
+                >
+                    <TextField
+                        error={registrationInfo.fail || registrationInfo.pass_mismatch}
+                        required
+                        label="Confirm Password"
+                        type="password"
+                        value={registrationInfo.confirm_pass}
+                        className={classes.textField}
+                        onChange={onTextFieldChange("confirm_pass")}
                         onKeyDown={onKeyDown}
                     />
                 </Grid>
@@ -264,6 +296,14 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
                     variant="error"
                     message="Email Error, unable to send confirmation email"
                     onClose={handleServerFailClose}
+                />
+            </Snackbar>
+            <Snackbar open={registrationInfo.pass_mismatch}>
+                <SnackbarContentWrapper
+                    open={registrationInfo.pass_mismatch}
+                    variant="error"
+                    message="Passwords do not match"
+                    onClose={handleMismatchClose}
                 />
             </Snackbar>
         </div>

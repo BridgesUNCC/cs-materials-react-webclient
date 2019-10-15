@@ -12,12 +12,14 @@ interface ForgotEntity {
     email: string;
     fail: boolean;
     server_fail: boolean;
+    ok: boolean;
 }
 
 const createEmptyForgot = (): ForgotEntity => ({
     email: "",
     fail: false,
     server_fail: false,
+    ok: false,
 });
 
 
@@ -43,9 +45,10 @@ const useStyles = makeStyles((theme: Theme) =>
 interface ForgotProps {
     updateId: (id: number) => void;
     setLoading: (loading: boolean) => void;
+    openRegister: () => void;
 }
 
-export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading}) => {
+export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading, openRegister}) => {
 
     const classes = useStyles();
     const [forgotInfo, setForgotInfo] = React.useState<ForgotEntity>(
@@ -60,7 +63,35 @@ export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading}) =
 
         setLoading(true);
 
+        let fail = true;
+        let server_fail = false;
+        let cancel = false;
+        let ok = false;
+        try {
+            postJSONData(url, data).then(resp => {
+                console.log(resp);
+                if (resp === undefined) {
+                    console.log("API SERVER ERROR");
+                    fail = false;
+                    server_fail = true;
+                    return;
+                }
+                if (resp['status'] === "OK") {
+                    fail = false;
+                    server_fail = false;
+                    ok = true;
+                }
+            }).finally(() => {
+                if (!cancel) {
+                    setLoading(false);
+                    setForgotInfo({...forgotInfo, 'fail': fail, 'server_fail': server_fail, 'ok': ok});
+                }
+            });
+        } catch (err) {
+            console.log(err);
+        }
     }
+
 
 
 
@@ -85,6 +116,14 @@ export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading}) =
         }
     };
 
+    const handleOKClose =  (event?: SyntheticEvent, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setForgotInfo({...forgotInfo, 'ok': false});
+    };
+
     const handleFailClose =  (event?: SyntheticEvent, reason?: string) => {
         if (reason === 'clickaway') {
             return;
@@ -104,7 +143,71 @@ export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading}) =
 
     return (
         <div>
+            <Grid
+                container
+                direction="column"
+                justify="flex-start"
+            >
+                <Grid
+                    item
+                >
+                    <TextField
+                        error={forgotInfo.fail}
+                        label="Email"
+                        value={forgotInfo.email}
+                        className={classes.textField}
+                        onChange={onTextFieldChange("email")}
+                        onKeyDown={onKeyDown}
+                        autoFocus={true}
+                    />
 
+                </Grid>
+                <Grid
+                    item
+                >
+                    <Button variant="contained" color="primary" onClick={onSubmit}>
+                        Send
+                    </Button>
+                </Grid>
+                <Grid
+                    item
+                >
+                    <Button color="inherit" onClick={openRegister}>
+                        Register
+                    </Button>
+                </Grid>
+                <Grid
+                    item
+                >
+                </Grid>
+
+
+            </Grid>
+            <Snackbar open={forgotInfo.fail}>
+                <SnackbarContentWrapper
+                    open={forgotInfo.fail}
+                    variant="error"
+                    message="email error"
+                    onClose={handleFailClose}
+                />
+            </Snackbar>
+
+            <Snackbar open={forgotInfo.server_fail}>
+                <SnackbarContentWrapper
+                    open={forgotInfo.server_fail}
+                    variant="error"
+                    message="Server Error, contact administrators"
+                    onClose={handleServerFailClose}
+                />
+            </Snackbar>
+            <Snackbar open={forgotInfo.ok}>
+                <SnackbarContentWrapper
+                    open={forgotInfo.ok}
+                    variant="success"
+                    message="Reset Email sent"
+                    onClose={handleOKClose}
+                />
+            </Snackbar>
         </div>
     );
 };

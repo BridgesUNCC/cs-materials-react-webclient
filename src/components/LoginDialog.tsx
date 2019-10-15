@@ -11,6 +11,7 @@ import {
     RouteComponentProps,
 } from "react-router-dom";
 import LinearProgress from "@material-ui/core/LinearProgress";
+import {Forgot} from "./Forgot";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -166,6 +167,11 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                 {registerLogin.loading && <LinearProgress/>}
                 <DialogTitle id="alert-dialog-title">{"Forgot Password"}</DialogTitle>
                 <DialogContent>
+                    <Forgot
+                        updateId={updateId}
+                        setLoading={setLoading}
+                        openRegister={handleRegisterOpen}
+                    />
                 </DialogContent>
             </Dialog>
         </div>
