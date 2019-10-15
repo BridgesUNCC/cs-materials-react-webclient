@@ -1,8 +1,8 @@
 import React from 'react';
 import './App.css';
-import {getData, parseJwt} from './util/util';
+import {getJSONData, parseJwt} from './util/util';
 import {LoginDialog} from "./components/LoginDialog";
-import {AppBar, Button, Grid} from "@material-ui/core";
+import {AppBar, Grid} from "@material-ui/core";
 import {AppBarUserMenu} from "./components/AppBarUserMenu";
 import {Route, Switch} from "react-router";
 
@@ -52,7 +52,7 @@ export class App extends React.Component<Props, AppState> {
     updateUserId = (id: number) => {
         let token = localStorage.getItem("access_token");
 
-        getData("http://localhost:5000/user/" + id + "/meta", {"Authorization": "bearer " + token}).then(
+        getJSONData("http://localhost:5000/user/" + id + "/meta", {"Authorization": "bearer " + token}).then(
             resp => {
                 if (resp['status'] === "Expired") {
                     // TODO do refresh or logout
@@ -72,7 +72,7 @@ export class App extends React.Component<Props, AppState> {
 
     logout = () => {
         let token = localStorage.getItem("access_token");
-        getData("http://localhost:5000/logout", {"Authorization": "bearer " + token}).then (
+        getJSONData("http://localhost:5000/logout", {"Authorization": "bearer " + token}).then (
             resp => {
                 if (resp['status'] === "Expired") {
                     // OK do Nothing

@@ -13,7 +13,7 @@ export function parseJwt(token: string) : JwtPayload | null {
 };
 
 
-export async function postData(url = '', data = {}, auth_header= {}) {
+export async function postJSONData(url = '', data = {}, auth_header= {}) {
   // Default options are marked with *
   const response = await fetch(url, {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -36,8 +36,7 @@ export async function postData(url = '', data = {}, auth_header= {}) {
   }
 }
 
-export async function getData(url = '', auth_header= {}) {
-  // Default options are marked with *
+export async function getJSONData(url = '', auth_header= {}) { // Default options are marked with *
   const response = await fetch(url, {
     method: 'GET', // *GET, POST, PUT, DELETE, etc.
     mode: 'cors', // no-cors, *cors, same-origin

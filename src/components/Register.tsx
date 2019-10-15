@@ -1,7 +1,7 @@
 import React, {FunctionComponent, SyntheticEvent} from "react";
 import {createStyles, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
-import {parseJwt, postData} from "../util/util";
+import {parseJwt, postJSONData} from "../util/util";
 import SnackbarContentWrapper from "./SnackbarContentWrapper";
 import Snackbar from "@material-ui/core/Snackbar";
 import Button from "@material-ui/core/Button";
@@ -82,7 +82,7 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
         let server_fail = false;
         let cancel = false;
         try {
-            postData(url, data).then(resp => {
+            postJSONData(url, data).then(resp => {
                 console.log(resp);
                 if (resp === undefined) {
                     console.log("API SERVER ERROR");
