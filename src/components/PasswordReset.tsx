@@ -64,10 +64,13 @@ interface RegistrationProps {
     openLogin: () => void;
     setLoading: (loading: boolean) => void;
     authQuery: string;
+    apiURL: string;
 }
 
 export const PasswordReset: FunctionComponent<RegistrationProps> = ({openLogin,
-                                                                    authQuery}) => {
+                                                                    authQuery,
+                                                                    apiURL
+                                                                    }) => {
     const classes = useStyles();
     const [resetInfo, setResetInfo] = React.useState<ResetEntity>(
         createEmptyReset()
@@ -76,8 +79,7 @@ export const PasswordReset: FunctionComponent<RegistrationProps> = ({openLogin,
     if (!resetInfo.token_acquired && !resetInfo.token_fetched) {
         setResetInfo({...resetInfo, token_fetched: true, loading: true});
 
-        // TODO production url
-        const url = "http://localhost:5000/reset/token" + authQuery;
+        const url = apiURL + "/reset/token" + authQuery;
 
         let fail = true;
         let server_fail = false;
@@ -130,8 +132,7 @@ export const PasswordReset: FunctionComponent<RegistrationProps> = ({openLogin,
     }
 
     async function onSubmit() {
-        // @FIXME replace with production url
-        const url = "http://localhost:5000/reset";
+        const url = apiURL + "/reset";
 
         if (resetInfo.password !== resetInfo.confirm_pass) {
             setResetInfo({...resetInfo, pass_mismatch: true});

@@ -29,6 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface LoginProps extends RouteComponentProps {
     updateId: (id: number) => void;
+    apiURL: string;
 }
 
 interface RegisterLoginEntity {
@@ -62,13 +63,10 @@ const createInitialEntity = (location: any, loading?: boolean, reset_flash?: boo
 };
 
 
-export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, updateId}) => {
+export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, updateId, apiURL}) => {
     let [registerLogin, updateRegisterLogin] = React.useState(createInitialEntity(location.pathname));
     const classes = useStyles();
     registerLogin = createInitialEntity(location.pathname, registerLogin.loading, registerLogin.reset_flash);
-
-
-
 
 
     const handleLoginFromReset = () => {
@@ -84,6 +82,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
         let new_location = location.pathname.endsWith("/register") ? location.pathname.slice(0, -9) : location.pathname;
         new_location = new_location.endsWith("/forgot") ? new_location.slice(0, -7) : new_location;
         new_location = new_location.endsWith("/reset") ? new_location.slice(0, -6) : new_location;
+        new_location = new_location.endsWith("/confirm") ? new_location.slice(0, -8) : new_location;
         let prepend = new_location.endsWith("/") ? new_location.slice(0, -1) : new_location;
         history.push({
                 pathname: prepend + '/login',
@@ -94,6 +93,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
     const handleRegisterOpen = () => {
         let new_location = location.pathname.endsWith("/login") ? location.pathname.slice(0, -6) : location.pathname;
         new_location = new_location.endsWith("/forgot") ? new_location.slice(0, -7) : new_location;
+        new_location = new_location.endsWith("/confirm") ? new_location.slice(0, -8) : new_location;
         let prepend = new_location.endsWith("/") ? new_location.slice(0, -1) : new_location;
 
         history.push({
@@ -105,6 +105,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
     const handleForgotOpen = () => {
         let new_location = location.pathname.endsWith("/login") ? location.pathname.slice(0, -6) : location.pathname;
         new_location = new_location.endsWith("/register") ? new_location.slice(0, -9) : new_location;
+        new_location = new_location.endsWith("/confirm") ? new_location.slice(0, -8) : new_location;
         let prepend = new_location.endsWith("/") ? new_location.slice(0, -1) : new_location;
 
         history.push({
@@ -118,6 +119,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
         let new_location = location.pathname.endsWith("/login") ? location.pathname.slice(0, -6) : location.pathname;
         new_location = new_location.endsWith("/register") ? new_location.slice(0, -9) : new_location;
         new_location = new_location.endsWith("/forgot") ? new_location.slice(0, -7) : new_location;
+        new_location = new_location.endsWith("/confirm") ? new_location.slice(0, -8) : new_location;
         if (new_location.length === 0) {
             new_location = "/";
         }
@@ -164,6 +166,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                               openLogin={handleLoginOpen}
                               handleDialogClose={handleClose}
                               setLoading={setLoading}
+                              apiURL={apiURL}
                     />
                 </DialogContent>
             </Dialog>
@@ -186,6 +189,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                            openForgot={handleForgotOpen}
                            handleDialogClose={handleClose}
                            setLoading={setLoading}
+                           apiURL={apiURL}
                     />
                 </DialogContent>
             </Dialog>
@@ -202,6 +206,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                         updateId={updateId}
                         setLoading={setLoading}
                         openRegister={handleRegisterOpen}
+                        apiURL={apiURL}
                     />
                 </DialogContent>
 
@@ -219,6 +224,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                         openLogin={handleLoginFromReset}
                         setLoading={setLoading}
                         authQuery={location.search}
+                        apiURL={apiURL}
                     />
                 </DialogContent>
             </Dialog>

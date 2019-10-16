@@ -58,9 +58,10 @@ interface RegistrationProps {
     openLogin: () => void;
     handleDialogClose: () => void;
     setLoading: (loading: boolean) => void;
+    apiURL: string;
 }
 
-export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLogin, handleDialogClose, setLoading}) => {
+export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLogin, handleDialogClose, setLoading, apiURL}) => {
     const classes = useStyles();
     const [registrationInfo, setRegistrationInfo] = React.useState<RegistrationEntity>(
         createEmptyRegistration()
@@ -68,8 +69,7 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
 
 
     async function onRegister() {
-        // @FIXME replace with production url
-        const url = "http://localhost:5000/register";
+        const url = apiURL + "/register";
 
         if (registrationInfo.password !== registrationInfo.confirm_pass) {
             setRegistrationInfo({...registrationInfo, 'pass_mismatch': true});

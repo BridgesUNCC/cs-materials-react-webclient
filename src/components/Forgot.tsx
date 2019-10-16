@@ -1,7 +1,7 @@
 import React, {FunctionComponent, SyntheticEvent} from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import {postJSONData, parseJwt} from "../util/util";
+import {postJSONData} from "../util/util";
 import {createStyles, makeStyles, Theme} from "@material-ui/core";
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContentWrapper from "./SnackbarContentWrapper";
@@ -46,9 +46,10 @@ interface ForgotProps {
     updateId: (id: number) => void;
     setLoading: (loading: boolean) => void;
     openRegister: () => void;
+    apiURL: string;
 }
 
-export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading, openRegister}) => {
+export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading, openRegister, apiURL}) => {
 
     const classes = useStyles();
     const [forgotInfo, setForgotInfo] = React.useState<ForgotEntity>(
@@ -57,7 +58,7 @@ export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading, op
 
 
     async function onSubmit() {
-        const url = "http://localhost:5000/forgot";
+        const url = apiURL + "/forgot";
 
         const data = {"email": forgotInfo.email};
 
