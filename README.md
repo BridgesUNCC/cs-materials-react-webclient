@@ -4,8 +4,9 @@
   ## Soon
   - [x] login/registration
   - [x] routing
-  - [ ] forgot password
-  - [ ] registration validation of email, should this be required or just restrict access?
+  - [x] forgot password
+  - [x] registration validation of email, should this be required or just restrict access?
+    - not sure, but validation flag is there and emails are sent
   - [ ] basic data query to list materials
   - [ ] basic create material form
   - [ ] basic update material form
