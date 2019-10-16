@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from 'react';
+import React, {FunctionComponent, SyntheticEvent} from 'react';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -12,6 +12,9 @@ import {
 } from "react-router-dom";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import {Forgot} from "./Forgot";
+import {PasswordReset} from "./PasswordReset";
+import SnackbarContentWrapper from "./SnackbarContentWrapper";
+import Snackbar from "@material-ui/core/Snackbar";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,15 +36,19 @@ interface RegisterLoginEntity {
     register: boolean;
     forgot: boolean;
     loading: boolean;
+    reset: boolean;
+    reset_flash: boolean;
 }
 
-const createInitialEntity = (location: any, loading?: boolean): RegisterLoginEntity => {
+const createInitialEntity = (location: any, loading?: boolean, reset_flash?: boolean): RegisterLoginEntity => {
     if (typeof location === "string") {
         return {
             login: location.endsWith("/login"),
             register: location.endsWith("/register"),
             forgot: location.endsWith("/forgot"),
-            loading: loading || false
+            loading: loading || false,
+            reset: location.endsWith("/reset"),
+            reset_flash: reset_flash || false,
         };
     }
     return {
@@ -49,6 +56,8 @@ const createInitialEntity = (location: any, loading?: boolean): RegisterLoginEnt
         register: false,
         forgot: false,
         loading: loading || false,
+        reset: false,
+        reset_flash: reset_flash || false,
     };
 };
 
@@ -56,12 +65,25 @@ const createInitialEntity = (location: any, loading?: boolean): RegisterLoginEnt
 export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, updateId}) => {
     let [registerLogin, updateRegisterLogin] = React.useState(createInitialEntity(location.pathname));
     const classes = useStyles();
-    registerLogin = createInitialEntity(location.pathname, registerLogin.loading);
+    registerLogin = createInitialEntity(location.pathname, registerLogin.loading, registerLogin.reset_flash);
 
+
+
+
+
+    const handleLoginFromReset = () => {
+        handleLoginOpen();
+        updateRegisterLogin({
+            ...registerLogin,
+            reset_flash: true,
+        });
+
+    };
 
     const handleLoginOpen = () => {
         let new_location = location.pathname.endsWith("/register") ? location.pathname.slice(0, -9) : location.pathname;
         new_location = new_location.endsWith("/forgot") ? new_location.slice(0, -7) : new_location;
+        new_location = new_location.endsWith("/reset") ? new_location.slice(0, -6) : new_location;
         let prepend = new_location.endsWith("/") ? new_location.slice(0, -1) : new_location;
         history.push({
                 pathname: prepend + '/login',
@@ -105,6 +127,15 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
         );
     };
 
+    const handleResetClose =  (event?: SyntheticEvent, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        updateRegisterLogin({...registerLogin, reset_flash: false});
+    };
+
+
     const setLoading = (loading: boolean) => {
         console.log(loading);
         updateRegisterLogin(
@@ -127,7 +158,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                 aria-describedby="alert-dialog-description"
             >
                 {registerLogin.loading && <LinearProgress/>}
-                <DialogTitle id="alert-dialog-title">{"Register"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"PasswordReset"}</DialogTitle>
                 <DialogContent>
                     <Register updateId={updateId}
                               openLogin={handleLoginOpen}
@@ -173,7 +204,33 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                         openRegister={handleRegisterOpen}
                     />
                 </DialogContent>
+
             </Dialog>
+            <Dialog
+                open={registerLogin.reset}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                {registerLogin.loading && <LinearProgress/>}
+                <DialogTitle id="alert-dialog-title">{"Reset Password"}</DialogTitle>
+                <DialogContent>
+                    <PasswordReset
+                        openLogin={handleLoginFromReset}
+                        setLoading={setLoading}
+                        authQuery={location.search}
+                    />
+                </DialogContent>
+            </Dialog>
+
+            <Snackbar open={registerLogin.reset_flash}>
+                <SnackbarContentWrapper
+                    open={registerLogin.reset_flash}
+                    variant="success"
+                    message="Password Reset, redirected to login"
+                    onClose={handleResetClose}
+                />
+            </Snackbar>
         </div>
 
     );

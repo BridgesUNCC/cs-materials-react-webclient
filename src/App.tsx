@@ -30,6 +30,7 @@ export class App extends React.Component<Props, AppState> {
 
     constructor(props: Props) {
         super(props);
+        // @TODO if token is blacklisted, drop it
         let jwt = localStorage.getItem("access_token");
 
         if (typeof jwt == "string") {
