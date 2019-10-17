@@ -39,9 +39,15 @@ interface RegisterLoginEntity {
     loading: boolean;
     reset: boolean;
     reset_flash: boolean;
+    reset_can_close: boolean;
 }
 
-const createInitialEntity = (location: any, loading?: boolean, reset_flash?: boolean): RegisterLoginEntity => {
+const createInitialEntity = (
+    location: any,
+    loading?: boolean,
+    reset_flash?: boolean,
+    reset_can_close?: boolean
+): RegisterLoginEntity => {
     if (typeof location === "string") {
         return {
             login: location.endsWith("/login"),
@@ -50,6 +56,7 @@ const createInitialEntity = (location: any, loading?: boolean, reset_flash?: boo
             loading: loading || false,
             reset: location.endsWith("/reset"),
             reset_flash: reset_flash || false,
+            reset_can_close: reset_can_close || false,
         };
     }
     return {
@@ -59,6 +66,7 @@ const createInitialEntity = (location: any, loading?: boolean, reset_flash?: boo
         loading: loading || false,
         reset: false,
         reset_flash: reset_flash || false,
+        reset_can_close: reset_can_close || false,
     };
 };
 
@@ -66,16 +74,15 @@ const createInitialEntity = (location: any, loading?: boolean, reset_flash?: boo
 export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, updateId, apiURL}) => {
     let [registerLogin, updateRegisterLogin] = React.useState(createInitialEntity(location.pathname));
     const classes = useStyles();
-    registerLogin = createInitialEntity(location.pathname, registerLogin.loading, registerLogin.reset_flash);
+    registerLogin = createInitialEntity(location.pathname, registerLogin.loading, registerLogin.reset_flash, registerLogin.reset_can_close);
 
 
     const handleLoginFromReset = () => {
-        handleLoginOpen();
         updateRegisterLogin({
             ...registerLogin,
             reset_flash: true,
         });
-
+        handleLoginOpen();
     };
 
     const handleLoginOpen = () => {
@@ -120,6 +127,11 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
         new_location = new_location.endsWith("/register") ? new_location.slice(0, -9) : new_location;
         new_location = new_location.endsWith("/forgot") ? new_location.slice(0, -7) : new_location;
         new_location = new_location.endsWith("/confirm") ? new_location.slice(0, -8) : new_location;
+
+        if (registerLogin.reset_can_close) {
+            new_location = new_location.endsWith("/reset") ? new_location.slice(0, -6) : new_location;
+        }
+
         if (new_location.length === 0) {
             new_location = "/";
         }
@@ -143,9 +155,16 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
         updateRegisterLogin(
             {
                 ...registerLogin,
-                'loading': loading
+                loading: loading
             }
         );
+    };
+
+    const setResetFlag = (flag: boolean) => {
+        updateRegisterLogin({
+            ...registerLogin,
+            reset_can_close: flag,
+        });
     };
 
     return (
@@ -160,7 +179,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                 aria-describedby="alert-dialog-description"
             >
                 {registerLogin.loading && <LinearProgress/>}
-                <DialogTitle id="alert-dialog-title">{"PasswordReset"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"Register"}</DialogTitle>
                 <DialogContent>
                     <Register updateId={updateId}
                               openLogin={handleLoginOpen}
@@ -222,6 +241,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                 <DialogContent>
                     <PasswordReset
                         openLogin={handleLoginFromReset}
+                        setCanClose={setResetFlag}
                         setLoading={setLoading}
                         authQuery={location.search}
                         apiURL={apiURL}

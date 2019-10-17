@@ -2,9 +2,11 @@ import React from 'react';
 import './App.css';
 import {getJSONData, parseJwt} from './util/util';
 import {LoginDialog} from "./components/LoginDialog";
+import {MaterialList} from "./components/MaterialList";
 import {AppBar, Grid} from "@material-ui/core";
 import {AppBarUserMenu} from "./components/AppBarUserMenu";
 import {Route, RouteComponentProps, Switch} from "react-router";
+import Container from "@material-ui/core/Container";
 
 
 interface Props extends RouteComponentProps {
@@ -88,6 +90,12 @@ export class App extends React.Component<Props, AppState> {
         let token = localStorage.getItem("access_token");
         getJSONData(this.state.apiURL + "/logout", {"Authorization": "bearer " + token}).then (
             resp => {
+                if (resp === undefined) {
+                    console.log("API SERVER ERROR");
+                    return;
+                }
+
+
                 if (resp['status'] === "Expired") {
                     // OK do Nothing
                 }
@@ -147,12 +155,9 @@ export class App extends React.Component<Props, AppState> {
     render () {
         return (
             <div className="App">
-                <header className="App-header">
-                </header>
-
                 <Switch>
                     <Route path="/">
-                        <AppBar color="secondary">
+                        <AppBar color="secondary" position="sticky">
                             <Grid
                                 justify="flex-end"
                                 container
@@ -160,10 +165,10 @@ export class App extends React.Component<Props, AppState> {
                             >
                                 <Grid item>
                                     {this.state.userID === null &&
-                                        <Route render={(props) => (
-                                            <LoginDialog {...props} updateId={this.updateUserId} apiURL={this.state.apiURL}/>
-                                        )}
-                                        />
+                                    <Route render={(props) => (
+                                        <LoginDialog {...props} updateId={this.updateUserId} apiURL={this.state.apiURL}/>
+                                    )}
+                                    />
                                     }
                                     {this.state.userID && <AppBarUserMenu logout={this.logout} appState={this.state}/>}
                                 </Grid>
@@ -171,6 +176,12 @@ export class App extends React.Component<Props, AppState> {
                         </AppBar>
                     </Route>
                 </Switch>
+
+                <Container maxWidth="md">
+
+                    <MaterialList/>
+
+                </Container>
             </div>
         );
     }

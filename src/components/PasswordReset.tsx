@@ -62,14 +62,17 @@ const createEmptyReset = (): ResetEntity => {
 
 interface RegistrationProps {
     openLogin: () => void;
+    setCanClose: (flag: boolean) => void;
     setLoading: (loading: boolean) => void;
     authQuery: string;
     apiURL: string;
 }
 
-export const PasswordReset: FunctionComponent<RegistrationProps> = ({openLogin,
-                                                                    authQuery,
-                                                                    apiURL
+export const PasswordReset: FunctionComponent<RegistrationProps> = ({
+                                                                        openLogin,
+                                                                        setCanClose,
+                                                                        authQuery,
+                                                                        apiURL,
                                                                     }) => {
     const classes = useStyles();
     const [resetInfo, setResetInfo] = React.useState<ResetEntity>(
@@ -92,6 +95,7 @@ export const PasswordReset: FunctionComponent<RegistrationProps> = ({openLogin,
                 console.log("API SERVER ERROR");
                 server_fail = true;
                 fail = false;
+                token_acquired_fail = true;
                 return;
             }
 
@@ -99,11 +103,11 @@ export const PasswordReset: FunctionComponent<RegistrationProps> = ({openLogin,
                 if (resp['reason'] === "bad token") {
                     fail = true;
                     used = false;
-                    token_acquired_fail = false;
+                    token_acquired_fail = true;
                 } else {
                     fail = false;
                     used = true;
-                    token_acquired_fail = false;
+                    token_acquired_fail = true;
                 }
             };
 
@@ -119,6 +123,7 @@ export const PasswordReset: FunctionComponent<RegistrationProps> = ({openLogin,
             }
         }).finally(() => {
             console.log(fail);
+            setCanClose(token_acquired_fail);
             setResetInfo({...resetInfo,
                 fail: fail,
                 used: used,
