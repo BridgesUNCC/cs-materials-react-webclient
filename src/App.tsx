@@ -36,8 +36,8 @@ export class App extends React.Component<Props, AppState> {
         let jwt = localStorage.getItem("access_token");
         console.log(this.props.location);
 
-        console.log(process.env.REACT_APP_PRODUCTION_API);
-        let apiURL = process.env.REACT_APP_PRODUCTION_API || "http://localhost:5000";
+        console.log(process.env.REACT_APP_API_URL);
+        let apiURL = process.env.REACT_APP_API_URL || "http://localhost:5000";
         if (this.props.location.pathname.endsWith("/confirm")) {
             this.confirm(apiURL);
         }
@@ -179,7 +179,7 @@ export class App extends React.Component<Props, AppState> {
 
                 <Container maxWidth="md">
 
-                    <MaterialList/>
+                    <MaterialList apiURL={this.state.apiURL}/>
 
                 </Container>
             </div>
