@@ -258,6 +258,8 @@ export class App extends React.Component<Props, AppState> {
                                 when in reality this is just messy way to reuse some logic. I will probably
                                 end up doing this in general when handling multiple snackbar messages
 
+                                 https://stackoverflow.com/a/51977836/11015039
+
                                 Placing this message here in hopes of preventing myself from seeing the NOP and trying
                                 "refactor" which will break the type checker and make it yell at you
                              */
