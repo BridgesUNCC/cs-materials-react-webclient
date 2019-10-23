@@ -268,7 +268,6 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
             </Button>
             <Snackbar open={registrationInfo.fail && !registrationInfo.server_fail}>
                 <SnackbarContentWrapper
-                    open={registrationInfo.fail}
                     variant="error"
                     message="registration failed, email and password required"
                     onClose={handleFailClose}
@@ -276,7 +275,6 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
             </Snackbar>
             <Snackbar open={registrationInfo.duplicate}>
                 <SnackbarContentWrapper
-                    open={registrationInfo.duplicate}
                     variant="error"
                     message="registration failed, email in use"
                     onClose={handleDuplicateClose}
@@ -284,7 +282,6 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
             </Snackbar>
             <Snackbar open={registrationInfo.server_fail}>
                 <SnackbarContentWrapper
-                    open={registrationInfo.server_fail}
                     variant="error"
                     message="Server Error, contact administrators"
                     onClose={handleServerFailClose}
@@ -292,7 +289,6 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
             </Snackbar>
             <Snackbar open={registrationInfo.mail_error}>
                 <SnackbarContentWrapper
-                    open={registrationInfo.mail_error}
                     variant="error"
                     message="Email Error, unable to send confirmation email"
                     onClose={handleServerFailClose}
@@ -300,7 +296,6 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
             </Snackbar>
             <Snackbar open={registrationInfo.pass_mismatch}>
                 <SnackbarContentWrapper
-                    open={registrationInfo.pass_mismatch}
                     variant="error"
                     message="Passwords do not match"
                     onClose={handleMismatchClose}

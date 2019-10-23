@@ -44,7 +44,6 @@ const useStyles1 = makeStyles((theme: Theme) => ({
 }));
 
 export interface Props {
-  open: boolean;
   className?: string;
   message?: string;
   onClose?: () => void;
@@ -53,12 +52,7 @@ export interface Props {
 
 export default function SnackbarContentWrapper(props: Props) {
   const classes = useStyles1();
-  const {open, className, message, onClose, variant, ...other} = props;
-
-
-  if (!open) {
-    return (<div/>);
-  }
+  const {className, message, onClose, variant, ...other} = props;
 
   const Icon = variantIcon[variant];
 

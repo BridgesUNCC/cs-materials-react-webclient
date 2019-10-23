@@ -91,34 +91,35 @@ export class App extends React.Component<Props, AppState> {
         // @TODO flash error
         getJSONData(this.state.api_url + "/user/" + id + "/meta", {"Authorization": "bearer " + token}).then(
             resp => {
-                let ok = false, expired = false, server_fail = false, invalid = false;
+                let ok = false, request_confirm = false, expired = false, server_fail = false, invalid = false;
                 let id_to_set = null;
 
                 console.log(resp);
-                   if (resp === undefined) {
+                if (resp === undefined) {
                     console.log("API SERVER ERROR");
                     server_fail = true;
-                    return;
-                }
+                } else {
 
-                if (resp['status'] === "Expired") {
-                    expired = true;
-                }
-                else if (resp['status'] === "Invalid") {
-                    console.log("was this logging out?");
-                    invalid = true;
-                    return;
-                }
-                else if (resp['status'] === "OK") {
-                    if (!fromStorage) {
-
-                        ok = true;
+                    if (resp['status'] === "Expired") {
+                        expired = true;
+                    } else if (resp['status'] === "Invalid") {
+                        console.log("was this logging out?");
+                        invalid = true;
+                        return;
+                    } else if (resp['status'] === "OK") {
+                        if (!fromStorage) {
+                            if (!fromRegister) {
+                                ok = true;
+                            } else {
+                                request_confirm = true;
+                            }
+                        }
+                        id_to_set = id;
                     }
-                    id_to_set = id;
                 }
 
                 let flags = this.state.snackbar_flags;
-                flags = {...flags, ok, expired, server_fail, invalid,};
+                flags = {...flags, ok, expired, server_fail, invalid, request_confirm};
 
                 this.setState({...this.state, user_id: id_to_set, user_data: resp, snackbar_flags: flags});
                 console.log(id);
@@ -132,20 +133,26 @@ export class App extends React.Component<Props, AppState> {
         let token = localStorage.getItem("access_token");
         getJSONData(this.state.api_url + "/logout", {"Authorization": "bearer " + token}).then (
             resp => {
+                let logged_out = false, server_fail = false;
                 if (resp === undefined) {
                     console.log("API SERVER ERROR");
-                    return;
+                    server_fail = true;
+                } else {
+                    // @FIXME think about if these states affect how true "logout" is
+                    if (resp['status'] === "Expired") {
+                        // OK? flash confirm message anyways?
+                        logged_out = true;
+                    } else if (resp['status'] === "Invalid") {
+                        // OK, strange? flash confirm message anyways?
+                        logged_out = true;
+                    } else if (resp['status'] === "OK") {
+                        logged_out = true;
+                    }
                 }
+                let flags = this.state.snackbar_flags;
+                flags = {...flags, logged_out, server_fail};
 
-
-                if (resp['status'] === "Expired") {
-                    // OK do Nothing
-                }
-                else if (resp['status'] === "Invalid") {
-                    // OK, strange
-                }
-
-                this.setState({user_id: null, user_data: null});
+                this.setState({...this.state, user_id: null, user_data: null, snackbar_flags: flags});
                 localStorage.removeItem("access_token");
                 localStorage.removeItem("super_access_token");
 
@@ -160,9 +167,11 @@ export class App extends React.Component<Props, AppState> {
         // TODO flash some messages depending on state of fetch
         getJSONData(url).then(resp => {
             console.log(resp);
+
+            let ok = false, request_confirm = false, expired = false, server_fail = false, invalid = false;
             if (resp === undefined) {
                 console.log("API SERVER ERROR");
-                return;
+
             }
 
             if (resp['status'] === "Invalid") {
@@ -176,6 +185,7 @@ export class App extends React.Component<Props, AppState> {
             const payload = parseJwt(resp['access_token']);
             if (payload !== null) {
                 if (payload.sub !== null) {
+                    // @TODO, push flag into local storage, that way the constructor can handle the flag for confirm message
                     localStorage.setItem("access_token", resp['access_token']);
                     this.updateUserId(payload.sub);
                     let new_location = this.props.location.pathname.endsWith("/confirm") ?
@@ -239,7 +249,6 @@ export class App extends React.Component<Props, AppState> {
                  */}
                 <Snackbar open={this.state.snackbar_flags.ok}>
                     <SnackbarContentWrapper
-                        open={this.state.snackbar_flags.ok}
                         variant="success"
                         message="Login Successful"
                         onClose={() => {
@@ -259,7 +268,6 @@ export class App extends React.Component<Props, AppState> {
 
                 <Snackbar open={this.state.snackbar_flags.logged_out}>
                     <SnackbarContentWrapper
-                        open={this.state.snackbar_flags.logged_out}
                         variant="success"
                         message="Logged out successfully"
                         onClose={() => this.handleSnackbarClose("logged_out")}
@@ -268,30 +276,41 @@ export class App extends React.Component<Props, AppState> {
 
                 <Snackbar open={this.state.snackbar_flags.confirmed}>
                     <SnackbarContentWrapper
-                        open={this.state.snackbar_flags.confirmed}
-                        variant="error"
-                        message="Session Expired, please login again"
-                        onClose={() => this.handleSnackbarClose("expired")}
+                        variant="success"
+                        message="Email Confirmed"
+                        onClose={() => this.handleSnackbarClose("confirmed")}
+                    />
+                </Snackbar>
+
+                <Snackbar open={this.state.snackbar_flags.request_confirm}>
+                    <SnackbarContentWrapper
+                        variant="info"
+                        message="A confirmation email has been sent, please confirm"
+                        onClose={() => this.handleSnackbarClose("request_confirm")}
                     />
                 </Snackbar>
 
                 <Snackbar open={this.state.snackbar_flags.expired}>
                     <SnackbarContentWrapper
-                        open={this.state.snackbar_flags.expired}
-                        variant="error"
+                        variant="info"
                         message="Session Expired, please login again"
                         onClose={() => this.handleSnackbarClose("expired")}
                     />
                 </Snackbar>
 
-
-
-                <Snackbar open={this.state.snackbar_flags.expired}>
+                <Snackbar open={this.state.snackbar_flags.server_fail}>
                     <SnackbarContentWrapper
-                        open={this.state.snackbar_flags.expired}
                         variant="error"
-                        message="Session Expired, please login again"
-                        onClose={() => this.handleSnackbarClose("expired")}
+                        message="API Error, contact admins"
+                        onClose={() => this.handleSnackbarClose("server_fail")}
+                    />
+                </Snackbar>
+
+                <Snackbar open={this.state.snackbar_flags.invalid}>
+                    <SnackbarContentWrapper
+                        variant="error"
+                        message="Invalid session, please login again"
+                        onClose={() => this.handleSnackbarClose("invalid")}
                     />
                 </Snackbar>
 

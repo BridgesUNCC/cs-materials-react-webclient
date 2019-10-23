@@ -288,9 +288,8 @@ export const PasswordReset: FunctionComponent<RegistrationProps> = ({
                 </Grid>
             </Grid>
             }
-            <Snackbar open={resetInfo.used && !resetInfo.server_fail}>
+            <Snackbar open={resetInfo.used}>
                 <SnackbarContentWrapper
-                    open={resetInfo.used}
                     variant="error"
                     message="Reset token already used, request another password reset to reset again"
                     onClose={handleFailClose}
@@ -298,7 +297,6 @@ export const PasswordReset: FunctionComponent<RegistrationProps> = ({
             </Snackbar>
             <Snackbar open={resetInfo.fail}>
                 <SnackbarContentWrapper
-                    open={resetInfo.fail}
                     variant="error"
                     message="Bad auth token, check url to make sure it is valid"
                     onClose={handleFailClose}
@@ -306,7 +304,6 @@ export const PasswordReset: FunctionComponent<RegistrationProps> = ({
             </Snackbar>
             <Snackbar open={resetInfo.server_fail}>
                 <SnackbarContentWrapper
-                    open={resetInfo.server_fail}
                     variant="error"
                     message="Server Error, contact administrators"
                     onClose={handleServerFailClose}
@@ -314,7 +311,6 @@ export const PasswordReset: FunctionComponent<RegistrationProps> = ({
             </Snackbar>
             <Snackbar open={resetInfo.pass_mismatch}>
                 <SnackbarContentWrapper
-                    open={resetInfo.pass_mismatch}
                     variant="error"
                     message="Passwords do not match"
                     onClose={handleMismatchClose}

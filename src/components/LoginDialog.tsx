@@ -251,7 +251,6 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
 
             <Snackbar open={registerLogin.reset_flash}>
                 <SnackbarContentWrapper
-                    open={registerLogin.reset_flash}
                     variant="success"
                     message="Password Reset, redirected to login"
                     onClose={handleResetClose}

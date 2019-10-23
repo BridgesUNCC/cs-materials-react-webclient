@@ -186,7 +186,6 @@ export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading, op
             </Grid>
             <Snackbar open={forgotInfo.fail}>
                 <SnackbarContentWrapper
-                    open={forgotInfo.fail}
                     variant="error"
                     message="email error"
                     onClose={handleFailClose}
@@ -195,7 +194,6 @@ export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading, op
 
             <Snackbar open={forgotInfo.server_fail}>
                 <SnackbarContentWrapper
-                    open={forgotInfo.server_fail}
                     variant="error"
                     message="Server Error, contact administrators"
                     onClose={handleServerFailClose}
@@ -203,7 +201,6 @@ export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading, op
             </Snackbar>
             <Snackbar open={forgotInfo.ok}>
                 <SnackbarContentWrapper
-                    open={forgotInfo.ok}
                     variant="success"
                     message="Reset Email sent"
                     onClose={handleOKClose}

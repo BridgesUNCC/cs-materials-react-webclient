@@ -204,7 +204,6 @@ export const Login: FunctionComponent<LoginProps> = ({
             </Grid>
             <Snackbar open={loginInfo.fail && !loginInfo.server_fail}>
                 <SnackbarContentWrapper
-                    open={loginInfo.fail}
                     variant="error"
                     message="login failed, check credentials"
                     onClose={handleFailClose}
@@ -213,7 +212,6 @@ export const Login: FunctionComponent<LoginProps> = ({
 
             <Snackbar open={loginInfo.server_fail}>
                 <SnackbarContentWrapper
-                    open={loginInfo.server_fail}
                     variant="error"
                     message="Server Error, contact administrators"
                     onClose={handleServerFailClose}
