@@ -64,10 +64,11 @@ export const MaterialList: FunctionComponent<ListProps> = ({apiURL}) => {
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
             }
-
-            if (resp['status'] === "OK") {
-                const data = resp['data'];
-                setListInfo({...listInfo, fetched: true, materials: data})
+            else {
+                if (resp['status'] === "OK") {
+                    const data = resp['data'];
+                    setListInfo({...listInfo, fetched: true, materials: data})
+                }
             }
         })
     }

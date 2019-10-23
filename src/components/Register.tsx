@@ -54,7 +54,7 @@ const createEmptyRegistration = (): RegistrationEntity => ({
 });
 
 interface RegistrationProps {
-    updateId: (id: number) => void;
+    updateId: (id: number, fromStorage?: boolean, fromRegister?: boolean) => void;
     openLogin: () => void;
     handleDialogClose: () => void;
     setLoading: (loading: boolean) => void;
@@ -119,7 +119,7 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
                     if (payload.sub !== null) {
                         localStorage.setItem("access_token", resp['access_token']);
                         handleDialogClose();
-                        updateId(payload.sub);
+                        updateId(payload.sub, false, true);
                         // cancel state update, as component is going to unmount
                         cancel = true;
                     }

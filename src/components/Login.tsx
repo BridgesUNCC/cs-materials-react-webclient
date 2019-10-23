@@ -27,7 +27,7 @@ interface LoginProps {
     handleDialogClose: () => void;
     setLoading: (loading: boolean) => void;
     openForgot: () => void;
-    apiURL: string;
+    api_url: string;
 }
 
 
@@ -58,7 +58,7 @@ export const Login: FunctionComponent<LoginProps> = ({
                                                          handleDialogClose,
                                                          setLoading,
                                                          openForgot,
-                                                         apiURL,
+                                                         api_url,
                                                      }) => {
     const classes = useStyles();
     const [loginInfo, setLoginInfo] = React.useState<LoginEntity>(
@@ -67,7 +67,7 @@ export const Login: FunctionComponent<LoginProps> = ({
 
     async function onLogin() {
         // @FIXME replace with production url
-        const url = apiURL + "/login";
+        const url = api_url + "/login";
 
         const data = {"email": loginInfo.login, "password": loginInfo.password};
 

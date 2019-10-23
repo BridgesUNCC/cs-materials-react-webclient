@@ -28,8 +28,8 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface LoginProps extends RouteComponentProps {
-    updateId: (id: number) => void;
-    apiURL: string;
+    updateId: (id: number, fromStorage?: boolean, fromRegister?: boolean) => void;
+    api_url: string;
 }
 
 interface RegisterLoginEntity {
@@ -71,7 +71,7 @@ const createInitialEntity = (
 };
 
 
-export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, updateId, apiURL}) => {
+export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, updateId, api_url}) => {
     let [registerLogin, updateRegisterLogin] = React.useState(createInitialEntity(location.pathname));
     const classes = useStyles();
     registerLogin = createInitialEntity(location.pathname, registerLogin.loading, registerLogin.reset_flash, registerLogin.reset_can_close);
@@ -185,7 +185,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                               openLogin={handleLoginOpen}
                               handleDialogClose={handleClose}
                               setLoading={setLoading}
-                              apiURL={apiURL}
+                              apiURL={api_url}
                     />
                 </DialogContent>
             </Dialog>
@@ -208,7 +208,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                            openForgot={handleForgotOpen}
                            handleDialogClose={handleClose}
                            setLoading={setLoading}
-                           apiURL={apiURL}
+                           api_url={api_url}
                     />
                 </DialogContent>
             </Dialog>
@@ -225,7 +225,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                         updateId={updateId}
                         setLoading={setLoading}
                         openRegister={handleRegisterOpen}
-                        apiURL={apiURL}
+                        apiURL={api_url}
                     />
                 </DialogContent>
 
@@ -244,7 +244,7 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                         setCanClose={setResetFlag}
                         setLoading={setLoading}
                         authQuery={location.search}
-                        apiURL={apiURL}
+                        apiURL={api_url}
                     />
                 </DialogContent>
             </Dialog>

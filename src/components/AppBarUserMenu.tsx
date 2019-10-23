@@ -38,7 +38,7 @@ export const AppBarUserMenu: FunctionComponent<Props> = ({logout, appState}) => 
         <div>
             <Button onClick={handleClick} className={classes.margin}>
                 <AccountCircleIcon/>
-                {appState.userData && appState.userData.email}
+                {appState.user_data && appState.user_data.email}
             </Button>
 
             <Menu
