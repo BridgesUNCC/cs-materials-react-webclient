@@ -1,28 +1,22 @@
 import React, {FunctionComponent} from "react";
-import {createStyles, makeStyles, Theme} from "@material-ui/core";
 import {getJSONData} from "../util/util";
-import LinearProgress from "@material-ui/core/LinearProgress";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import List from "@material-ui/core/List";
+import {ListItemLink} from "./ListItemLink";
+import {createStyles, Paper, Theme} from "@material-ui/core";
+import makeStyles from "@material-ui/core/styles/makeStyles";
+import Typography from "@material-ui/core/Typography";
 
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        container: {
-            display: 'flex',
-            flexWrap: 'wrap',
-        },
-        textField: {
-            margin: theme.spacing(2),
-            width: 200,
-        },
-        dense: {
-            marginTop: 19,
-        },
-        menu: {
-            width: 200,
+        root: {
+            padding: theme.spacing(3, 2),
+            margin: theme.spacing(5),
         },
     }),
 );
+
 
 
 interface MaterialEntry {
@@ -44,12 +38,12 @@ const createEmptyEntity = (): ListEntity => {
 };
 
 interface ListProps {
-    apiURL: string;
+    api_url: string;
 }
 
-export const MaterialList: FunctionComponent<ListProps> = ({apiURL}) => {
-
+export const MaterialList: FunctionComponent<ListProps> = ({api_url}) => {
     const classes = useStyles();
+
     const [listInfo, setListInfo] = React.useState<ListEntity>(
         createEmptyEntity()
     );
@@ -57,8 +51,9 @@ export const MaterialList: FunctionComponent<ListProps> = ({apiURL}) => {
     if (!listInfo.fetched) {
         setListInfo({...listInfo, fetched: true});
 
-        const url = apiURL + "/data/list/materials";
+        const url = api_url + "/data/list/materials";
 
+        // @TODO pass in auth token
         getJSONData(url).then(resp => {
             console.log(resp);
             if (resp === undefined) {
@@ -73,14 +68,17 @@ export const MaterialList: FunctionComponent<ListProps> = ({apiURL}) => {
         })
     }
 
-    // @TODO clean up visual style and add links/routes to material page
+    // @Speed @TODO, smart cull entries so rendering doesn't take too long, maybe have a callback that renders more as
+    // user scrolls down?
     let output;
     if (listInfo.materials !== null) {
-        output = listInfo.materials.map((value) => {
+        output = listInfo.materials.map((value, index) => {
+            // @Hack @FIXME cull entries for speed
+            if (index > 250)
+                return null;
+
             return (
-                <li key={value.id}>
-                    {value.title}
-                </li>
+                <ListItemLink primary={value.title} to={"/material/" + value.id} key={value.id}/>
             )
         });
     }
@@ -88,13 +86,17 @@ export const MaterialList: FunctionComponent<ListProps> = ({apiURL}) => {
 
     return (
         <div>
-            {
-                listInfo.materials === null &&
-                    <CircularProgress/>
-            }
-            <ul>
-                {output}
-            </ul>
+            <Paper className={classes.root}>
+                <Typography variant="h5" component="h3">
+                    Results
+                </Typography>
+                {listInfo.materials === null &&
+                <CircularProgress/>
+                }
+                <List>
+                    {output}
+                </List>
+            </Paper>
         </div>
     )
 };

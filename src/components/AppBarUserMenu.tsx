@@ -5,7 +5,7 @@ import {createStyles, Theme} from "@material-ui/core";
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import {AppState} from "../App";
+import {AppEntity} from "../App";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
     logout: () => void;
-    appState: AppState
+    appState: AppEntity
 }
 
 export const AppBarUserMenu: FunctionComponent<Props> = ({logout, appState}) => {
