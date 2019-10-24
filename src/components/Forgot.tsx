@@ -117,30 +117,6 @@ export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading, op
         }
     };
 
-    const handleOKClose =  (event?: SyntheticEvent, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setForgotInfo({...forgotInfo, 'ok': false});
-    };
-
-    const handleFailClose =  (event?: SyntheticEvent, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setForgotInfo({...forgotInfo, 'fail': false});
-    };
-
-    const handleServerFailClose =  (event?: SyntheticEvent, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setForgotInfo({...forgotInfo, 'server_fail': false});
-    };
-
     const handleSnackbarClose =  (name: string, event?: SyntheticEvent, reason?: string) => {
         if (reason === 'clickaway') {
             return;
