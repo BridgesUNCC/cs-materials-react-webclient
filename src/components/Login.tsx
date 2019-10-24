@@ -66,7 +66,6 @@ export const Login: FunctionComponent<LoginProps> = ({
     );
 
     async function onLogin() {
-        // @FIXME replace with production url
         const url = api_url + "/login";
 
         const data = {"email": loginInfo.login, "password": loginInfo.password};

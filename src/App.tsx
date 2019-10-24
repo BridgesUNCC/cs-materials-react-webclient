@@ -13,6 +13,7 @@ import {MaterialOverview} from "./components/MaterialOverview";
 import Button from "@material-ui/core/Button";
 import {Link} from "react-router-dom";
 import makeStyles from "@material-ui/core/styles/makeStyles";
+import {MaterialForm} from "./components/MaterialForm";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -158,12 +159,12 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
         );
 
     };
-    /**
-     *  This may be an anti pattern not sure
-     *
-     *  Basically, do fetch if token is from localStorage and never again
-     */
     if (!appInfo.fetched_initial_data && appInfo.user_id !== null) {
+        /**
+         *  This may be an anti pattern not sure
+         *
+         *  Basically, do fetch if token is from localStorage and never again
+         */
         updateUserId(appInfo.user_id, true)
     }
 
@@ -242,11 +243,10 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
             }
         });
     };
-    /**
-     * This may also be an anti-pattern not sure.
-     */
-
     if (location.pathname.endsWith("/confirm")) {
+        /**
+         * This may also be an anti-pattern not sure.
+         */
         confirm(appInfo.api_url);
     }
 
@@ -295,11 +295,18 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
 
                 <Route exact path="/" render={() => (
-                    <Link to={"/materials"}>
-                        <Button className={classes.margin} variant="contained" color="primary">
-                            To Materials List
-                        </Button>
-                    </Link>
+                    <div>
+                        <Link to={"/materials"}>
+                            <Button className={classes.margin} variant="contained" color="primary">
+                                To Materials List
+                            </Button>
+                        </Link>
+                        <Link to={"/material/create"}>
+                            <Button className={classes.margin} variant="contained" color="primary">
+                                Create Material
+                            </Button>
+                        </Link>
+                    </div>
                 )}
                 />
 
@@ -310,13 +317,35 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 )}
                 />
 
+                <Switch>
+                    <Route exact path="/material/create" render={(route_props) => (
+                        <Container maxWidth="md">
+                            <MaterialForm {...route_props} api_url={appInfo.api_url}/>
+                        </Container>
+                    )}
+                    />
 
-                <Route path="/material/:id" render={(route_props) => (
+                    {/**
+                        Because :id is a string, we need to use a switch to prevent the Overview from rendering
+                        when trying to create a new material
+                     */}
+                    <Route exact path="/material/:id" render={(route_props) => (
+                        <Container maxWidth="md">
+                            <MaterialOverview {...route_props} api_url={appInfo.api_url}/>
+                        </Container>
+                    )}
+                    />
+                </Switch>
+
+                <Route exact path="/material/:id/edit" render={(route_props) => (
                     <Container maxWidth="md">
-                        <MaterialOverview {...route_props} api_url={appInfo.api_url}/>
+                        <MaterialForm {...route_props} api_url={appInfo.api_url}/>
                     </Container>
                 )}
                 />
+
+
+
 
             </Container>
             {/**

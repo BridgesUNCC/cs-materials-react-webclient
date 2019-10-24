@@ -6,15 +6,23 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
+import {Link} from "react-router-dom";
+import Button from "@material-ui/core/Button";
 
 
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
+        margin: {
+            margin: theme.spacing(1),
+            marginLeft: 'auto',
+        },
         root: {
-            padding: theme.spacing(3, 2),
             margin: theme.spacing(3, 2),
         },
+        content: {
+            margin: theme.spacing(0),
+        }
     }),
 );
 
@@ -81,21 +89,34 @@ export const MaterialOverview: FunctionComponent<Props> = (
     }
 
     return (
-        <div className={classes.root}>
-            <Paper>
-                {overviewInfo.data === null ?
-                    <CircularProgress/>
-                    :
-                    <div>
-                        <Typography variant="h5" component="h3">
-                            {overviewInfo.data.title}
-                        </Typography>
-                        <Typography component="p">
-                            {overviewInfo.data.description}
-                        </Typography>
-                    </div>
+        <div>
+            <Link to={"/materials"}>
+                <Button className={classes.margin} variant="contained" color="primary">
+                    back to list
+                </Button>
+            </Link>
+            <div className={classes.root}>
+
+                <Paper>
+                    {overviewInfo.data === null ?
+                        <CircularProgress/>
+                        :
+                        <div>
+                            <Link to={overviewInfo.data.id + "/edit"}>
+                                <Button className={classes.margin} variant="contained" color="primary">
+                                    edit
+                                </Button>
+                            </Link>
+                            <Typography variant="h5" component="h3" className={classes.content}>
+                                {overviewInfo.data.title}
+                            </Typography>
+                            <Typography variant="body1" component="p" className={classes.content} >
+                                {overviewInfo.data.description}
+                            </Typography>
+                        </div>
                     }
-            </Paper>
+                </Paper>
+            </div>
         </div>
     )
 };
