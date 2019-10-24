@@ -211,7 +211,16 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                            api_url={api_url}
                     />
                 </DialogContent>
+
+                <Snackbar open={registerLogin.reset_flash}>
+                    <SnackbarContentWrapper
+                        variant="success"
+                        message="Password Reset, redirected to login"
+                        onClose={handleResetClose}
+                    />
+                </Snackbar>
             </Dialog>
+
             <Dialog
                 open={registerLogin.forgot}
                 onClose={handleClose}
@@ -248,15 +257,6 @@ export const LoginDialog: FunctionComponent<LoginProps> = ({history, location, u
                     />
                 </DialogContent>
             </Dialog>
-
-            <Snackbar open={registerLogin.reset_flash}>
-                <SnackbarContentWrapper
-                    variant="success"
-                    message="Password Reset, redirected to login"
-                    onClose={handleResetClose}
-                />
-            </Snackbar>
         </div>
-
     );
 };

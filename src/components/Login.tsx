@@ -128,20 +128,12 @@ export const Login: FunctionComponent<LoginProps> = ({
         }
     };
 
-    const handleFailClose =  (event?: SyntheticEvent, reason?: string) => {
+       const handleSnackbarClose =  (name: string, event?: SyntheticEvent, reason?: string) => {
         if (reason === 'clickaway') {
             return;
         }
 
-        setLoginInfo({...loginInfo, 'fail': false});
-    };
-
-    const handleServerFailClose =  (event?: SyntheticEvent, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setLoginInfo({...loginInfo, 'server_fail': false});
+        setLoginInfo({...loginInfo, [name]: false});
     };
 
     return (
@@ -202,11 +194,13 @@ export const Login: FunctionComponent<LoginProps> = ({
 
 
             </Grid>
-            <Snackbar open={loginInfo.fail && !loginInfo.server_fail}>
+            <Snackbar open={loginInfo.fail}>
                 <SnackbarContentWrapper
                     variant="error"
                     message="login failed, check credentials"
-                    onClose={handleFailClose}
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("fail", event, reason);
+                    }}
                 />
             </Snackbar>
 
@@ -214,7 +208,9 @@ export const Login: FunctionComponent<LoginProps> = ({
                 <SnackbarContentWrapper
                     variant="error"
                     message="Server Error, contact administrators"
-                    onClose={handleServerFailClose}
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("server_fail", event, reason);
+                    }}
                 />
             </Snackbar>
         </div>

@@ -161,37 +161,12 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
         }
     };
 
-    const handleFailClose =  (event?: SyntheticEvent, reason?: string) => {
+    const handleSnackbarClose =  (name: string, event?: SyntheticEvent, reason?: string) => {
         if (reason === 'clickaway') {
             return;
         }
 
-        setRegistrationInfo({...registrationInfo, 'fail': false});
-    };
-
-
-    const handleMismatchClose =  (event?: SyntheticEvent, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setRegistrationInfo({...registrationInfo, 'pass_mismatch': false});
-    };
-
-    const handleDuplicateClose =  (event?: SyntheticEvent, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setRegistrationInfo({...registrationInfo, 'duplicate': false});
-    };
-
-    const handleServerFailClose =  (event?: SyntheticEvent, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setRegistrationInfo({...registrationInfo, 'server_fail': false});
+        setRegistrationInfo({...registrationInfo, [name]: false});
     };
 
     return (
@@ -266,39 +241,49 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
             <Button color="inherit" onClick={openLogin}>
                 Have an Account? login
             </Button>
-            <Snackbar open={registrationInfo.fail && !registrationInfo.server_fail}>
+            <Snackbar open={registrationInfo.fail}>
                 <SnackbarContentWrapper
                     variant="error"
                     message="registration failed, email and password required"
-                    onClose={handleFailClose}
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("fail", event, reason);
+                    }}
                 />
             </Snackbar>
             <Snackbar open={registrationInfo.duplicate}>
                 <SnackbarContentWrapper
                     variant="error"
                     message="registration failed, email in use"
-                    onClose={handleDuplicateClose}
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("duplicate", event, reason);
+                    }}
                 />
             </Snackbar>
             <Snackbar open={registrationInfo.server_fail}>
                 <SnackbarContentWrapper
                     variant="error"
                     message="Server Error, contact administrators"
-                    onClose={handleServerFailClose}
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("server_fail", event, reason);
+                    }}
                 />
             </Snackbar>
             <Snackbar open={registrationInfo.mail_error}>
                 <SnackbarContentWrapper
                     variant="error"
                     message="Email Error, unable to send confirmation email"
-                    onClose={handleServerFailClose}
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("mail_error", event, reason);
+                    }}
                 />
             </Snackbar>
             <Snackbar open={registrationInfo.pass_mismatch}>
                 <SnackbarContentWrapper
                     variant="error"
                     message="Passwords do not match"
-                    onClose={handleMismatchClose}
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("pass_mismatch", event, reason);
+                    }}
                 />
             </Snackbar>
         </div>

@@ -215,29 +215,12 @@ export const PasswordReset: FunctionComponent<RegistrationProps> = ({
         }
     };
 
-    const handleFailClose =  (event?: SyntheticEvent, reason?: string) => {
+    const handleSnackbarClose =  (name: string, event?: SyntheticEvent, reason?: string) => {
         if (reason === 'clickaway') {
             return;
         }
 
-        setResetInfo({...resetInfo, fail: false, used: false});
-    };
-
-
-    const handleMismatchClose =  (event?: SyntheticEvent, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setResetInfo({...resetInfo, pass_mismatch: false});
-    };
-
-    const handleServerFailClose =  (event?: SyntheticEvent, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setResetInfo({...resetInfo, server_fail: false});
+        setResetInfo({...resetInfo, [name]: false});
     };
 
     return (
@@ -292,28 +275,36 @@ export const PasswordReset: FunctionComponent<RegistrationProps> = ({
                 <SnackbarContentWrapper
                     variant="error"
                     message="Reset token already used, request another password reset to reset again"
-                    onClose={handleFailClose}
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("used", event, reason);
+                    }}
                 />
             </Snackbar>
             <Snackbar open={resetInfo.fail}>
                 <SnackbarContentWrapper
                     variant="error"
                     message="Bad auth token, check url to make sure it is valid"
-                    onClose={handleFailClose}
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("fail", event, reason);
+                    }}
                 />
             </Snackbar>
             <Snackbar open={resetInfo.server_fail}>
                 <SnackbarContentWrapper
                     variant="error"
                     message="Server Error, contact administrators"
-                    onClose={handleServerFailClose}
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("server_fail", event, reason);
+                    }}
                 />
             </Snackbar>
             <Snackbar open={resetInfo.pass_mismatch}>
                 <SnackbarContentWrapper
                     variant="error"
                     message="Passwords do not match"
-                    onClose={handleMismatchClose}
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("pass_mismatch", event, reason);
+                    }}
                 />
             </Snackbar>
         </div>

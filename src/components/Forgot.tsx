@@ -141,6 +141,13 @@ export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading, op
         setForgotInfo({...forgotInfo, 'server_fail': false});
     };
 
+    const handleSnackbarClose =  (name: string, event?: SyntheticEvent, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setForgotInfo({...forgotInfo, [name]: false});
+    };
 
     return (
         <div>
@@ -188,7 +195,9 @@ export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading, op
                 <SnackbarContentWrapper
                     variant="error"
                     message="email error"
-                    onClose={handleFailClose}
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("fail", event, reason);
+                    }}
                 />
             </Snackbar>
 
@@ -196,14 +205,18 @@ export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading, op
                 <SnackbarContentWrapper
                     variant="error"
                     message="Server Error, contact administrators"
-                    onClose={handleServerFailClose}
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("server_fail", event, reason);
+                    }}
                 />
             </Snackbar>
             <Snackbar open={forgotInfo.ok}>
                 <SnackbarContentWrapper
                     variant="success"
                     message="Reset Email sent"
-                    onClose={handleOKClose}
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("ok", event, reason);
+                    }}
                 />
             </Snackbar>
         </div>
