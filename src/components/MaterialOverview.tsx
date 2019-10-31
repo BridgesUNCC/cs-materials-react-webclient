@@ -72,9 +72,9 @@ export const MaterialOverview: FunctionComponent<Props> = (
         setOverviewInfo({...overviewInfo, fetched: true});
 
         const url = api_url + "/data/material/meta?id=" + match.params.id;
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
-        // @TODO pass in auth token
-        getJSONData(url).then(resp => {
+        getJSONData(url, auth).then(resp => {
             console.log(resp);
             if (resp === undefined) {
                 console.log("API SERVER FAIL")

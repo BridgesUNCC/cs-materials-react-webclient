@@ -3,6 +3,7 @@ import './App.css';
 import {getJSONData, parseJwt} from './util/util';
 import {LoginDialog} from "./components/LoginDialog";
 import {MaterialList} from "./components/MaterialList";
+import {UserMaterialList} from "./components/UserMaterialList";
 import {AppBar, createStyles, Grid, Theme} from "@material-ui/core";
 import {AppBarUserMenu} from "./components/AppBarUserMenu";
 import {Route, RouteComponentProps, Switch} from "react-router";
@@ -77,10 +78,11 @@ const createInitialAppEntity = (): AppEntity => {
 
 // @TODO think about State in App
 interface UserData {
-    email: string,
-    name?: string | null,
-    role: string,
-    registered_on: string,
+    email: string;
+    name?: string | null;
+    role: string;
+    registered_on: string;
+    owned_materials: number[];
 }
 
 interface SnackbarFlags {
@@ -282,7 +284,10 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                         )}
                                         />
                                         :
-                                        <AppBarUserMenu logout={logout} appState={appInfo}/>
+                                        <Route render={(props) => (
+                                            <AppBarUserMenu {...props} logout={logout} appState={appInfo}/>
+                                        )}
+                                        />
                                 }
                             </Grid>
                         </Grid>
@@ -310,15 +315,34 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 )}
                 />
 
-                <Route path="/materials" render={() => (
-                    <Container maxWidth="md">
-                        <MaterialList api_url={appInfo.api_url}/>
-                    </Container>
-                )}
-                />
+                <Switch>
+                    <Route path="/materials" render={() => (
+                        <Container maxWidth="md">
+                            <MaterialList api_url={appInfo.api_url}/>
+                        </Container>
+                    )}
+                    />
+                    {appInfo.user_data &&
+                    <Route path="/my_materials" render={() => (
+                        <Container maxWidth="md">
+                            <UserMaterialList api_url={appInfo.api_url}
+                                              user_materials={appInfo.user_data.owned_materials}/>
+                        </Container>
+                    )}
+                    />
+                    }
+                </Switch>
 
                 <Switch>
-                    <Route exact path="/material/create" render={(route_props) => (
+                    <Route path="/material/create" render={(route_props) => (
+                        <Container maxWidth="md">
+                            <MaterialForm {...route_props} api_url={appInfo.api_url}/>
+                        </Container>
+                    )}
+                    />
+
+
+                    <Route exact path="/material/:id/edit" render={(route_props) => (
                         <Container maxWidth="md">
                             <MaterialForm {...route_props} api_url={appInfo.api_url}/>
                         </Container>
@@ -329,7 +353,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         Because :id is a string, we need to use a switch to prevent the Overview from rendering
                         when trying to create a new material
                      */}
-                    <Route exact path="/material/:id" render={(route_props) => (
+                    <Route path="/material/:id" render={(route_props) => (
                         <Container maxWidth="md">
                             <MaterialOverview {...route_props} api_url={appInfo.api_url}/>
                         </Container>
@@ -337,12 +361,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                 </Switch>
 
-                <Route exact path="/material/:id/edit" render={(route_props) => (
-                    <Container maxWidth="md">
-                        <MaterialForm {...route_props} api_url={appInfo.api_url}/>
-                    </Container>
-                )}
-                />
 
 
 

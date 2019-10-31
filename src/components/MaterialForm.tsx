@@ -96,8 +96,8 @@ export const MaterialForm: FunctionComponent<Props> = (
 
         const url = api_url + "/data/material/meta?id=" + match.params.id;
 
-        // @TODO pass in auth token
-        getJSONData(url).then(resp => {
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+        getJSONData(url, auth).then(resp => {
             console.log(resp);
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
@@ -113,12 +113,14 @@ export const MaterialForm: FunctionComponent<Props> = (
 
     async function onSubmit() {
         setFormInfo({...formInfo, posting: true});
-        const url = api_url + "/data/post/entry";
+        const url = api_url + "/data/post/material";
 
         const data = {"data": [formInfo.data]};
 
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+
         //@TODO send Auth token
-        postJSONData(url, data).then(resp => {
+        postJSONData(url, data, auth).then(resp => {
            console.log(resp);
 
            if (resp === undefined) {

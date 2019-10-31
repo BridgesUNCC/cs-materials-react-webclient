@@ -6,6 +6,7 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import {AppEntity} from "../App";
+import {RouteComponentProps} from "react-router";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -16,12 +17,12 @@ const useStyles = makeStyles((theme: Theme) =>
     })
 );
 
-interface Props {
+interface Props extends RouteComponentProps {
     logout: () => void;
     appState: AppEntity
 }
 
-export const AppBarUserMenu: FunctionComponent<Props> = ({logout, appState}) => {
+export const AppBarUserMenu: FunctionComponent<Props> = ({history, location, logout, appState}) => {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const classes = useStyles();
 
@@ -32,6 +33,15 @@ export const AppBarUserMenu: FunctionComponent<Props> = ({logout, appState}) => 
 
     const handleClose = () => {
         setAnchorEl(null);
+    };
+
+    const toMyMaterials = () => {
+        history.push(
+            {
+                pathname: "/my_materials",
+            }
+        );
+        handleClose();
     };
 
     return (
@@ -47,8 +57,7 @@ export const AppBarUserMenu: FunctionComponent<Props> = ({logout, appState}) => 
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
             >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={toMyMaterials}>My materials</MenuItem>
                 <MenuItem onClick={logout}>Logout</MenuItem>
             </Menu>
         </div>
