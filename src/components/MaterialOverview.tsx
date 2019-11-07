@@ -40,8 +40,18 @@ interface Props extends RouteComponentProps<MatchParams> {
 interface MaterialData {
     id: number;
     title: string;
-    description: string
+    description: string;
+    upstream_url: string;
+    tags: TagData[];
 }
+
+interface TagData {
+    id: number;
+    title: string;
+    bloom: string;
+    type: string;
+}
+
 interface OverviewEntity {
     data:  MaterialData | null;
     fetched: boolean;
@@ -98,6 +108,75 @@ export const MaterialOverview: FunctionComponent<Props> = (
         })
     }
 
+    let output;
+    if (overviewInfo.data !== null) {
+        output = (
+            <div>
+                <Typography variant={"h5"}>
+                    Author(s)
+                </Typography>
+                <Typography variant="body1" component="p" className={classes.content} >
+                    {overviewInfo.data.tags.map((value) => {
+                        if (value.type !== "author") {
+                            return null;
+                        }
+
+                        return <li key={value.id}>{value.title}</li>;
+                    })}
+                </Typography>
+                 <Typography variant={"h5"}>
+                    topic(s)
+                </Typography>
+                <Typography variant="body1" component="p" className={classes.content} >
+                    {overviewInfo.data.tags.map((value) => {
+                        if (value.type !== "topic") {
+                            return null;
+                        }
+
+                        return <li key={value.id}>{value.title}</li>;
+                    })}
+                </Typography>
+                 <Typography variant={"h5"}>
+                    programming language(s)
+                </Typography>
+                <Typography variant="body1" component="p" className={classes.content} >
+                    {overviewInfo.data.tags.map((value) => {
+                        if (value.type !== "language") {
+                            return null;
+                        }
+
+                        return <li key={value.id}>{value.title}</li>;
+                    })}
+                </Typography>
+                 <Typography variant={"h5"}>
+                    dataset(s)
+                </Typography>
+                <Typography variant="body1" component="p" className={classes.content} >
+                    {overviewInfo.data.tags.map((value) => {
+                        if (value.type !== "dataset") {
+                            return null;
+                        }
+
+                        return <li key={value.id}>{value.title}</li>;
+                    })}
+                </Typography>
+                 <Typography variant={"h5"}>
+                    ontologies(s)
+                </Typography>
+                <Typography variant="body1" component="ul" className={classes.content} >
+                    {overviewInfo.data.tags.map((value) => {
+                        if (value.type !== "ontology") {
+                            return null;
+                        }
+
+                        return <li key={value.id}>{value.title}</li>;
+                    })}
+                </Typography>
+            </div>
+        )
+
+    }
+
     return (
         <div>
             <Link to={"/materials"}>
@@ -122,9 +201,13 @@ export const MaterialOverview: FunctionComponent<Props> = (
                             <Typography variant="h5" component="h3" className={classes.content}>
                                 {overviewInfo.data.title}
                             </Typography>
+                            <Typography variant="body2" component="p" className={classes.content} >
+                                {overviewInfo.data.upstream_url}
+                            </Typography>
                             <Typography variant="body1" component="p" className={classes.content} >
                                 {overviewInfo.data.description}
                             </Typography>
+                            {output}
                         </div>
                     }
                 </Paper>

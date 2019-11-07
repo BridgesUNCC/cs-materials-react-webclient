@@ -12,6 +12,8 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import Button from "@material-ui/core/Button";
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContentWrapper from "./SnackbarContentWrapper";
+import Chip from '@material-ui/core/Chip';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -48,15 +50,27 @@ interface MaterialData {
     id: number | null;
     title: string;
     description: string
-    instance_of: string
+    instance_of: string;
+    upstream_url: string;
+    tags: TagData[];
 }
+
+interface TagData {
+    id: number;
+    title: string;
+    bloom: string;
+    type: string;
+}
+
 
 const createEmptyData = (): MaterialData => {
   return {
       id: null,
       title: "",
       description: "",
-      instance_of: "material"
+      instance_of: "material",
+      upstream_url: "",
+      tags: [],
   } ;
 };
 
@@ -166,6 +180,32 @@ export const MaterialForm: FunctionComponent<Props> = (
         setFormInfo({...formInfo, [name]: false});
     };
 
+
+    let tags_fields;
+    if (formInfo.data !== null) {
+        tags_fields = (
+            <div style={{ width: 500 }}>
+                <Grid item>
+                <Autocomplete
+                    multiple
+                    options={["thing"]}
+                    renderInput={params => (
+                    <TextField
+                        {...params}
+                        variant="standard"
+                        label="Authors"
+                        placeholder="Authors"
+                        margin="normal"
+                        fullWidth
+                    />
+                )}
+                />
+                </Grid>
+            </div>
+        )
+
+    }
+
     // @TODO, flash error messages for empty title
     return (
         <div className={classes.root}>
@@ -198,6 +238,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                             onChange={onTextFieldChange("description")}
                         />
                         </Grid>
+
+                        {tags_fields}
 
                         <Grid
                             item
