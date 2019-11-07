@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, SyntheticEvent} from "react";
 import {RouteComponentProps} from "react-router";
 import {getJSONData, postJSONData} from "../util/util";
 import {createStyles, Theme} from "@material-ui/core";
@@ -10,6 +10,8 @@ import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Button from "@material-ui/core/Button";
+import Snackbar from '@material-ui/core/Snackbar';
+import SnackbarContentWrapper from "./SnackbarContentWrapper";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -62,6 +64,7 @@ interface FormEntity {
     data:  MaterialData;
     fetched: boolean;
     posting: boolean;
+    fail: boolean;
     new: boolean;
 }
 
@@ -70,6 +73,7 @@ const createEmptyEntity = (location: any): FormEntity => {
         data: createEmptyData(),
         fetched: false,
         posting: false,
+        fail: false,
         new: location.pathname.endsWith("/create"),
     };
 };
@@ -132,7 +136,9 @@ export const MaterialForm: FunctionComponent<Props> = (
                              pathname: "/material/" + id
                          }
                      )
-                }
+                 } else {
+                     setFormInfo({...formInfo, posting: false, fail: true});
+                 }
            }
 
         });
@@ -151,6 +157,14 @@ export const MaterialForm: FunctionComponent<Props> = (
         onUpdateMaterialTextField(field_id, e.currentTarget.value);
     };
 
+
+    const handleSnackbarClose =  (name: string, event?: SyntheticEvent, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setFormInfo({...formInfo, [name]: false});
+    };
 
     // @TODO, flash error messages for empty title
     return (
@@ -196,6 +210,16 @@ export const MaterialForm: FunctionComponent<Props> = (
                     </Grid>
                     }
             </Paper>
+
+            <Snackbar open={formInfo.fail}>
+                <SnackbarContentWrapper
+                    variant="error"
+                    message="submission failed, check credentials"
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("fail", event, reason);
+                    }}
+                />
+            </Snackbar>
         </div>
     )
 };

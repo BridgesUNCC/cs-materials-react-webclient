@@ -33,6 +33,7 @@ interface MatchParams {
 
 interface Props extends RouteComponentProps<MatchParams> {
     api_url: string;
+    force_fetch_data: boolean;
 }
 
 // @TODO finish the rest of the fields
@@ -44,12 +45,14 @@ interface MaterialData {
 interface OverviewEntity {
     data:  MaterialData | null;
     fetched: boolean;
+    can_edit: boolean;
 }
 
 const createEmptyEntity = (): OverviewEntity => {
     return {
         data: null,
         fetched: false,
+        can_edit: false,
     };
 };
 
@@ -59,6 +62,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
         location,
         match,
         api_url,
+        force_fetch_data,
     }
 ) => {
 
@@ -68,7 +72,8 @@ export const MaterialOverview: FunctionComponent<Props> = (
         createEmptyEntity()
     );
 
-    if (!overviewInfo.fetched) {
+    console.log("mat overview");
+    if (!overviewInfo.fetched || force_fetch_data) {
         setOverviewInfo({...overviewInfo, fetched: true});
 
         const url = api_url + "/data/material/meta?id=" + match.params.id;
@@ -81,8 +86,13 @@ export const MaterialOverview: FunctionComponent<Props> = (
             }
               else {
                 if (resp['status'] === "OK") {
+                    let can_edit = false;
+                    if (resp['access'] === "owner" || resp['access'] === "write") {
+                        can_edit = true;
+                    }
+
                     const data = resp['data'];
-                    setOverviewInfo({...overviewInfo, fetched: true, data})
+                    setOverviewInfo({...overviewInfo, fetched: true, data, can_edit})
                 }
             }
         })
@@ -102,11 +112,13 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         <CircularProgress/>
                         :
                         <div>
-                            <Link to={overviewInfo.data.id + "/edit"}>
-                                <Button className={classes.margin} variant="contained" color="primary">
-                                    edit
-                                </Button>
-                            </Link>
+                            {overviewInfo.can_edit &&
+                                <Link to={overviewInfo.data.id + "/edit"}>
+                                    <Button className={classes.margin} variant="contained" color="primary">
+                                        edit
+                                    </Button>
+                                </Link>
+                            }
                             <Typography variant="h5" component="h3" className={classes.content}>
                                 {overviewInfo.data.title}
                             </Typography>

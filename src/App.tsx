@@ -38,6 +38,7 @@ interface Props extends RouteComponentProps {
 export interface AppEntity {
     user_id: number | null;
     fetched_initial_data: boolean;
+    force_fetch_data: boolean;
     api_url: string;
     user_data?: UserData | any;
     snackbar_flags: SnackbarFlags;
@@ -62,6 +63,7 @@ const createInitialAppEntity = (): AppEntity => {
                     user_id: id,
                     api_url: api_url,
                     fetched_initial_data: false,
+                    force_fetch_data: false,
                     snackbar_flags: snackbar_flags
                 };
             }
@@ -72,6 +74,7 @@ const createInitialAppEntity = (): AppEntity => {
         user_id: null,
         api_url: api_url,
         fetched_initial_data: false,
+        force_fetch_data: false,
         snackbar_flags: snackbar_flags
     };
 };
@@ -115,6 +118,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
         createInitialAppEntity()
     );
 
+
     const updateUserId = (id: number, fromStorage?: boolean, fromRegister?: boolean) => {
         let token = localStorage.getItem("access_token");
 
@@ -131,6 +135,8 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 } else {
 
                     if (resp['status'] === "Expired") {
+                        // clear response so it doesn't store junk data
+                        resp = null;
                         expired = true;
                     } else if (resp['status'] === "Invalid") {
                         console.log("was logging out?");
@@ -153,7 +159,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
                 setAppInfo({
                     ...appInfo, user_id: id_to_set, user_data: resp,
-                    snackbar_flags: flags, fetched_initial_data: true
+                    snackbar_flags: flags, fetched_initial_data: true,
                 });
                 console.log(id);
                 console.log(resp);
@@ -194,9 +200,10 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 let flags = appInfo.snackbar_flags;
                 flags = {...flags, logged_out, server_fail};
 
-                setAppInfo({...appInfo, user_id: null, user_data: null, snackbar_flags: flags});
+                setAppInfo({...appInfo, user_id: null, user_data: null, snackbar_flags: flags,
+                });
                 localStorage.removeItem("access_token");
-                localStorage.removeItem("super_access_token");
+                localStorage.removeItem("super_access_token")
 
                 console.log(resp);
             }
@@ -306,11 +313,13 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 To Materials List
                             </Button>
                         </Link>
+                        {appInfo.user_data &&
                         <Link to={"/material/create"}>
                             <Button className={classes.margin} variant="contained" color="primary">
                                 Create Material
                             </Button>
                         </Link>
+                        }
                     </div>
                 )}
                 />
@@ -342,7 +351,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
 
 
-                    <Route exact path="/material/:id/edit" render={(route_props) => (
+                    <Route path="/material/:id/edit" render={(route_props) => (
                         <Container maxWidth="md">
                             <MaterialForm {...route_props} api_url={appInfo.api_url}/>
                         </Container>
@@ -352,10 +361,13 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     {/**
                         Because :id is a string, we need to use a switch to prevent the Overview from rendering
                         when trying to create a new material
+
+                        @TODO figure out how to tell thing to refetch data on login/logout
                      */}
                     <Route path="/material/:id" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialOverview {...route_props} api_url={appInfo.api_url}/>
+                            <MaterialOverview {...route_props} api_url={appInfo.api_url}
+                                              force_fetch_data={false}/>
                         </Container>
                     )}
                     />

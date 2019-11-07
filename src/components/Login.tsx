@@ -127,7 +127,7 @@ export const Login: FunctionComponent<LoginProps> = ({
         }
     };
 
-       const handleSnackbarClose =  (name: string, event?: SyntheticEvent, reason?: string) => {
+    const handleSnackbarClose =  (name: string, event?: SyntheticEvent, reason?: string) => {
         if (reason === 'clickaway') {
             return;
         }
