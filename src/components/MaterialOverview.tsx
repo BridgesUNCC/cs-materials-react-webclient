@@ -102,6 +102,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                     }
 
                     const data = resp['data'];
+                    console.log(resp);
                     setOverviewInfo({...overviewInfo, fetched: true, data, can_edit})
                 }
             }
@@ -109,7 +110,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
     }
 
     let output;
-    if (overviewInfo.data !== null) {
+    if (overviewInfo.data) {
         output = (
             <div>
                 <Typography variant={"h5"}>

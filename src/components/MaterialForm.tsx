@@ -62,7 +62,6 @@ interface TagData {
     type: string;
 }
 
-
 const createEmptyData = (): MaterialData => {
   return {
       id: null,
@@ -183,18 +182,36 @@ export const MaterialForm: FunctionComponent<Props> = (
 
     let tags_fields;
     if (formInfo.data !== null) {
+        let tag_lookup: { [tag_type: string]: TagData[]} = {
+            'author': [],
+            'course': [],
+            'language': [],
+            'topic': [],
+        };
+
+        formInfo.data.tags.forEach(tag => {
+            if (tag_lookup[tag.type]) {
+                tag_lookup[tag.type].push(tag);
+            }
+        });
+
+        let author_titles = tag_lookup.author.map(e => e.title);
+        console.log(author_titles)
+        let options = ["thing", "Michael Guerzhoy"];
+
         tags_fields = (
             <div style={{ width: 500 }}>
                 <Grid item>
                 <Autocomplete
                     multiple
-                    options={["thing"]}
+                    options={options}
+                    defaultValue={[options[1]]}
+                    freeSolo
                     renderInput={params => (
                     <TextField
                         {...params}
                         variant="standard"
                         label="Authors"
-                        placeholder="Authors"
                         margin="normal"
                         fullWidth
                     />
