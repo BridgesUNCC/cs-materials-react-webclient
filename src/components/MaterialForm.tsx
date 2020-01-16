@@ -62,6 +62,14 @@ interface TagData {
     type: string;
 }
 
+interface MetaTags {
+    author: TagData[];
+    course: TagData[];
+    language: TagData[];
+    topic: TagData[];
+    dataset: TagData[];
+}
+
 const createEmptyData = (): MaterialData => {
   return {
       id: null,
@@ -73,8 +81,20 @@ const createEmptyData = (): MaterialData => {
   } ;
 };
 
+const createEmptyTags = (): MetaTags => {
+    return {
+        author: [],
+        course: [],
+        language: [],
+        topic: [],
+        dataset: [],
+    }
+};
+
 interface FormEntity {
     data:  MaterialData;
+    meta_tags: MetaTags;
+    tags_fetched: boolean;
     fetched: boolean;
     posting: boolean;
     fail: boolean;
@@ -84,6 +104,8 @@ interface FormEntity {
 const createEmptyEntity = (location: any): FormEntity => {
     return {
         data: createEmptyData(),
+        meta_tags: createEmptyTags(),
+        tags_fetched: false,
         fetched: false,
         posting: false,
         fail: false,
@@ -107,10 +129,24 @@ export const MaterialForm: FunctionComponent<Props> = (
     );
 
 
+    if (!formInfo.tags_fetched) {
+        const url = api_url + "/data/meta_tags";
 
-    if (!formInfo.fetched && !formInfo.new) {
-        setFormInfo({...formInfo, fetched: true});
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+        getJSONData(url, auth).then(resp => {
+           console.log(resp);
+           if (resp === undefined) {
+                console.log("API SERVER FAIL")
+           } else {
+               if (resp['status'] === "OK") {
+                   const meta_tags = resp['data'];
+                   setFormInfo({...formInfo, tags_fetched: true, meta_tags})
+               }
+           }
+        });
+    }
 
+    if (formInfo.tags_fetched && !formInfo.fetched && !formInfo.new) {
         const url = api_url + "/data/material/meta?id=" + match.params.id;
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
@@ -181,12 +217,13 @@ export const MaterialForm: FunctionComponent<Props> = (
 
 
     let tags_fields;
-    if (formInfo.data !== null) {
+    if (formInfo.fetched) {
         let tag_lookup: { [tag_type: string]: TagData[]} = {
             'author': [],
             'course': [],
             'language': [],
             'topic': [],
+            'dataset': [],
         };
 
         formInfo.data.tags.forEach(tag => {
@@ -195,17 +232,39 @@ export const MaterialForm: FunctionComponent<Props> = (
             }
         });
 
-        let author_titles = tag_lookup.author.map(e => e.title);
-        console.log(author_titles)
-        let options = ["thing", "Michael Guerzhoy"];
+        let default_authors = tag_lookup.author.map(e => {
+            return formInfo.meta_tags.author.find(ref => ref.id === e.id);
+        });
+
+        let default_courses = tag_lookup.course.map(e => {
+            return formInfo.meta_tags.course.find(ref => ref.id === e.id);
+        });
+
+        let default_languages = tag_lookup.language.map(e => {
+            return formInfo.meta_tags.language.find(ref => ref.id === e.id);
+        });
+
+        let default_topics = tag_lookup.topic.map(e => {
+            return formInfo.meta_tags.topic.find(ref => ref.id === e.id);
+        });
+
+        let default_datasets = tag_lookup.dataset.map(e => {
+            return formInfo.meta_tags.dataset.find(ref => ref.id === e.id);
+        });
 
         tags_fields = (
             <div style={{ width: 500 }}>
                 <Grid item>
                 <Autocomplete
                     multiple
-                    options={options}
-                    defaultValue={[options[1]]}
+                    options={formInfo.meta_tags.author}
+                    defaultValue={default_authors}
+                    getOptionLabel={option => {
+                            if (option.title !== undefined)
+                                return option.title;
+
+                            return option;
+                        }}
                     freeSolo
                     renderInput={params => (
                     <TextField
@@ -218,7 +277,107 @@ export const MaterialForm: FunctionComponent<Props> = (
                 )}
                 />
                 </Grid>
+
+                <Grid item>
+                    <Autocomplete
+                        multiple
+                        options={formInfo.meta_tags.course}
+                        defaultValue={default_courses}
+                        getOptionLabel={option => {
+                            if (option.title !== undefined)
+                                return option.title;
+
+                            return option;
+                        }}
+                        freeSolo
+                        renderInput={params => (
+                            <TextField
+                                {...params}
+                                variant="standard"
+                                label="Courses"
+                                margin="normal"
+                                fullWidth
+                            />
+                        )}
+                    />
+                </Grid>
+
+                <Grid item>
+                    <Autocomplete
+                        multiple
+                        options={formInfo.meta_tags.language}
+                        defaultValue={default_languages}
+                        getOptionLabel={option => {
+                            if (option.title !== undefined)
+                                return option.title;
+
+                            return option;
+                        }}
+                        freeSolo
+                        renderInput={params => (
+                            <TextField
+                                {...params}
+                                variant="standard"
+                                label="Programming Languagess"
+                                margin="normal"
+                                fullWidth
+                            />
+                        )}
+                    />
+                </Grid>
+
+
+                <Grid item>
+                    <Autocomplete
+                        multiple
+                        options={formInfo.meta_tags.topic}
+                        defaultValue={default_topics}
+                        getOptionLabel={option => {
+                            if (option.title !== undefined)
+                                return option.title;
+
+                            return option;
+                        }}
+                        freeSolo
+                        renderInput={params => (
+                            <TextField
+                                {...params}
+                                variant="standard"
+                                label="Topics"
+                                margin="normal"
+                                fullWidth
+                            />
+                        )}
+                    />
+                </Grid>
+
+                <Grid item>
+                    <Autocomplete
+                        multiple
+                        options={formInfo.meta_tags.dataset}
+                        defaultValue={default_datasets}
+                        getOptionLabel={option => {
+                            if (option.title !== undefined)
+                                return option.title;
+
+                            return option;
+                        }}
+                        freeSolo
+                        renderInput={params => (
+                            <TextField
+                                {...params}
+                                variant="standard"
+                                label="Datasets"
+                                margin="normal"
+                                fullWidth
+                            />
+                        )}
+                    />
+                </Grid>
+
             </div>
+
+
         )
 
     }
