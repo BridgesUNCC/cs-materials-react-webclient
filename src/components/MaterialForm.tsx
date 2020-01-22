@@ -93,6 +93,7 @@ const createEmptyTags = (): MetaTags => {
 
 interface FormEntity {
     data:  MaterialData;
+    temp_tags: MetaTags;
     meta_tags: MetaTags;
     tags_fetched: boolean;
     fetched: boolean;
@@ -104,6 +105,7 @@ interface FormEntity {
 const createEmptyEntity = (location: any): FormEntity => {
     return {
         data: createEmptyData(),
+        temp_tags: createEmptyTags(),
         meta_tags: createEmptyTags(),
         tags_fetched: false,
         fetched: false,
@@ -194,6 +196,20 @@ export const MaterialForm: FunctionComponent<Props> = (
 
     }
 
+    let tag_map: { [tag_type: string]: TagData[]} = {
+            'author': formInfo.temp_tags.author,
+            'course': formInfo.temp_tags.course,
+            'language': formInfo.temp_tags.language,
+            'topic': formInfo.temp_tags.topic,
+            'dataset': formInfo.temp_tags.dataset,
+    };
+
+    const onTagTextFieldChange = (field_id: string) => (e: any, value: any): void => {
+        console.log(value);
+
+        //@TODO push tag entry into some holder object to be submitted
+
+    };
 
     //@TODO handle the tags... somehow
     const onUpdateMaterialTextField = (name: string, value: string) => {
@@ -218,37 +234,29 @@ export const MaterialForm: FunctionComponent<Props> = (
 
     let tags_fields;
     if (formInfo.fetched) {
-        let tag_lookup: { [tag_type: string]: TagData[]} = {
-            'author': [],
-            'course': [],
-            'language': [],
-            'topic': [],
-            'dataset': [],
-        };
-
         formInfo.data.tags.forEach(tag => {
-            if (tag_lookup[tag.type]) {
-                tag_lookup[tag.type].push(tag);
+            if (tag_map[tag.type]) {
+                tag_map[tag.type].push(tag);
             }
         });
 
-        let default_authors = tag_lookup.author.map(e => {
+        let default_authors = formInfo.temp_tags.author.map(e => {
             return formInfo.meta_tags.author.find(ref => ref.id === e.id);
         });
 
-        let default_courses = tag_lookup.course.map(e => {
+        let default_courses = formInfo.temp_tags.course.map(e => {
             return formInfo.meta_tags.course.find(ref => ref.id === e.id);
         });
 
-        let default_languages = tag_lookup.language.map(e => {
+        let default_languages = formInfo.temp_tags.language.map(e => {
             return formInfo.meta_tags.language.find(ref => ref.id === e.id);
         });
 
-        let default_topics = tag_lookup.topic.map(e => {
+        let default_topics = formInfo.temp_tags.topic.map(e => {
             return formInfo.meta_tags.topic.find(ref => ref.id === e.id);
         });
 
-        let default_datasets = tag_lookup.dataset.map(e => {
+        let default_datasets = formInfo.temp_tags.dataset.map(e => {
             return formInfo.meta_tags.dataset.find(ref => ref.id === e.id);
         });
 
@@ -257,6 +265,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                 <Grid item>
                 <Autocomplete
                     multiple
+                    disableClearable={true}
                     options={formInfo.meta_tags.author}
                     defaultValue={default_authors}
                     getOptionLabel={option => {
@@ -266,6 +275,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                             return option;
                         }}
                     freeSolo
+                    onChange={onTagTextFieldChange("author")}
                     renderInput={params => (
                     <TextField
                         {...params}
@@ -281,6 +291,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                 <Grid item>
                     <Autocomplete
                         multiple
+                        disableClearable={true}
                         options={formInfo.meta_tags.course}
                         defaultValue={default_courses}
                         getOptionLabel={option => {
@@ -305,6 +316,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                 <Grid item>
                     <Autocomplete
                         multiple
+                        disableClearable={true}
                         options={formInfo.meta_tags.language}
                         defaultValue={default_languages}
                         getOptionLabel={option => {
@@ -330,6 +342,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                 <Grid item>
                     <Autocomplete
                         multiple
+                        disableClearable={true}
                         options={formInfo.meta_tags.topic}
                         defaultValue={default_topics}
                         getOptionLabel={option => {
@@ -354,6 +367,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                 <Grid item>
                     <Autocomplete
                         multiple
+                        disableClearable={true}
                         options={formInfo.meta_tags.dataset}
                         defaultValue={default_datasets}
                         getOptionLabel={option => {
