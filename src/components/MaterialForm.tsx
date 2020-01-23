@@ -328,7 +328,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         });
 
         tags_fields = (
-            <div style={{ width: 500 }}>
+            <div>
                 <Grid item>
                 <Autocomplete
                     multiple
@@ -355,6 +355,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                         variant="standard"
                         label="Authors"
                         margin="normal"
+                        className={classes.textArea}
                         fullWidth
                     />
                 )}
@@ -387,6 +388,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 variant="standard"
                                 label="Courses"
                                 margin="normal"
+                                className={classes.textArea}
                                 fullWidth
                             />
                         )}
@@ -420,6 +422,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 variant="standard"
                                 label="Programming Languagess"
                                 margin="normal"
+                                className={classes.textArea}
                                 fullWidth
                             />
                         )}
@@ -454,6 +457,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 variant="standard"
                                 label="Topics"
                                 margin="normal"
+                                className={classes.textArea}
                                 fullWidth
                             />
                         )}
@@ -486,6 +490,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 variant="standard"
                                 label="Datasets"
                                 margin="normal"
+                                className={classes.textArea}
                                 fullWidth
                             />
                         )}
