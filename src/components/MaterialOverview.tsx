@@ -125,6 +125,19 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         return <li key={value.id}>{value.title}</li>;
                     })}
                 </Typography>
+
+                <Typography variant={"h5"}>
+                    Course(s)
+                </Typography>
+                <Typography variant="body1" component="p" className={classes.content} >
+                    {overviewInfo.data.tags.map((value) => {
+                        if (value.type !== "course") {
+                            return null;
+                        }
+
+                        return <li key={value.id}>{value.title}</li>;
+                    })}
+                </Typography>
                  <Typography variant={"h5"}>
                     topic(s)
                 </Typography>

@@ -14,7 +14,6 @@ import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContentWrapper from "./SnackbarContentWrapper";
 import Chip from '@material-ui/core/Chip';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import {type} from "os";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -185,7 +184,29 @@ export const MaterialForm: FunctionComponent<Props> = (
         setFormInfo({...formInfo, posting: true});
         const url = api_url + "/data/post/material";
 
-        const data = {"data": [formInfo.data]};
+        let data_tmp = {...formInfo.data, "instance_of": "material"};
+
+        data_tmp.tags = [];
+
+        Object.entries(tag_map).forEach(([key, value]) => {
+            let vals = value.map(e => {
+                if (typeof e !== "string")
+                    return e;
+
+                let ret: TagData = {
+                    title: e,
+                    type: key,
+                    id: -1,
+                    bloom: "",
+                };
+
+                return ret;
+            });
+
+            vals.forEach(e => data_tmp.tags.push(e));
+        });
+
+        const data = {"data": [data_tmp]};
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
