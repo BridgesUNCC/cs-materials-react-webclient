@@ -167,6 +167,11 @@ export const MaterialForm: FunctionComponent<Props> = (
             } else {
                 if (resp['status'] === "OK") {
                     const data = resp['data'];
+
+                    //@HACK somehow this logic  gets hit twice after a refresh, this clears some annoying behavior
+                    Object.values(tag_map).forEach(val => val.length = 0);
+
+                    // Push values to be displayed as being tags on this material
                     data.tags.forEach((tag: TagData) => {
                         if (tag_map[tag.type]) {
                             tag_map[tag.type].push(tag);
@@ -188,6 +193,8 @@ export const MaterialForm: FunctionComponent<Props> = (
 
         data_tmp.tags = [];
 
+
+        // Compress tag_map back into original data form of array of objects
         Object.entries(tag_map).forEach(([key, value]) => {
             let vals = value.map(e => {
                 if (typeof e !== "string")
@@ -265,7 +272,7 @@ export const MaterialForm: FunctionComponent<Props> = (
 
 
     let tags_fields;
-    if (formInfo.fetched) {
+    if (formInfo.fetched || (formInfo.tags_fetched && formInfo.new)) {
 
         let default_authors = formInfo.temp_tags.author.map(e => {
             if (typeof e === "string")
