@@ -14,6 +14,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContentWrapper from "./SnackbarContentWrapper";
 import Chip from '@material-ui/core/Chip';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import {type} from "os";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -63,11 +64,11 @@ interface TagData {
 }
 
 interface MetaTags {
-    author: TagData[];
-    course: TagData[];
-    language: TagData[];
-    topic: TagData[];
-    dataset: TagData[];
+    author: (TagData | string)[];
+    course: (TagData | string)[];
+    language: (TagData | string)[];
+    topic: (TagData | string)[];
+    dataset: (TagData | string)[];
 }
 
 const createEmptyData = (): MaterialData => {
@@ -130,6 +131,14 @@ export const MaterialForm: FunctionComponent<Props> = (
         createEmptyEntity(location)
     );
 
+    console.log(formInfo.temp_tags);
+    let tag_map: { [tag_type: string]: (TagData | string)[]} = {
+        'author': formInfo.temp_tags.author,
+        'course': formInfo.temp_tags.course,
+        'language': formInfo.temp_tags.language,
+        'topic': formInfo.temp_tags.topic,
+        'dataset': formInfo.temp_tags.dataset,
+    };
 
     if (!formInfo.tags_fetched) {
         const url = api_url + "/data/meta_tags";
@@ -159,6 +168,12 @@ export const MaterialForm: FunctionComponent<Props> = (
             } else {
                 if (resp['status'] === "OK") {
                     const data = resp['data'];
+                    data.tags.forEach((tag: TagData) => {
+                        if (tag_map[tag.type]) {
+                            tag_map[tag.type].push(tag);
+                        }
+                    });
+
                     setFormInfo({...formInfo, fetched: true, data})
                 }
             }
@@ -196,18 +211,14 @@ export const MaterialForm: FunctionComponent<Props> = (
 
     }
 
-    let tag_map: { [tag_type: string]: TagData[]} = {
-            'author': formInfo.temp_tags.author,
-            'course': formInfo.temp_tags.course,
-            'language': formInfo.temp_tags.language,
-            'topic': formInfo.temp_tags.topic,
-            'dataset': formInfo.temp_tags.dataset,
-    };
+
 
     const onTagTextFieldChange = (field_id: string) => (e: any, value: any): void => {
         console.log(value);
-
-        //@TODO push tag entry into some holder object to be submitted
+        let fields = formInfo.temp_tags;
+        fields = {...fields, [field_id]: value};
+        console.log(fields);
+        setFormInfo({...formInfo, temp_tags: fields});
 
     };
 
@@ -234,30 +245,65 @@ export const MaterialForm: FunctionComponent<Props> = (
 
     let tags_fields;
     if (formInfo.fetched) {
-        formInfo.data.tags.forEach(tag => {
-            if (tag_map[tag.type]) {
-                tag_map[tag.type].push(tag);
-            }
-        });
 
         let default_authors = formInfo.temp_tags.author.map(e => {
-            return formInfo.meta_tags.author.find(ref => ref.id === e.id);
+            if (typeof e === "string")
+                return e;
+
+            return formInfo.meta_tags.author.find(ref => {
+                if (typeof ref ==="string" )
+                    return false;
+
+                return ref.id === e.id;
+            });
         });
 
         let default_courses = formInfo.temp_tags.course.map(e => {
-            return formInfo.meta_tags.course.find(ref => ref.id === e.id);
+            if (typeof e === "string")
+                return e;
+
+            return formInfo.meta_tags.course.find(ref => {
+                if (typeof ref ==="string" )
+                    return false;
+
+                return ref.id === e.id;
+            });
         });
 
         let default_languages = formInfo.temp_tags.language.map(e => {
-            return formInfo.meta_tags.language.find(ref => ref.id === e.id);
+            if (typeof e === "string")
+                return e;
+
+            return formInfo.meta_tags.language.find(ref => {
+                if (typeof ref ==="string" )
+                    return false;
+
+                    return ref.id === e.id;
+            });
         });
 
         let default_topics = formInfo.temp_tags.topic.map(e => {
-            return formInfo.meta_tags.topic.find(ref => ref.id === e.id);
+            if (typeof e === "string")
+                return e;
+
+            return formInfo.meta_tags.topic.find(ref => {
+                if (typeof ref ==="string" )
+                    return false;
+
+                    return ref.id === e.id;
+            });
         });
 
         let default_datasets = formInfo.temp_tags.dataset.map(e => {
-            return formInfo.meta_tags.dataset.find(ref => ref.id === e.id);
+            if (typeof e === "string")
+                return e;
+
+            return formInfo.meta_tags.dataset.find(ref => {
+                if (typeof ref ==="string" )
+                    return false;
+
+                return ref.id === e.id;
+            });
         });
 
         tags_fields = (
@@ -267,12 +313,18 @@ export const MaterialForm: FunctionComponent<Props> = (
                     multiple
                     disableClearable={true}
                     options={formInfo.meta_tags.author}
-                    defaultValue={default_authors}
+                    value={default_authors}
                     getOptionLabel={option => {
+                            if (option === undefined)
+                                return "";
+
+                            if (typeof option === "string")
+                                return option;
+
                             if (option.title !== undefined)
                                 return option.title;
 
-                            return option;
+                            return String(option);
                         }}
                     freeSolo
                     onChange={onTagTextFieldChange("author")}
@@ -293,14 +345,21 @@ export const MaterialForm: FunctionComponent<Props> = (
                         multiple
                         disableClearable={true}
                         options={formInfo.meta_tags.course}
-                        defaultValue={default_courses}
+                        value={default_courses}
                         getOptionLabel={option => {
+                            if (option === undefined)
+                                return "";
+
+                            if (typeof option === "string")
+                                return option;
+
                             if (option.title !== undefined)
                                 return option.title;
 
-                            return option;
+                            return String(option);
                         }}
                         freeSolo
+                        onChange={onTagTextFieldChange("course")}
                         renderInput={params => (
                             <TextField
                                 {...params}
@@ -318,14 +377,22 @@ export const MaterialForm: FunctionComponent<Props> = (
                         multiple
                         disableClearable={true}
                         options={formInfo.meta_tags.language}
-                        defaultValue={default_languages}
+                        value={default_languages}
                         getOptionLabel={option => {
+                            if (option === undefined)
+                                return "";
+
+
+                            if (typeof option === "string")
+                                return option;
+
                             if (option.title !== undefined)
                                 return option.title;
 
-                            return option;
+                            return String(option);
                         }}
                         freeSolo
+                        onChange={onTagTextFieldChange("language")}
                         renderInput={params => (
                             <TextField
                                 {...params}
@@ -344,14 +411,22 @@ export const MaterialForm: FunctionComponent<Props> = (
                         multiple
                         disableClearable={true}
                         options={formInfo.meta_tags.topic}
-                        defaultValue={default_topics}
+                        value={default_topics}
                         getOptionLabel={option => {
+                            if (option === undefined)
+                                return "";
+
+
+                            if (typeof option === "string")
+                                return option;
+
                             if (option.title !== undefined)
                                 return option.title;
 
-                            return option;
+                            return String(option);
                         }}
                         freeSolo
+                        onChange={onTagTextFieldChange("topic")}
                         renderInput={params => (
                             <TextField
                                 {...params}
@@ -369,14 +444,21 @@ export const MaterialForm: FunctionComponent<Props> = (
                         multiple
                         disableClearable={true}
                         options={formInfo.meta_tags.dataset}
-                        defaultValue={default_datasets}
+                        value={default_datasets}
                         getOptionLabel={option => {
+                            if (option === undefined)
+                                return "";
+
+                            if (typeof option === "string")
+                                return option;
+
                             if (option.title !== undefined)
                                 return option.title;
 
-                            return option;
+                            return String(option);
                         }}
                         freeSolo
+                        onChange={onTagTextFieldChange("dataset")}
                         renderInput={params => (
                             <TextField
                                 {...params}
