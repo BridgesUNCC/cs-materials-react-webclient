@@ -3,10 +3,11 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {OntologyTree} from './OntologyTree'
-import {OntologyData} from "../MaterialForm";
+import {OntologyData, TagData} from "../MaterialForm";
 import {AppBar, createStyles, Divider, IconButton, Theme, Toolbar, Typography} from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';
 import {makeStyles} from "@material-ui/core/styles";
+import {on} from "cluster";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -37,10 +38,11 @@ interface Props {
     onClose: () => void;
     api_url: string;
     tree_name: string;
-
+    selected_tags: TagData[];
+    onCheck: (event: React.ChangeEvent<HTMLInputElement>, id: number) => void;
 }
 
-export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, api_url, tree_name}) => {
+export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, api_url, tree_name, selected_tags, onCheck}) => {
     const classes = useStyles();
 
     return (
@@ -62,7 +64,7 @@ export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, api_
                 </Toolbar>
                 </AppBar>
 
-                <OntologyTree api_url={api_url} tree_name={tree_name}/>
+                <OntologyTree api_url={api_url} tree_name={tree_name} selected_tags={selected_tags} onCheck={onCheck}/>
 
 
             </Dialog>

@@ -56,7 +56,7 @@ interface MaterialData {
     tags: TagData[];
 }
 
-interface TagData {
+export interface TagData {
     id: number;
     title: string;
     bloom: string;
@@ -81,6 +81,7 @@ interface MetaTags {
     language: (TagData | string)[];
     topic: (TagData | string)[];
     dataset: (TagData | string)[];
+    ontology: TagData[];
 }
 
 const createEmptyData = (): MaterialData => {
@@ -101,6 +102,7 @@ const createEmptyTags = (): MetaTags => {
         language: [],
         topic: [],
         dataset: [],
+        ontology: []
     }
 };
 
@@ -155,6 +157,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         'language': formInfo.temp_tags.language,
         'topic': formInfo.temp_tags.topic,
         'dataset': formInfo.temp_tags.dataset,
+        'ontology': formInfo.temp_tags.ontology,
     };
 
     if (!formInfo.tags_fetched) {
@@ -299,6 +302,19 @@ export const MaterialForm: FunctionComponent<Props> = (
 
     const treeClose = () => {
         setFormInfo({...formInfo, show_acm: false, show_pdc: false});
+    };
+
+    const onTreeCheckBoxClick = (event: React.ChangeEvent<HTMLInputElement>, id: number) => {
+        let selected = formInfo.temp_tags.ontology;
+        if (event.target.checked)
+            selected.push({id, title: "", type: "", bloom: ""});
+        else {
+            selected = selected.filter(e => e.id !== id);
+        }
+
+        let tags = formInfo.temp_tags;
+        tags.ontology = selected;
+        setFormInfo({...formInfo, temp_tags: tags});
     };
 
 
@@ -583,7 +599,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                         >
                             <Button  className={classes.margin}
                                 variant="contained" color="primary" onClick={() => {treeOpen("acm_2013")}}>
-                                ACM 2013
+                                ACM CSC 2013
                             </Button>
                              <Button  className={classes.margin}
                                 variant="contained" color="primary" onClick={() => {treeOpen("pdc_2012")}}>
@@ -603,8 +619,16 @@ export const MaterialForm: FunctionComponent<Props> = (
                     }
             </Paper>
 
-            <TreeDialog open={formInfo.show_acm} title={"ACM 2013"} onClose={treeClose} api_url={api_url} tree_name={"acm"}/>
-            <TreeDialog open={formInfo.show_pdc} title={"PDC 2012"} onClose={treeClose} api_url={api_url} tree_name={"pdc"}/>
+            <TreeDialog open={formInfo.show_acm} title={"ACM CSC 2013"} onClose={treeClose} api_url={api_url}
+                        tree_name={"acm"}
+                        selected_tags={formInfo.temp_tags.ontology}
+                        onCheck={onTreeCheckBoxClick}
+            />
+            <TreeDialog open={formInfo.show_pdc} title={"PDC 2012"} onClose={treeClose} api_url={api_url}
+                        tree_name={"pdc"}
+                        selected_tags={formInfo.temp_tags.ontology}
+                        onCheck={onTreeCheckBoxClick}
+            />
 
             <Snackbar open={formInfo.fail}>
                 <SnackbarContentWrapper
