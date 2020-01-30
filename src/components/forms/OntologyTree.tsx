@@ -48,27 +48,31 @@ interface TreeInfo {
     tree: ReactNode;
 }
 
-const createEmptyInfo = (selected: TagData[]): TreeInfo => {
+const createTreeInfo = (selected: TagData[], tree?: ReactNode): TreeInfo => {
+    console.log("new tree");
     return {
         expanded: selected.map(e => String(e.id)),
         checked: selected.map(e => String(e.id)),
         fetched: false,
-        tree: (<CircularProgress/>),
+        tree: tree,
     }
 };
 
 export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, selected_tags, onCheck}) => {
-  const classes = useStyles();
+    const classes = useStyles();
 
-  const [treeInfo, setTreeInfo] = React.useState<TreeInfo>(
-      createEmptyInfo(selected_tags)
-  );
+    console.log(selected_tags);
+    let [treeInfo, setTreeInfo] = React.useState<TreeInfo>(
+        createTreeInfo(selected_tags, (<CircularProgress/>))
+    );
 
-  const handleChange = (event: React.ChangeEvent<{}>, expanded: string[]) => {
-    setTreeInfo({...treeInfo, expanded});
-  };
 
-  const onCheckLocal = (event: React.ChangeEvent<HTMLInputElement>, id: number ) => {
+    const handleChange = (event: React.ChangeEvent<{}>, expanded: string[]) => {
+        console.log(expanded);
+        setTreeInfo({...treeInfo, expanded});
+    };
+
+    const onCheckLocal = (event: React.ChangeEvent<HTMLInputElement>, id: number ) => {
         let selected = treeInfo.checked;
         if (event.target.checked)
             selected.push(String(id));
@@ -76,56 +80,57 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
             selected = selected.filter(e => e !== String(id));
         }
 
+        console.log(treeInfo.expanded);
         setTreeInfo({...treeInfo, checked: selected});
     };
 
-  const createTree = (node: OntologyData, parent_id: number, expanded: string[]): ReactNode => {
-      const label = (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Checkbox
-                  id={`checkbox-${node.id}`}
-                  color="default"
-                  checked={selected_tags.find(e => e.id === node.id) !== undefined}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      onCheckLocal(event, node.id)
-                      onCheck(event, node.id)
-                  }}
-                  onClick={e => (e.stopPropagation())}
-              />
-              <Typography variant="body1">{node.title}</Typography>
-          </div>
-      );
+    const createTree = (node: OntologyData, parent_id: number, expanded: string[]): ReactNode => {
+        const label = (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Checkbox
+                    id={`checkbox-${node.id}`}
+                    color="default"
+                    defaultChecked={treeInfo.checked.find(e => Number(e) === node.id) !== undefined}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                        console.log(event);
+                        onCheck(event, node.id);
+                    }}
+                    onClick={e => (e.stopPropagation())}
+                />
+                <Typography variant="body1">{node.title}</Typography>
+            </div>
+        );
 
-      if (expanded.find(e => Number(e) === node.id) !== undefined &&
-          expanded.find(e => Number(e) === parent_id) === undefined )
-          expanded.push(String(parent_id));
+        if (expanded.find(e => Number(e) === node.id) !== undefined &&
+            expanded.find(e => Number(e) === parent_id) === undefined )
+            expanded.push(String(parent_id));
 
-      if (node.children.length > 0) {
-          let ele = (
-              <div key={node.id}>
-                  <TreeItem nodeId={String(node.id)} key={String(node.id)} label={label}>
-                      { node.children.map(e => createTree(e, node.id, expanded)) }
-                  </TreeItem>
-                  <Divider/>
-              </div>
-          )
+        if (node.children.length > 0) {
+            let ele = (
+                <div key={node.id}>
+                    <TreeItem nodeId={String(node.id)} key={String(node.id)} label={label}>
+                        { node.children.map(e => createTree(e, node.id, expanded)) }
+                    </TreeItem>
+                    <Divider/>
+                </div>
+            )
 
-          if (expanded.find(e => Number(e) === node.id) !== undefined &&
-              expanded.find(e => Number(e) === parent_id) === undefined )
-              expanded.push(String(parent_id));
+            if (expanded.find(e => Number(e) === node.id) !== undefined &&
+                expanded.find(e => Number(e) === parent_id) === undefined )
+                expanded.push(String(parent_id));
 
-          return ele;
-      }
-      else {
-          let ele = (<TreeItem nodeId={String(node.id)} key={String(node.id)} label={label} />)
-          if (expanded.find(e => Number(e) === node.id) !== undefined &&
-              expanded.find(e => Number(e) === parent_id) === undefined )
-              expanded.push(String(parent_id));
+            return ele;
+        }
+        else {
+            let ele = (<TreeItem nodeId={String(node.id)} key={String(node.id)} label={label} />)
+            if (expanded.find(e => Number(e) === node.id) !== undefined &&
+                expanded.find(e => Number(e) === parent_id) === undefined )
+                expanded.push(String(parent_id));
 
-          return  ele;
-      }
+            return  ele;
+        }
 
-  };
+    };
 
     if (!treeInfo.fetched) {
         const url = api_url + "/data/ontology_trees";
@@ -148,15 +153,15 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
         });
     }
 
-  return (
-    <TreeView
-      className={classes.root}
-      defaultCollapseIcon={<ExpandMoreIcon />}
-      defaultExpandIcon={<ChevronRightIcon />}
-      expanded={treeInfo.expanded}
-      onNodeToggle={handleChange}
-    >
-        {treeInfo.tree}
-    </TreeView>
-  );
+    return (
+        <TreeView
+            className={classes.root}
+            defaultCollapseIcon={<ExpandMoreIcon />}
+            defaultExpandIcon={<ChevronRightIcon />}
+            expanded={treeInfo.expanded}
+            onNodeToggle={handleChange}
+        >
+            {treeInfo.tree}
+        </TreeView>
+    );
 };
