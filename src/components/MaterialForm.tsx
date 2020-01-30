@@ -15,6 +15,7 @@ import SnackbarContentWrapper from "./SnackbarContentWrapper";
 import Chip from '@material-ui/core/Chip';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
+import {TreeDialog} from "./forms/TreeDialog";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -557,6 +558,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                     </Grid>
                     }
             </Paper>
+
+            <TreeDialog/>
 
             <Snackbar open={formInfo.fail}>
                 <SnackbarContentWrapper
