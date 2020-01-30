@@ -63,6 +63,18 @@ interface TagData {
     type: string;
 }
 
+export interface OntologyData {
+    id: number;
+    title: string;
+    instance_of: string;
+    children: OntologyData[];
+}
+
+interface OntologyWrapper {
+    acm: OntologyData;
+    pdc: OntologyData;
+}
+
 interface MetaTags {
     author: (TagData | string)[];
     course: (TagData | string)[];
@@ -92,15 +104,35 @@ const createEmptyTags = (): MetaTags => {
     }
 };
 
+const createEmptyOntData = (): OntologyData => {
+    return  {
+        id: -1,
+        title: "",
+        instance_of: "",
+        children: [],
+    }
+};
+
+const createEmptyOntWrapper = (): OntologyWrapper => {
+    return {
+        acm: createEmptyOntData(),
+        pdc: createEmptyOntData(),
+    }
+};
+
 interface FormEntity {
     data:  MaterialData;
     temp_tags: MetaTags;
     meta_tags: MetaTags;
+    ontologies: OntologyWrapper;
     tags_fetched: boolean;
+    ontology_fetched: boolean;
     fetched: boolean;
     posting: boolean;
     fail: boolean;
     new: boolean;
+    show_acm: boolean;
+    show_pdc: boolean;
 }
 
 const createEmptyEntity = (location: any): FormEntity => {
@@ -108,11 +140,15 @@ const createEmptyEntity = (location: any): FormEntity => {
         data: createEmptyData(),
         temp_tags: createEmptyTags(),
         meta_tags: createEmptyTags(),
+        ontologies: createEmptyOntWrapper(),
         tags_fetched: false,
+        ontology_fetched: false,
         fetched: false,
         posting: false,
         fail: false,
         new: location.pathname.endsWith("/create"),
+        show_acm: false,
+        show_pdc: false,
     };
 };
 
@@ -183,6 +219,23 @@ export const MaterialForm: FunctionComponent<Props> = (
                 }
             }
         })
+    }
+
+    if (formInfo.tags_fetched && (formInfo.fetched || formInfo.new) && !formInfo.ontology_fetched) {
+        const url = api_url + "/data/ontology_trees";
+
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+        getJSONData(url, auth).then(resp => {
+            console.log(resp);
+            if (resp === undefined) {
+                console.log("API SERVER FAIL")
+            } else {
+                if (resp['status'] === "OK") {
+                    const ontologies = resp['data'];
+                    setFormInfo({...formInfo, ontology_fetched: true, ontologies})
+                }
+            }
+        });
     }
 
 
@@ -269,6 +322,20 @@ export const MaterialForm: FunctionComponent<Props> = (
         }
 
         setFormInfo({...formInfo, [name]: false});
+    };
+
+    const treeOpen = (tree: string) => {
+        let info = formInfo;
+        if (tree === "acm_2013")
+            info.show_acm = true;
+        else if (tree === "pdc_2012")
+            info.show_pdc = true;
+
+        setFormInfo({...formInfo});
+    };
+
+    const treeClose = () => {
+        setFormInfo({...formInfo, show_acm: false, show_pdc: false});
     };
 
 
@@ -547,6 +614,20 @@ export const MaterialForm: FunctionComponent<Props> = (
 
                         {tags_fields}
 
+
+                        <Grid
+                            item
+                        >
+                            <Button  className={classes.margin}
+                                variant="contained" color="primary" onClick={() => {treeOpen("acm_2013")}}>
+                                ACM 2013
+                            </Button>
+                             <Button  className={classes.margin}
+                                variant="contained" color="primary" onClick={() => {treeOpen("pdc_2012")}}>
+                                 PDC 2012
+                            </Button>
+                        </Grid>
+
                         <Grid
                             item
                         >
@@ -559,7 +640,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                     }
             </Paper>
 
-            <TreeDialog/>
+            <TreeDialog open={formInfo.show_acm} title={"ACM 2013"} onClose={treeClose} data={formInfo.ontologies.acm}/>
+            <TreeDialog open={formInfo.show_pdc} title={"PDC 2012"} onClose={treeClose} data={formInfo.ontologies.pdc}/>
 
             <Snackbar open={formInfo.fail}>
                 <SnackbarContentWrapper

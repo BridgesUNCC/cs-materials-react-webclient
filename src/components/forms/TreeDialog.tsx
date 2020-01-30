@@ -2,23 +2,67 @@ import React, {FunctionComponent} from "react";
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import OntologyTree from './OntologyTree'
+import {OntologyTree} from './OntologyTree'
+import {OntologyData} from "../MaterialForm";
+import {AppBar, createStyles, Divider, IconButton, Theme, Toolbar, Typography} from "@material-ui/core";
+import CloseIcon from '@material-ui/icons/Close';
+import {makeStyles} from "@material-ui/core/styles";
 
-export const TreeDialog: FunctionComponent = () => {
 
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        margin: {
+            margin: theme.spacing(1),
+        },
+        extendedIcon: {
+            marginRight: theme.spacing(1),
+        },
+        root: {
+            flexGrow: 1,
+        },
+        appBar: {
+            position: 'relative',
+        },
+        title: {
+            marginLeft: theme.spacing(2),
+            flex: 1,
+        },
+    }),
+);
+
+
+interface Props {
+    open: boolean;
+    title: string;
+    onClose: () => void;
+    data: OntologyData;
+
+}
+
+export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, data}) => {
+    const classes = useStyles();
 
     return (
         <div>
 
             <Dialog
-                open={true}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
+                open={open}
+                onClose={onClose}
+                fullScreen={true}
             >
-                <DialogTitle id="alert-dialog-title">tree</DialogTitle>
-                <DialogContent>
-                    <OntologyTree/>
-                </DialogContent>
+                <AppBar className={classes.appBar}>
+                <Toolbar>
+                    <IconButton edge="start" color="inherit" onClick={onClose} aria-label="close">
+                        <CloseIcon />
+                    </IconButton>
+                    <Typography variant="h6">
+                        {title}
+                    </Typography>
+                </Toolbar>
+                </AppBar>
+                <Divider />
+
+                <OntologyTree data={data}/>
 
 
 
