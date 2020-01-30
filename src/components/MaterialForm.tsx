@@ -187,7 +187,22 @@ export const MaterialForm: FunctionComponent<Props> = (
            } else {
                if (resp['status'] === "OK") {
                    const meta_tags = resp['data'];
-                   setFormInfo({...formInfo, tags_fetched: true, meta_tags})
+
+                   const url = api_url + "/data/ontology_trees";
+
+                   const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+                   getJSONData(url, auth).then(resp => {
+                       console.log(resp);
+                       if (resp === undefined) {
+                           console.log("API SERVER FAIL")
+                       } else {
+                           if (resp['status'] === "OK") {
+                               const ontologies = resp['data'];
+                               setFormInfo({...formInfo, ontology_fetched: true, tags_fetched: true, meta_tags,
+                                   ontologies})
+                           }
+                       }
+                   });
                }
            }
         });
@@ -219,23 +234,6 @@ export const MaterialForm: FunctionComponent<Props> = (
                 }
             }
         })
-    }
-
-    if (formInfo.tags_fetched && (formInfo.fetched || formInfo.new) && !formInfo.ontology_fetched) {
-        const url = api_url + "/data/ontology_trees";
-
-        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
-        getJSONData(url, auth).then(resp => {
-            console.log(resp);
-            if (resp === undefined) {
-                console.log("API SERVER FAIL")
-            } else {
-                if (resp['status'] === "OK") {
-                    const ontologies = resp['data'];
-                    setFormInfo({...formInfo, ontology_fetched: true, ontologies})
-                }
-            }
-        });
     }
 
 
