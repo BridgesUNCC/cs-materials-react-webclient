@@ -104,29 +104,12 @@ const createEmptyTags = (): MetaTags => {
     }
 };
 
-const createEmptyOntData = (): OntologyData => {
-    return  {
-        id: -1,
-        title: "",
-        instance_of: "",
-        children: [],
-    }
-};
-
-const createEmptyOntWrapper = (): OntologyWrapper => {
-    return {
-        acm: createEmptyOntData(),
-        pdc: createEmptyOntData(),
-    }
-};
 
 interface FormEntity {
     data:  MaterialData;
     temp_tags: MetaTags;
     meta_tags: MetaTags;
-    ontologies: OntologyWrapper;
     tags_fetched: boolean;
-    ontology_fetched: boolean;
     fetched: boolean;
     posting: boolean;
     fail: boolean;
@@ -140,9 +123,7 @@ const createEmptyEntity = (location: any): FormEntity => {
         data: createEmptyData(),
         temp_tags: createEmptyTags(),
         meta_tags: createEmptyTags(),
-        ontologies: createEmptyOntWrapper(),
         tags_fetched: false,
-        ontology_fetched: false,
         fetched: false,
         posting: false,
         fail: false,
@@ -187,22 +168,7 @@ export const MaterialForm: FunctionComponent<Props> = (
            } else {
                if (resp['status'] === "OK") {
                    const meta_tags = resp['data'];
-
-                   const url = api_url + "/data/ontology_trees";
-
-                   const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
-                   getJSONData(url, auth).then(resp => {
-                       console.log(resp);
-                       if (resp === undefined) {
-                           console.log("API SERVER FAIL")
-                       } else {
-                           if (resp['status'] === "OK") {
-                               const ontologies = resp['data'];
-                               setFormInfo({...formInfo, ontology_fetched: true, tags_fetched: true, meta_tags,
-                                   ontologies})
-                           }
-                       }
-                   });
+                   setFormInfo({...formInfo, tags_fetched: true, meta_tags})
                }
            }
         });
@@ -235,7 +201,6 @@ export const MaterialForm: FunctionComponent<Props> = (
             }
         })
     }
-
 
     async function onSubmit() {
         setFormInfo({...formInfo, posting: true});
@@ -638,8 +603,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                     }
             </Paper>
 
-            <TreeDialog open={formInfo.show_acm} title={"ACM 2013"} onClose={treeClose} data={formInfo.ontologies.acm}/>
-            <TreeDialog open={formInfo.show_pdc} title={"PDC 2012"} onClose={treeClose} data={formInfo.ontologies.pdc}/>
+            <TreeDialog open={formInfo.show_acm} title={"ACM 2013"} onClose={treeClose} api_url={api_url} tree_name={"acm"}/>
+            <TreeDialog open={formInfo.show_pdc} title={"PDC 2012"} onClose={treeClose} api_url={api_url} tree_name={"pdc"}/>
 
             <Snackbar open={formInfo.fail}>
                 <SnackbarContentWrapper

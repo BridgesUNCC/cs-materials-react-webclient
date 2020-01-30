@@ -35,11 +35,12 @@ interface Props {
     open: boolean;
     title: string;
     onClose: () => void;
-    data: OntologyData;
+    api_url: string;
+    tree_name: string;
 
 }
 
-export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, data}) => {
+export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, api_url, tree_name}) => {
     const classes = useStyles();
 
     return (
@@ -60,10 +61,8 @@ export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, data
                     </Typography>
                 </Toolbar>
                 </AppBar>
-                <Divider />
 
-                <OntologyTree data={data}/>
-
+                <OntologyTree api_url={api_url} tree_name={tree_name}/>
 
 
             </Dialog>
