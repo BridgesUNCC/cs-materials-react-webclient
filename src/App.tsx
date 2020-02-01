@@ -15,6 +15,7 @@ import Button from "@material-ui/core/Button";
 import {Link} from "react-router-dom";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import {MaterialForm} from "./components/MaterialForm";
+import {HarmonizationView} from "./components/harmonization_matrix/HarmonizationView";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -325,6 +326,12 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 />
 
                 <Switch>
+                    <Route path="/matrix" render={(route_props) => (
+                        <Container maxWidth="md">
+                            <HarmonizationView {...route_props} api_url={appInfo.api_url}/>
+                        </Container>
+                    )}
+                    />
                     <Route path="/materials" render={() => (
                         <Container maxWidth="md">
                             <MaterialList api_url={appInfo.api_url}/>

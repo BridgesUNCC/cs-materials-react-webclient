@@ -210,6 +210,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         const url = api_url + "/data/post/material";
 
         let data_tmp = {...formInfo.data, "instance_of": "material"};
+        console.log(data_tmp);
 
         data_tmp.tags = [];
 
@@ -578,6 +579,15 @@ export const MaterialForm: FunctionComponent<Props> = (
                             value={formInfo.data.title}
                             className={classes.textField}
                             onChange={onTextFieldChange("title")}
+                        />
+                        </Grid>
+
+                        <Grid item>
+                        <TextField
+                            label={"Upstream URL"}
+                            value={formInfo.data.upstream_url === null ? "" : formInfo.data.upstream_url}
+                            className={classes.textField}
+                            onChange={onTextFieldChange("upstream_url")}
                         />
                         </Grid>
 
