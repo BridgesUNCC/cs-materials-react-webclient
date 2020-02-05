@@ -1,14 +1,11 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent,} from "react";
 import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import {OntologyTree} from './OntologyTree'
-import {OntologyData, TagData} from "../MaterialForm";
+import {TagData} from "../MaterialForm";
 import {AppBar, createStyles, Divider, fade, IconButton, Theme, Toolbar, Typography} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import CheckIcon from '@material-ui/icons/Check';
-import InputBase from '@material-ui/core/InputBase';
-import SearchIcon from '@material-ui/icons/Search';
+import {DelayedSearch} from "./DelayedInput";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -97,6 +94,7 @@ export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, api_
     );
 
 
+
     const onTextFieldChange = (field_id: string) => (e: React.ChangeEvent<HTMLInputElement>): void => {
         let fields = viewInfo;
         // @TODO @FIXME Add timeout to prevent state update if user is still writing search term
@@ -104,12 +102,21 @@ export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, api_
         setViewInfo(fields);
     };
 
+    const onDelayedChange = (value: string) => {
+        setViewInfo({search_term: value})
+    };
+
+    const localOnClose = () => {
+        setViewInfo(createEmptyInfo());
+        onClose();
+    };
+
     return (
         <div>
 
             <Dialog
                 open={open}
-                onClose={onClose}
+                onClose={localOnClose}
                 fullScreen={true}
             >
                 <AppBar className={classes.appBar}>
@@ -120,26 +127,13 @@ export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, api_
                     <Typography variant="h6">
                         {title}
                     </Typography>
-                    <div className={classes.search}>
-                        <div className={classes.searchIcon}>
-                            <SearchIcon />
-                        </div>
-                        <InputBase
-                            placeholder="Search…"
-                            classes={{
-                                root: classes.inputRoot,
-                                input: classes.inputInput,
-                            }}
-                            inputProps={{ 'aria-label': 'search' }}
-                            onChange={onTextFieldChange("search_term")}
-                        />
-                    </div>
+                    <DelayedSearch onChange={onDelayedChange} delay={200}/>
+
                 </Toolbar>
                 </AppBar>
 
                 <OntologyTree api_url={api_url} tree_name={tree_name} selected_tags={selected_tags} onCheck={onCheck}
                               search_term={viewInfo.search_term}/>
-
 
             </Dialog>
         </div>

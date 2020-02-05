@@ -6,11 +6,9 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import TreeItem from '@material-ui/lab/TreeItem';
 import {OntologyData, TagData} from "../MaterialForm";
 import makeStyles from "@material-ui/core/styles/makeStyles";
-import {Checkbox, CircularProgress, Divider} from "@material-ui/core";
+import {Box, Checkbox, CircularProgress, Divider} from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import {getJSONData} from "../../util/util";
-import {on} from "cluster";
-import {tree} from "d3-hierarchy";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -30,6 +28,9 @@ const useStyles = makeStyles((theme: Theme) =>
             marginLeft: theme.spacing(2),
             flex: 1,
         },
+        inheritTypography: {
+            fontWeight: "inherit",
+        }
     }),
 );
 
@@ -129,7 +130,10 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
         ReactNode => {
 
         const is_match = search_term.length != 0 && kmpSearch(search_term, node.title) != -1;
-        const variant = is_match ? "h6" : "body1";
+        // @ts-ignore
+        const font_weight = is_match ? "fontWeightBold" : "inherit";
+        const font_style = is_match ? "italic" : "normal";
+        const color = is_match ? "secondary.main" : "text.primary";
 
         const label = (
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -143,7 +147,9 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
                     }}
                     onClick={e => (e.stopPropagation())}
                 />
-                <Typography variant={variant}>{node.title}</Typography>
+                <Box fontWeight={font_weight} fontStyle={font_style} color={color}>
+                    <Typography variant={"body1"} className={classes.inheritTypography}>{node.title}</Typography>
+                </Box>
             </div>
         );
 
