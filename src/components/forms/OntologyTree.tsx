@@ -10,6 +10,7 @@ import {Checkbox, CircularProgress, Divider} from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import {getJSONData} from "../../util/util";
 import {on} from "cluster";
+import {tree} from "d3-hierarchy";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -39,37 +40,76 @@ interface Props {
     tree_name: string;
     selected_tags: TagData[];
     onCheck: (event: React.ChangeEvent<HTMLInputElement>, id: number) => void;
+    search_term: string;
 }
 
 interface TreeInfo {
     expanded: string[];
     checked: string[];
     fetched: boolean;
-    tree: ReactNode;
+    propagate_expand: boolean;
+    ontology: OntologyData | null;
+    search_term: string;
 }
 
-const createTreeInfo = (selected: TagData[], tree?: ReactNode): TreeInfo => {
-    console.log("new tree");
+const createTreeInfo = (selected: TagData[], search_term: string,): TreeInfo => {
     return {
         expanded: selected.map(e => String(e.id)),
         checked: selected.map(e => String(e.id)),
         fetched: false,
-        tree: tree,
+        propagate_expand: true,
+        ontology: null,
+        search_term: search_term
     }
 };
 
-export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, selected_tags, onCheck}) => {
+
+// Searches for the given pattern string in the given text string using the Knuth-Morris-Pratt string matching algorithm.
+// If the pattern is found, this returns the index of the start of the earliest match
+// https://www.nayuki.io/res/knuth-morris-pratt-string-matching/kmp-string-matcher.js
+function kmpSearch(pattern: string, text: string): number {
+    if (pattern.length == 0)
+        return 0; // Immediate match
+
+    // Compute longest suffix-prefix table
+    const lsp = [0]; // Base case
+    for (let i = 1; i < pattern.length; i++) {
+        let j = lsp[i - 1]; // Start by assuming we're extending the previous LSP
+        while (j > 0 && pattern.charAt(i) != pattern.charAt(j))
+            j = lsp[j - 1];
+        if (pattern.charAt(i) == pattern.charAt(j))
+            j++;
+        lsp.push(j);
+    }
+
+    // Walk through text string
+    let j = 0; // Number of chars matched in pattern
+    for (let i = 0; i < text.length; i++) {
+        while (j > 0 && text.charAt(i) != pattern.charAt(j))
+            j = lsp[j - 1]; // Fall back in the pattern
+        if (text.charAt(i) == pattern.charAt(j)) {
+            j++; // Next char matched, increment position
+            if (j == pattern.length)
+                return i - (j - 1);
+        }
+    }
+    return -1; // Not found
+}
+
+
+export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, selected_tags, onCheck, search_term}) => {
     const classes = useStyles();
 
     console.log(selected_tags);
+    console.log(search_term);
     let [treeInfo, setTreeInfo] = React.useState<TreeInfo>(
-        createTreeInfo(selected_tags, (<CircularProgress/>))
+        createTreeInfo(selected_tags, search_term,)
     );
 
 
     const handleChange = (event: React.ChangeEvent<{}>, expanded: string[]) => {
         console.log(expanded);
-        setTreeInfo({...treeInfo, expanded});
+        setTreeInfo({...treeInfo, expanded, propagate_expand: false});
     };
 
     const onCheckLocal = (event: React.ChangeEvent<HTMLInputElement>, id: number ) => {
@@ -84,7 +124,13 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
         setTreeInfo({...treeInfo, checked: selected});
     };
 
-    const createTree = (node: OntologyData, parent_id: number, expanded: string[]): ReactNode => {
+
+    const createTree = (node: OntologyData, parent_id: number, expanded: string[], propagate_expand: boolean):
+        ReactNode => {
+
+        const is_match = search_term.length != 0 && kmpSearch(search_term, node.title) != -1;
+        const variant = is_match ? "h6" : "body1";
+
         const label = (
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Checkbox
@@ -97,34 +143,43 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
                     }}
                     onClick={e => (e.stopPropagation())}
                 />
-                <Typography variant="body1">{node.title}</Typography>
+                <Typography variant={variant}>{node.title}</Typography>
             </div>
         );
 
-        if (expanded.find(e => Number(e) === node.id) !== undefined &&
-            expanded.find(e => Number(e) === parent_id) === undefined )
+        if (
+            is_match ||
+            (
+                propagate_expand &&
+                expanded.find(e => Number(e) === node.id) !== undefined
+            )
+        )
             expanded.push(String(parent_id));
 
         if (node.children.length > 0) {
             let ele = (
                 <div key={node.id}>
                     <TreeItem nodeId={String(node.id)} key={String(node.id)} label={label}>
-                        { node.children.map(e => createTree(e, node.id, expanded)) }
+                        { node.children.map(e => createTree(e, node.id, expanded, propagate_expand)) }
                     </TreeItem>
                     <Divider/>
                 </div>
-            )
+            );
 
-            if (expanded.find(e => Number(e) === node.id) !== undefined &&
-                expanded.find(e => Number(e) === parent_id) === undefined )
+            if (
+                propagate_expand &&
+                expanded.find(e => Number(e) === node.id) !== undefined
+            )
                 expanded.push(String(parent_id));
 
             return ele;
         }
         else {
             let ele = (<TreeItem nodeId={String(node.id)} key={String(node.id)} label={label} />)
-            if (expanded.find(e => Number(e) === node.id) !== undefined &&
-                expanded.find(e => Number(e) === parent_id) === undefined )
+            if (
+                propagate_expand &&
+                expanded.find(e => Number(e) === node.id) !== undefined
+            )
                 expanded.push(String(parent_id));
 
             return  ele;
@@ -146,22 +201,28 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
                     console.log(treeInfo.checked);
 
                     let expanded = treeInfo.expanded;
-                    let tree = createTree(ontology, -1, expanded);
-                    setTreeInfo({...treeInfo, fetched: true, tree, expanded});
+                    setTreeInfo({...treeInfo, ontology, fetched: true, expanded});
                 }
             }
         });
     }
+
+    let expanded = treeInfo.expanded.map(e => e);
+
+    let propagate_expand = treeInfo.search_term != search_term || treeInfo.propagate_expand;
+    console.log("tree redraw");
+    const tree = treeInfo.fetched && treeInfo.ontology !== null ?
+        createTree(treeInfo.ontology, -1, expanded, propagate_expand) : <CircularProgress/>;
 
     return (
         <TreeView
             className={classes.root}
             defaultCollapseIcon={<ExpandMoreIcon />}
             defaultExpandIcon={<ChevronRightIcon />}
-            expanded={treeInfo.expanded}
+            expanded={expanded}
             onNodeToggle={handleChange}
         >
-            {treeInfo.tree}
+            {tree}
         </TreeView>
     );
 };

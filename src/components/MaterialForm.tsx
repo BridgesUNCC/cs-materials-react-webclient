@@ -28,11 +28,11 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         textField: {
             margin: theme.spacing(2),
-            width: 400,
+            width: '70%',
         },
         textArea: {
             margin: theme.spacing(4),
-            width: 500,
+            width: '80%',
         }
     }),
 );

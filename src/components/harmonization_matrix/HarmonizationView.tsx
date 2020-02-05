@@ -30,6 +30,7 @@ interface ViewInfo {
     data: MaterialData[];
     ids: string;
     fetched: boolean;
+    init_fetched: boolean;
 }
 
 interface MaterialData {
@@ -53,6 +54,7 @@ const createEmptyInfo = (): ViewInfo => {
         data: [],
         ids: "",
         fetched: false,
+        init_fetched: false,
     };
 };
 
@@ -73,8 +75,16 @@ export const HarmonizationView: FunctionComponent<Props> = ({
 
     if (!viewInfo.fetched) {
         console.log("pinging");
-        const url = api_url +  "/data/materials" + location.search;
 
+        let ids = "";
+        if (!viewInfo.init_fetched) {
+            ids = location.search.split("ids=")[1];
+        } else {
+            ids = viewInfo.ids;
+        }
+
+        console.log(ids);
+        const url = api_url + "/data/materials?ids=" + ids;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         getJSONData(url, auth).then(resp => {
@@ -85,7 +95,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                 if (resp['status'] === "OK") {
                     const data = resp['data'];
 
-                    setViewInfo({...viewInfo, fetched: true, data})
+                    setViewInfo({...viewInfo, init_fetched: true, fetched: true, data, ids})
                 }
             }
         })
@@ -105,15 +115,15 @@ export const HarmonizationView: FunctionComponent<Props> = ({
         <div>
             {
                 /* Dynamic loading broken
-                           <Paper>
-                               <TextField
-                                   label={"Set of IDs"}
-                                   value={viewInfo.ids}
-                                   className={classes.textField}
-                                   onChange={onTextFieldChange("ids")}
-                               />
-                </Paper>
                  */
+                <Paper>
+                    <TextField
+                        label={"Set of IDs"}
+                        value={viewInfo.ids}
+                        className={classes.textField}
+                        onChange={onTextFieldChange("ids")}
+                    />
+                </Paper>
                 }
             {
                 viewInfo.fetched ?
