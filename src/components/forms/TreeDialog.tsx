@@ -2,10 +2,11 @@ import React, {FunctionComponent,} from "react";
 import Dialog from '@material-ui/core/Dialog';
 import {OntologyTree} from './OntologyTree'
 import {TagData} from "../MaterialForm";
-import {AppBar, createStyles, Divider, fade, IconButton, Theme, Toolbar, Typography} from "@material-ui/core";
+import {AppBar, createStyles, fade, IconButton, Theme, Toolbar, Typography} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
-import CheckIcon from '@material-ui/icons/Check';
 import {DelayedSearch} from "./DelayedInput";
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -93,15 +94,6 @@ export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, api_
         createEmptyInfo()
     );
 
-
-
-    const onTextFieldChange = (field_id: string) => (e: React.ChangeEvent<HTMLInputElement>): void => {
-        let fields = viewInfo;
-        // @TODO @FIXME Add timeout to prevent state update if user is still writing search term
-        fields = {...fields, [field_id]: e.currentTarget.value};
-        setViewInfo(fields);
-    };
-
     const onDelayedChange = (value: string) => {
         setViewInfo({search_term: value})
     };
@@ -122,7 +114,7 @@ export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, api_
                 <AppBar className={classes.appBar}>
                 <Toolbar>
                     <IconButton edge="start" color="inherit" onClick={onClose} aria-label="close">
-                        <CheckIcon/>
+                        <ArrowBackIcon/>
                     </IconButton>
                     <Typography variant="h6">
                         {title}

@@ -1,7 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {createStyles, fade, InputBase, Theme} from "@material-ui/core";
 
-import CheckIcon from '@material-ui/icons/Check';
 import SearchIcon from '@material-ui/icons/Search';
 import {makeStyles} from "@material-ui/core/styles";
 

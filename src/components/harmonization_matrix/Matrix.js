@@ -30,15 +30,14 @@ class Matrix extends Component {
   }
 
   drawMatrix(value){
-    const data = this.props.data;
-    var edgeHash = {}
-    var materialList = []
-    var materials = this.props.data.materials; //materials returned
-    var tags = this.props.data.tags; // tags returned
-    var matrix = [];
-    var xAxisLabels = [];
-    var yAxisLabels = [];
-    var globalTagIDs = [];
+    let edgeHash = {};
+    let materialList = [];
+    let materials = this.props.data.materials; //materials returned
+    let tags = this.props.data.tags; // tags returned
+    let matrix = [];
+    let xAxisLabels = [];
+    let yAxisLabels = [];
+    let globalTagIDs = [];
 
     // iterate over each material and generate an edgehash with id of material and id of tag
     // to compare later for match and fill
@@ -61,10 +60,10 @@ class Matrix extends Component {
         }
       }
       mat["tags"] = tagsArray;
-      materialList.push(mat)
+      materialList.push(mat);
     }
 
-    console.log(edgeHash)
+    console.log(edgeHash);
 
     //iterate over each of the materials and topics to check if covered based on matching
     //ids from the edgeHash
@@ -78,7 +77,7 @@ class Matrix extends Component {
       }
     }
 
-    console.log("matrix: ", matrix)
+    console.log("matrix: ", matrix);
 
     this.svg = d3.select("body")
         .append("svg")
@@ -101,19 +100,18 @@ class Matrix extends Component {
         .style("fill-opacity", function (d) {return 1})
         .on("mouseover", gridOver)
 
-    var scaleSize = materials.length * 25;
-    var xrangeArray = []
+    let xrangeArray = [];
     for(let i = 0; i < xAxisLabels.length; i++){
       xrangeArray.push(i*25 + 12.5);
     }
-    var nameScale = d3.scaleOrdinal().domain(xAxisLabels).range(xrangeArray);
-    var yrangeArray = []
+    let nameScale = d3.scaleOrdinal().domain(xAxisLabels).range(xrangeArray);
+    let yrangeArray = [];
     for(let i = 0; i < yAxisLabels.length; i++){
       yrangeArray.push(i*25 + 12.5);
     }
-    var tagScale = d3.scaleOrdinal().domain(yAxisLabels).range(yrangeArray);
-    var xAxis = d3.axisTop().scale(tagScale)
-    var yAxis = d3.axisLeft().scale(nameScale).ticks(25);
+    let tagScale = d3.scaleOrdinal().domain(yAxisLabels).range(yrangeArray);
+    let xAxis = d3.axisTop().scale(tagScale)
+    let yAxis = d3.axisLeft().scale(nameScale).ticks(25);
     d3.select("#adjacencyG").append("g").call(yAxis);
     d3.select("#adjacencyG").append("g").call(xAxis).selectAll("text").style("text-anchor", "end").attr("transform", "translate(-10,-10) rotate(90)");
 
@@ -123,7 +121,7 @@ class Matrix extends Component {
 
     //do some actions when clicking on a cell
     this.svg.on("click", function(d, i) {
-      var coords = d3.mouse(this)
+      let coords = d3.mouse(this)
       //checking if it is a already existing material tag in the matrix
       if(d3.select(this).style("fill") === "red" || d3.select(this).style("fill") === "blue"){
         d3.select(this).style("fill", "grey"); //make grey if exists

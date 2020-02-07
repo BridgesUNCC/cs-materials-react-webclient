@@ -4,7 +4,6 @@ import {getJSONData, postJSONData} from "../util/util";
 import {createStyles, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
@@ -12,7 +11,6 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import Button from "@material-ui/core/Button";
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContentWrapper from "./SnackbarContentWrapper";
-import Chip from '@material-ui/core/Chip';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import {TreeDialog} from "./forms/TreeDialog";
