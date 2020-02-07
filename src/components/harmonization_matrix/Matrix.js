@@ -38,7 +38,7 @@ class Matrix extends Component {
     const data = this.props.data;
     var edgeHash = {}
     var materialList = []
-    materials = this.props.data.materials; //materials returned
+    materials = this.props.data.materials.map(e => e); //materials returned
     var tags = this.props.data.tags; // tags returned
     var matrix = [];
     var xAxisLabels = [];
