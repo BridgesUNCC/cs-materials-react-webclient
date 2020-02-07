@@ -110,6 +110,10 @@ export const HarmonizationView: FunctionComponent<Props> = ({
         setViewInfo(fields);
     };
 
+    const onSubmit = () => {
+        setViewInfo({...viewInfo, fetched: false});
+    };
+
 
     return (
         <div>
@@ -126,8 +130,11 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                 </Paper>
                 }
             {
-                viewInfo.fetched ?
-                    <Matrix data={viewInfo.data}/> :
+                viewInfo.fetched ? (
+                    <div id={"matrix-container"}>
+                    <Matrix data={viewInfo.data} onSubmit={onSubmit} api_url={api_url}/>
+                    </div>
+                    ):
                     <CircularProgress/>
             }
         </div>
