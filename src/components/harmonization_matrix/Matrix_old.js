@@ -7,7 +7,7 @@ import {postJSONData} from "../../util/util";
 
 var materials = {};
 
-class Matrix extends Component {
+class Matrix_old extends Component {
   state = {
     text:'hello'
   }
@@ -230,4 +230,4 @@ class Matrix extends Component {
   }
 }
 
-export default Matrix;
+export default Matrix_old;

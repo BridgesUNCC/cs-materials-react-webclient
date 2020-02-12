@@ -170,7 +170,7 @@ export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading, op
             <Snackbar open={forgotInfo.fail}>
                 <SnackbarContentWrapper
                     variant="error"
-                    message="email error"
+                    message="Unable to send reset email, may be an invalid email or not linked to any account."
                     onClose={(event?: SyntheticEvent, reason?: string) => {
                         handleSnackbarClose("fail", event, reason);
                     }}

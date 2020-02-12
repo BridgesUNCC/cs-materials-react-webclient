@@ -1,10 +1,11 @@
 import React, {FunctionComponent} from "react";
 
-import Matrix from "./Matrix";
-import {getJSONData} from "../../util/util";
-import {CircularProgress, createStyles, Paper, TextField, Theme} from "@material-ui/core";
+import {Matrix} from "./Matrix";
+import {getJSONData, postJSONData} from "../../util/util";
+import {Button, CircularProgress, createStyles, Paper, TextField, Theme} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import {RouteComponentProps} from "react-router";
+import {element} from "prop-types";
 
 
 
@@ -13,6 +14,9 @@ const useStyles = makeStyles((theme: Theme) =>
         textField: {
             margin: theme.spacing(2),
             width: 400,
+        },
+        margin: {
+            margin: theme.spacing(1),
         },
     }));
 
@@ -27,7 +31,7 @@ interface Props extends RouteComponentProps<MatchParams>{
 }
 
 interface ViewInfo {
-    data: MaterialData[];
+    data: HarmonizationData | null;
     ids: string;
     fetched: boolean;
     init_fetched: boolean;
@@ -44,14 +48,34 @@ interface MaterialData {
 
 export interface TagData {
     id: number;
+    title?: string;
+    bloom?: string;
+    type?: string;
+}
+
+export interface MappingData {
+    mat_id: number;
+    mat_index: number;
+    tag_id: number;
+    tag_index: number;
+    weight: number;
+    index: number;
+}
+
+export interface AxisData {
     title: string;
-    bloom: string;
-    type: string;
+    id: number;
+}
+
+export interface HarmonizationData {
+    mapping: MappingData[],
+    material_axis: AxisData[],
+    tag_axis: AxisData[],
 }
 
 const createEmptyInfo = (): ViewInfo => {
     return {
-        data: [],
+        data: null,
         ids: "",
         fetched: false,
         init_fetched: false,
@@ -84,7 +108,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
         }
 
         console.log(ids);
-        const url = api_url + "/data/materials?ids=" + ids;
+        const url = api_url + "/data/harmonization?ids=" + ids;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         getJSONData(url, auth).then(resp => {
@@ -93,7 +117,37 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                 console.log("API SERVER FAIL")
             } else {
                 if (resp['status'] === "OK") {
-                    const data = resp['data'];
+                    let data: HarmonizationData = resp['data'];
+
+                    // deep clone
+                    const init_mapping = data.mapping.map(e => e);
+
+                    //@FIXME this is probably bad form
+                    // This will populate the mapping data with the non mapping relationships
+                    data.material_axis.forEach((mat, i) => {
+                        data.tag_axis.forEach((tag, j) => {
+                            let found = false;
+                            for (const element of init_mapping) {
+                                if (element.mat_id === mat.id && element.tag_id === tag.id) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                data.mapping.push({
+                                    index: data.mapping.length,
+                                    mat_id: mat.id,
+                                    mat_index: i,
+                                    tag_id: tag.id,
+                                    tag_index: j,
+                                    weight: 0.0
+                                });
+                            }
+
+                        });
+                    });
+
+                    console.log(data);
 
                     setViewInfo({...viewInfo, init_fetched: true, fetched: true, data, ids})
                 }
@@ -110,16 +164,75 @@ export const HarmonizationView: FunctionComponent<Props> = ({
         setViewInfo(fields);
     };
 
+    const handleBoxToggle = (selected: MappingData) => {
+        if (viewInfo.data !== null) {
+            let mapping = viewInfo.data.mapping;
+
+            if (mapping[selected.index].weight > 0.0) {
+                mapping[selected.index].weight -= 1.0;
+            } else {
+                mapping[selected.index].weight += 1.0;
+            }
+
+            let new_data = {
+                ...viewInfo.data,
+                mapping: mapping
+            };
+
+            setViewInfo({...viewInfo, data: new_data});
+        }
+
+    };
+
     const onSubmit = () => {
-        setViewInfo({...viewInfo, fetched: false});
+
+        let materials: MaterialData[];
+
+
+
+        const post_url = api_url + "/data/post/material";
+        const fetch_url = api_url + "/data/materials?ids=" + viewInfo.ids;
+
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+
+        let done = false;
+        getJSONData(fetch_url, auth).then(resp => {
+            console.log(resp);
+            if (resp === undefined) {
+                console.log("API SERVER FAIL")
+            } else {
+                if (resp['status'] === "OK" && viewInfo.data !== null) {
+                    let data: MaterialData[] = resp['data']['materials'];
+
+                    let relevant_mapping = viewInfo.data.mapping.filter(element => element.weight > 0.0);
+
+                    data.forEach((material) => {
+                        let tags = relevant_mapping.filter(element => element.mat_id == material.id);
+
+                        material.tags = tags.map(element => {
+                            return {"instance_of": "tag", "id": element.tag_id}
+                        });
+
+                        const data = {"data": [material]};
+                        console.log(data);
+                        postJSONData(post_url, data, auth).then(resp => {
+                            console.log(resp);
+                        }).finally(() => {
+                            //@TODO FIXME BAD
+                            setViewInfo({...viewInfo, fetched: false});
+                        });
+                    });
+                    done = true;
+                }
+            }
+        });
+
     };
 
 
     return (
         <div>
             {
-                /* Dynamic loading broken
-                 */
                 <Paper>
                     <TextField
                         label={"Set of IDs"}
@@ -127,12 +240,20 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                         className={classes.textField}
                         onChange={onTextFieldChange("ids")}
                     />
+
+                    <Button
+                        className={classes.margin}
+                        variant={"contained"}
+                        onClick={onSubmit}
+                    >
+                        Submit Matrix
+                    </Button>
                 </Paper>
-                }
+            }
             {
-                viewInfo.fetched ? (
+                viewInfo.fetched && viewInfo.data !== null? (
                     <div id={"matrix-container"}>
-                    <Matrix data={viewInfo.data} onSubmit={onSubmit} api_url={api_url}/>
+                        <Matrix data={viewInfo.data} handleClick={handleBoxToggle}/>
                     </div>
                     ):
                     <CircularProgress/>
