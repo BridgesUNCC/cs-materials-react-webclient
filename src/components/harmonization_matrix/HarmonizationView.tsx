@@ -195,7 +195,6 @@ export const HarmonizationView: FunctionComponent<Props> = ({
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
-        let promises: Promise<any>[] = [];
         getJSONData(fetch_url, auth).then(resp => {
             console.log(resp);
             if (resp === undefined) {
@@ -206,6 +205,8 @@ export const HarmonizationView: FunctionComponent<Props> = ({
 
                     let relevant_mapping = viewInfo.data.mapping.filter(element => element.weight > 0.0);
 
+                    //@ts-ignore
+                    let post_data = {"data": []};
                     data.forEach((material) => {
                         let tags = relevant_mapping.filter(element => element.mat_id == material.id);
 
@@ -213,18 +214,16 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                             return {"instance_of": "tag", "id": element.tag_id}
                         });
 
-                        const data = {"data": [material]};
-                        promises.push(postJSONData(post_url, data, auth));
+                        // @ts-ignore
+                        post_data.data.push(material)
                     });
-                    
-                    Promise.all(promises).then(() => {
-                        setViewInfo({...viewInfo, fetched: false});
 
-                    })
+                    postJSONData(post_url, post_data, auth).then((resp) => {
+                        setViewInfo({...viewInfo, fetched: false});
+                    });
                 }
             }
         });
-
     };
 
 

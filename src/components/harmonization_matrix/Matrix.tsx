@@ -15,8 +15,7 @@ export const Matrix: FunctionComponent<Props> = ({
 }) => {
 
     const ref = useRef(null);
-
-
+    
     function gridOver(d: any, i: any) {
         d3.selectAll("rect").style("stroke-width", function (p: any) {
             return p.tag_index === d.tag_index || p.mat_index === d.mat_index ? "3px" : "1px"
@@ -33,7 +32,7 @@ export const Matrix: FunctionComponent<Props> = ({
         svgElement.attr("width", 5000)
             .attr("height", 5000)
             .append("g")
-                  .attr("transform", "translate(150,150)")
+            .attr("transform", "translate(150,150)")
             .attr("id", "adjacencyG")
             .selectAll("rect")
             .data(data.mapping)

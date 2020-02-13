@@ -3,9 +3,11 @@ import {getJSONData} from "../util/util";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import List from "@material-ui/core/List";
 import {ListItemLink} from "./ListItemLink";
-import {createStyles, Paper, Theme} from "@material-ui/core";
+import {createStyles, Paper, Grid, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import Typography from "@material-ui/core/Typography";
+import Button from "@material-ui/core/Button";
+import {Link} from "react-router-dom";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -96,6 +98,12 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({api_url, user_ma
                 <Typography variant="h5" component="h3">
                     Your Materials
                 </Typography>
+                <Grid container>
+                    <Button  variant="contained" color="primary"
+                                        component={ Link } to={"/matrix?ids=" + user_materials}>
+                        Harmonization Matrix
+                    </Button>
+                </Grid>
                 {listInfo.materials === null &&
                 <CircularProgress/>
                 }
