@@ -41,8 +41,8 @@ export const Matrix: FunctionComponent<Props> = ({
             .append("svg:rect")
             .attr("width", 25)
             .attr("height", 25)
-            .attr("x", function (d: MappingData) {return d.tag_index * 25})
-            .attr("y", function (d: MappingData) {return d.mat_index * 25})
+            .attr("x", function (d: MappingData) {return d.mat_index * 25})
+            .attr("y", function (d: MappingData) {return d.tag_index * 25})
             .style("stroke", "black")
             .style("stroke-width", "1px")
             .style("fill", function (d) {
@@ -75,9 +75,9 @@ export const Matrix: FunctionComponent<Props> = ({
         let tag_scale = d3.scaleOrdinal().domain(data.tag_axis.map(e => e.title)).range(tag_range);
 
         //@ts-ignore
-        let top_axis = d3.axisTop(tag_scale);
+        let top_axis = d3.axisTop(name_scale);
         // @ts-ignore
-        let left_axis = d3.axisLeft(name_scale);
+        let left_axis = d3.axisLeft(tag_scale);
 
         d3.select("#adjacencyG").append("g").call(left_axis);
         d3.select("#adjacencyG").append("g")

@@ -195,7 +195,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
-        let done = false;
+        let promises: Promise<any>[] = [];
         getJSONData(fetch_url, auth).then(resp => {
             console.log(resp);
             if (resp === undefined) {
@@ -214,15 +214,13 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                         });
 
                         const data = {"data": [material]};
-                        console.log(data);
-                        postJSONData(post_url, data, auth).then(resp => {
-                            console.log(resp);
-                        }).finally(() => {
-                            //@TODO FIXME BAD
-                            setViewInfo({...viewInfo, fetched: false});
-                        });
+                        promises.push(postJSONData(post_url, data, auth));
                     });
-                    done = true;
+                    
+                    Promise.all(promises).then(() => {
+                        setViewInfo({...viewInfo, fetched: false});
+
+                    })
                 }
             }
         });
