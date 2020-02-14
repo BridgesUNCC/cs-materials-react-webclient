@@ -134,7 +134,12 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({api_url, user_ma
                 >
                     <Grid item>
                         <Button className={classes.margin} variant="contained" color="primary"
-                                component={ Link } to={"/matrix?ids=" + listInfo.selected_materials}>
+                                component={ Link } to={"/matrix?ids=" + (listInfo.selected_materials.length === 0 ?
+                                    -1
+                                    :
+                                    listInfo.selected_materials
+                        )
+                                }>
                             Harmonization Matrix
                         </Button>
                         <Button className={classes.margin} variant="contained" color="primary"
