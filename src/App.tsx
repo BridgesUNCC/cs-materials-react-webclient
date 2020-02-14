@@ -333,9 +333,9 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         </Container>
                     )}
                     />
-                    <Route path='/radial' render={() => (
+                    <Route path='/radial' render={(route_props) => (
                         <Container maxWidth="xl">
-                            <OntologyWrapper/>
+                            <OntologyWrapper {...route_props} api_url={appInfo.api_url}/>
                         </Container>
                     )}
                     />

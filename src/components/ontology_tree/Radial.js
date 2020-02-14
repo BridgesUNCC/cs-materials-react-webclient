@@ -19,10 +19,6 @@ class Radial extends Component {
         let data = Object.values(this.props.data[0]);
         let assignments = this.props.data[1];
         let assignmentsArray = assignments.assignments
-        let authorSet = []
-        for(let i = 1;  i <= this.props.data.length - 1; i ++){
-            authorSet.push(this.props.data[i].authors.toString())
-        }
 
         function unflatten(arr) {
             var tree = [],
@@ -221,6 +217,17 @@ class Radial extends Component {
             return count;
         }
 
+        function findNodeInClassTree(tree, node){
+            let currNode = node;
+            if(currNode.id == node.id){
+                return currNode;
+            }else{
+                for(let i = 0; i < currNode.children.length; i++){
+                    findNodeInClassTree(tree, currNode)
+                }
+            }
+    }
+
         function layoutRadialLayer(tree){
             let layers = 3;
             let layerDepth = 15;
@@ -336,6 +343,7 @@ class Radial extends Component {
             .attr("y2", function(d) { return d.target.data.locationY; });
 
         g.selectAll('circle').data(vNodes).enter().append('circle')
+            .attr("class", "Ontology-Circle")
             .attr('r', function (d) {return d.data.size - 5})
             .attr("transform", function (d) {return "translate(" + d.data.locationX + "," + d.data.locationY + ")"; })
             .style("fill", function (d) {return d.data.color})
@@ -343,15 +351,59 @@ class Radial extends Component {
                 let xPosition = d.data.locationX;
                 let yPosition = d.data.locationY;
 
+
+                let currentNode = d.data
+                let breadcrumbs = [d.data.id];
+
+                while(currentNode.parent){
+                    breadcrumbs.push(currentNode.parent)
+                    currentNode = findInTree(currentNode.parent)
+                }
+
+
                 if(d.data.assignmentNames){
-                    for(let i = 0; i < d.data.assignmentNames.length; i++){
-                        if(i == 0){
+                    for(let i = breadcrumbs.length - 1; i >= 0; i--){
+                        if(i == breadcrumbs.length - 1){
                             g.append("text")
                                 .attr("transform", "translate(" + d.data.locationX + "," + d.data.locationY + ")")
                                 .append("tspan")
-                                .text(d.data.assignmentNames[i])
+                                .text(breadcrumbs[i] + " -> ")
+                                .style("font-weight", "bold")
+                                // .attr("class", "author")
+                                .attr("x", 0)
+                                .attr("dx", 10)
+                                .attr("dy", 25);
+                        }else{
+                            g.select("text")
+                                .attr("transform", "translate(" + d.data.locationX + "," + d.data.locationY + ")")
+                                .append("tspan")
+                                .text(breadcrumbs[i] + " -> ")
+                                .style("font-weight", "bold")
                                 .attr("class", "author")
-                                .attr("x", 10)
+                                .attr("x", 30)
+                                // .attr("dx", 10)
+                                .attr("dy", 22);
+                        }
+                    }
+
+
+                    g.select("text")
+                        .attr("transform", "translate(" + d.data.locationX + "," + d.data.locationY + ")")
+                        .append("tspan")
+                        .text("---------------------------------")
+                        .style("font-weight", "bold")
+                        // .attr("class", "author")
+                        .attr("x", 0)
+                        .attr("dx", 10)
+                        .attr("dy", 25);
+                    for(let i = 0; i < d.data.assignmentNames.length; i++){
+                        if(i == 0){
+                            g.select("text")
+                                .attr("transform", "translate(" + d.data.locationX + "," + d.data.locationY + ")")
+                                .append("tspan")
+                                .text(d.data.assignmentNames[i])
+                                .attr("class", "Tooltip")
+                                .attr("x", 0)
                                 .attr("dx", 10)
                                 .attr("dy", 22);
                         }else{
@@ -360,7 +412,7 @@ class Radial extends Component {
                                 .append("tspan")
                                 .text(d.data.assignmentNames[i])
                                 // .attr("class", "author")
-                                .attr("x", 10)
+                                .attr("x", 0)
                                 .attr("dx", 10)
                                 .attr("dy", 25);
                         }
@@ -370,7 +422,8 @@ class Radial extends Component {
                     g.append("text")
                         .attr("transform", "translate(" + d.data.locationX + "," + d.data.locationY + ")")
                         .append("tspan")
-                        .text(d.data.id);
+                        .text(d.data.id)
+                        .style("font-weight", "bold");
                 }
             })
             .on("mouseout", handleMouseOut);

@@ -22,6 +22,10 @@ export const Matrix: FunctionComponent<Props> = ({
         })
     }
 
+    function zoomed() {
+        d3.select("g").attr("transform", d3.event.transform);
+    }
+
     useEffect(() => {
         const svgElement = d3.select(ref.current);
 
@@ -62,7 +66,12 @@ export const Matrix: FunctionComponent<Props> = ({
             .on("mouseover", gridOver)
             .on("click", function (d: MappingData) {
                 handleClick(d);
-            })
+            });
+
+        // @ts-ignore
+        svgElement.call(d3.zoom()
+            .scaleExtent([-1, 20])
+            .on("zoom", zoomed));
 
         // draw axi,
         let scale_size = data.material_axis.length * 25;

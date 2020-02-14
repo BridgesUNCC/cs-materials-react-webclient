@@ -25,20 +25,20 @@
   color: #09d3ac;
 }
 
-circle {
+.Ontology-Circle {
     stroke: #05668D;
     opacity: 1.0;
     stroke-width: 1px;
 }
 
-path {
+.Ontology-Path {
     fill: none;
     stroke: #05668D;
     opacity: 1.0;
     stroke-width: 4px;
 }
 
-#tooltip {
+.Tooltip {
     position: absolute;
     width: 200px;
     height: auto;
@@ -53,11 +53,11 @@ path {
     pointer-events: none;
 }
 
-#tooltip.hidden {
+.Tooltip.hidden {
     display: none;
 }
 
-#tooltip p {
+.Tooltip p {
     margin: 0;
     font-family: Futura;
     font-size: 16px;

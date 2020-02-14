@@ -99,10 +99,18 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({api_url, user_ma
                     Your Materials
                 </Typography>
                 <Grid container>
+                    <Grid item>
                     <Button  variant="contained" color="primary"
                                         component={ Link } to={"/matrix?ids=" + user_materials}>
                         Harmonization Matrix
                     </Button>
+                    </Grid>
+                    <Grid item>
+                    <Button  variant="contained" color="primary"
+                                        component={ Link } to={"/radial?ids=" + user_materials}>
+                        Radial View
+                    </Button>
+                    </Grid>
                 </Grid>
                 {listInfo.materials === null &&
                 <CircularProgress/>
