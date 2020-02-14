@@ -3,7 +3,7 @@ import {getJSONData} from "../util/util";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import List from "@material-ui/core/List";
 import {ListItemLink} from "./ListItemLink";
-import {createStyles, Paper, Grid, Theme} from "@material-ui/core";
+import {createStyles, Paper, Grid, Theme, Checkbox, Divider} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
@@ -14,6 +14,10 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             padding: theme.spacing(3, 2),
+            margin: theme.spacing(5),
+
+        },
+        margin: {
             margin: theme.spacing(5),
         },
     }),
@@ -29,12 +33,14 @@ interface MaterialEntry {
 
 interface ListEntity {
     materials: MaterialEntry[] | null;
+    selected_materials: number[];
     fetched: boolean;
 }
 
 const createEmptyEntity = (): ListEntity => {
     return {
         materials: null,
+        selected_materials: [],
         fetched: false,
     }
 };
@@ -70,7 +76,7 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({api_url, user_ma
             else {
                 if (resp['status'] === "OK") {
                     const data = resp['data'];
-                    setListInfo({...listInfo, fetched: true, materials: data})
+                    setListInfo({...listInfo, fetched: true, materials: data, selected_materials: user_materials})
                 }
             }
         })
@@ -86,11 +92,35 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({api_url, user_ma
                 return null;
 
             return (
-                <ListItemLink primary={value.title} to={"/material/" + value.id} key={value.id}/>
+                <div>
+
+                    <Divider/>
+                    <ListItemLink primary={value.title} to={"/material/" + value.id} key={value.id}
+                                  input={
+                                      <Checkbox id={`checkbox-${value.id}`}
+                                                checked={listInfo.selected_materials.includes(value.id)}
+                                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                                    handleCheck(event, value.id);
+                                                }}
+                                                onClick={e => (e.stopPropagation())}
+                                      />
+                                  }
+                    />
+                </div>
             )
         });
     }
 
+    const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, id: number) => {
+        let selected = listInfo.selected_materials;
+        if (event.target.checked) {
+            selected.push(id);
+        } else {
+            selected = selected.filter(e => e !== id);
+        }
+
+        setListInfo({...listInfo, selected_materials: selected});
+    };
 
     return (
         <div>
@@ -98,18 +128,32 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({api_url, user_ma
                 <Typography variant="h5" component="h3">
                     Your Materials
                 </Typography>
-                <Grid container>
+                <Grid container
+                      direction="column"
+
+                >
                     <Grid item>
-                    <Button  variant="contained" color="primary"
-                                        component={ Link } to={"/matrix?ids=" + user_materials}>
-                        Harmonization Matrix
-                    </Button>
+                        <Button className={classes.margin} variant="contained" color="primary"
+                                component={ Link } to={"/matrix?ids=" + listInfo.selected_materials}>
+                            Harmonization Matrix
+                        </Button>
+                        <Button className={classes.margin} variant="contained" color="primary"
+                                component={ Link } to={"/radial?ids=" + listInfo.selected_materials}>
+                            Radial View
+                        </Button>
                     </Grid>
-                    <Grid item>
-                    <Button  variant="contained" color="primary"
-                                        component={ Link } to={"/radial?ids=" + user_materials}>
-                        Radial View
-                    </Button>
+                    <Divider/>
+                      <Grid item>
+                        <Button className={classes.margin} variant="contained" color="primary"
+                            onClick={() => {setListInfo({...listInfo, selected_materials:user_materials})}}
+                        >
+                            Select All
+                        </Button>
+                        <Button className={classes.margin} variant="contained" color="primary"
+                                onClick={() => {setListInfo({...listInfo, selected_materials:[]})}}
+                        >
+                            Select None
+                        </Button>
                     </Grid>
                 </Grid>
                 {listInfo.materials === null &&

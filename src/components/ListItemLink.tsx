@@ -9,6 +9,7 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 
 interface ListItemLinkProps {
   icon?: React.ReactElement;
+  input?: React.ReactElement;
   primary: string;
   to: string;
 }
@@ -17,7 +18,7 @@ interface ListItemLinkProps {
  * src: https://github.com/mui-org/material-ui/blob/master/docs/src/pages/guides/composition/ListRouter.tsx
  */
 export function ListItemLink(props: ListItemLinkProps) {
-  const { icon, primary, to } = props;
+  const { icon, primary, to, input } = props;
 
   const renderLink = React.useMemo(
     () =>
@@ -37,6 +38,7 @@ export function ListItemLink(props: ListItemLinkProps) {
         {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
         <ListItemText primary={primary} />
       </ListItem>
+        {input}
     </li>
   );
 }
