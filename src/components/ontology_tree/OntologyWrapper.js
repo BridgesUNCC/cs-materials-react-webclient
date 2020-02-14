@@ -22,8 +22,8 @@ import Radial from './Radial';
 //   );
 // }
 const api = "https://cs-materials-api.herokuapp.com/data/joined";
-const radialapi = "http://unfrozen-materials-cs.herokuapp.com/static/assignments/js/ACM.json"
-const assginmentapi = "http://unfrozen-materials-cs.herokuapp.com/data/?assignments="
+const radialapi = "https://unfrozen-materials-cs.herokuapp.com/static/assignments/js/ACM.json"
+const assginmentapi = "https://unfrozen-materials-cs.herokuapp.com/data/?assignments="
 const erik2214 = [139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151,
     152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164];
 const jamie = [165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177];
@@ -46,10 +46,10 @@ class OntologyWrapper extends Component{
         const radialresponse = await fetch(radialapi)
         const radialdata = await radialresponse.json();
 
-        const assignmentresponse = await fetch("http://unfrozen-materials-cs.herokuapp.com/data/?assignments=" + erik2214.toString());
+        const assignmentresponse = await fetch("https://unfrozen-materials-cs.herokuapp.com/data/?assignments=" + erik2214.toString());
         const assignmentdata = await assignmentresponse.json();
 
-        const jamieresponse = await fetch("http://unfrozen-materials-cs.herokuapp.com/data/?assignments=" + jamie.toString());
+        const jamieresponse = await fetch("https://unfrozen-materials-cs.herokuapp.com/data/?assignments=" + jamie.toString());
         const jamiedata = await jamieresponse.json();
         this.setState({data: [radialdata, assignmentdata, jamiedata], loading: false})
     }

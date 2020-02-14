@@ -2,9 +2,11 @@ import React, {Component} from 'react';
 import * as d3 from "d3";
 
 
+
 class Radial extends Component {
     componentDidMount() {
-        this.svg = d3.select("#RadialContainer").append("svg").append("g");
+        this.container = d3.select("#RadialContainer");
+        this.svg = this.container.append("svg").append("g");
         this.drawRadial();
     }
 
@@ -53,8 +55,8 @@ class Radial extends Component {
             return tree;
         }
 
-        const vWidth = 4000;
-        const vHeight = 4000;
+        const vWidth = 2000;
+        const vHeight = 1000;
         let maxHits = 0;
 
         function parseClassification(assignmentArray){
@@ -65,7 +67,7 @@ class Radial extends Component {
                 let classificationAuthor = assignmentArray[i].fields.authors.toString();
                 for (let j = 0; j < classificationArray.length; j++){
                     let classificationString = classificationArray[j];
-                    parseTree(classificationString, classificationSet, classificationAuthor)
+                    parseTree(classificationString, classificationSet, classificationAuthor, assignmentName)
                 }
             }
             return classificationSet
@@ -73,7 +75,7 @@ class Radial extends Component {
 
         let treeRoot = null;
         //find classification in the tree
-        function parseTree(tag, set, author){
+        function parseTree(tag, set, author, name){
             for(let i = 0; i < data.length; i++){
                 if(!data[i].parent){
                     treeRoot = i;
@@ -89,9 +91,9 @@ class Radial extends Component {
                     }
                     if(!data[i].hasOwnProperty("assignmentNames")){
                         data[i].assignmentNames = [];
-                        data[i].assignmentNames.push(tag)
+                        data[i].assignmentNames.push(name)
                     }else{
-                        data[i].assignmentNames.push(tag)
+                        data[i].assignmentNames.push(name)
                     }
                     set.push(tag);
                     data[i].hits += 1;
@@ -113,7 +115,7 @@ class Radial extends Component {
             }
             classificationTree.push(JSON.parse(JSON.stringify(data[treeRoot])))
             classificationTree[0].color = "red";
-            classificationTree[0].size = 50;
+            classificationTree[0].size = 30;
             let tempProp = {};
             tempProp["id"] = data[treeRoot].id;
             tempProp["visited"] = true;
@@ -129,7 +131,7 @@ class Radial extends Component {
                     mark[findMarked(node)].visited = true;
                     vd_node = findInTree(node);
                     classificationTree[findInClassTree(node, classificationTree)].color = (vd_node.hits) ? "orange" : "blue"
-                    classificationTree[findInClassTree(node, classificationTree)].size = vd_node.hits/maxHits * 40 + 10;
+                    classificationTree[findInClassTree(node, classificationTree)].size = (vd_node.hits/maxHits) * 10 + 10;
                     if(findMarked(vd_node.parent) == -1){
                         let tempProp = {};
                         let foundnode = findInTree(vd_node.parent)
@@ -210,6 +212,71 @@ class Radial extends Component {
         //   completeTree.push(JSON.parse(JSON.stringify(data[treeRoot])))
         // }
 
+        function countVertices(tree, root){
+            let count = 1;
+            for(let i = 0; i < root.children.length; i++){
+                let to = root.children[i];
+                count += countVertices(tree,to)
+            }
+            return count;
+        }
+
+        function layoutRadialLayer(tree){
+            let layers = 3;
+            let layerDepth = 15;
+            let root = tree[0];
+
+            let howManyNodes = countVertices(tree,root);
+            let anglePerVertex = 2*Math.PI/howManyNodes
+            let neededLength = howManyNodes * 15;
+            neededLength /= layers;
+            let depthOffset = neededLength / Math.PI / 2 / 3;
+
+            function findNodeInClassTree(tree, node){
+                let currNode = node;
+                if(currNode.id == node.id){
+                    return currNode;
+                }else{
+                    for(let i = 0; i < currNode.children.length; i++){
+                        findNodeInClassTree(tree, currNode)
+                    }
+                }
+            }
+
+            function helper(tree, root, angleBegin, angleEnd, depth, layer){
+                let angleCenter = (angleEnd - angleBegin)/ 2+angleBegin;
+                let localRadius = depthOffset*depth + layer*layerDepth
+                let editNode = findNodeInClassTree(tree, root);
+                editNode.locationX = localRadius * Math.cos(angleCenter);
+                editNode.locationY = localRadius * Math.sin(angleCenter);
+
+                let localCount = countVertices(tree, root) - 1
+
+                let neighboors = []
+                for(let i = 0; i < root.children.length; i++){
+                    let to = root.children[i];
+                    neighboors.push(to);
+                }
+
+                neighboors.sort();
+
+                let baseAngle = angleBegin;
+                let whichLayer = 0
+                for(let i = 0; i < neighboors.length; i++){
+                    let subCount = countVertices(tree, neighboors[i]);
+
+                    let fraction = subCount/localCount;
+                    let allocatedAngle = fraction * (angleEnd-angleBegin);
+
+                    helper(tree, neighboors[i], baseAngle, baseAngle+allocatedAngle, depth+1, whichLayer);
+
+                    baseAngle += allocatedAngle;
+                    whichLayer = (whichLayer + 1) % layers;
+                }
+            }
+            helper(tree, root, 0, 2*Math.PI, 0, 0)
+        }
+
 
         function scaleIntermediary(classTree){
             // hitmap = countHitPerLevelRec(classTree)
@@ -219,11 +286,9 @@ class Radial extends Component {
         let erikClassificationSet = parseClassification(assignmentsArray)
         let erikClassificationTree = buildClassificationTree(erikClassificationSet)
         let newerikClassificationTree = addChildren(erikClassificationTree)
-        console.log(newerikClassificationTree)
         let erikAddChildren = unflatten(newerikClassificationTree)
-        console.log(erikAddChildren)
+        layoutRadialLayer(erikAddChildren)
 
-        // clearTree();
         mark = []
         if(this.props.data[2]){
             maxHits = 0;
@@ -235,11 +300,14 @@ class Radial extends Component {
             let jamieClassificationTree = buildClassificationTree(jamieClassificationSet)
             let newjamieClassificationTree = addChildren(jamieClassificationTree)
             var jamieAddChildren = unflatten(newjamieClassificationTree)
+            layoutRadialLayer(jamieAddChildren)
         }
+
+        layoutRadialLayer(erikAddChildren)
 
         var tree = erikAddChildren;
 
-        var g = d3.select("#RadialContainer").select('svg').attr('width', vWidth).attr('height', vHeight)
+        var g = this.container.select('svg').attr('width', vWidth).attr('height', vHeight)
             .select('g').attr('transform', 'translate(' + vWidth/2 + ',' + vHeight/2 +')');
 
         var vLayout = d3.tree().size([2 * Math.PI, Math.min(vWidth*2, vHeight*2)]); // margin!
@@ -261,35 +329,75 @@ class Radial extends Component {
             .enter().append("line")
             .attr("class", "link")
             .attr("stroke","#ccc")
-            .attr('stroke-width', "10px")
-            .attr("x1", function(d) { return radialPoint(d.source.x,d.source.y)[0]; })
-            .attr("y1", function(d) { return radialPoint(d.source.x,d.source.y)[1]; })
-            .attr("x2", function(d) { return radialPoint(d.target.x,d.target.y)[0]; })
-            .attr("y2", function(d) { return radialPoint(d.target.x,d.target.y)[1]; });
+            .attr('stroke-width', "1px")
+            .attr("x1", function(d) { return d.source.data.locationX; })
+            .attr("y1", function(d) { return d.source.data.locationY; })
+            .attr("x2", function(d) { return d.target.data.locationX; })
+            .attr("y2", function(d) { return d.target.data.locationY; });
 
         g.selectAll('circle').data(vNodes).enter().append('circle')
-            .attr('r', function (d) {return d.data.hits * 10 + 20})
-            .attr("transform", function (d) { return "translate(" + d3.pointRadial(d.x, d.y) + ")"; })
+            .attr('r', function (d) {return d.data.size - 5})
+            .attr("transform", function (d) {return "translate(" + d.data.locationX + "," + d.data.locationY + ")"; })
             .style("fill", function (d) {return d.data.color})
+            .on("mouseover", function(d){
+                let xPosition = d.data.locationX;
+                let yPosition = d.data.locationY;
 
-        g.selectAll('text').data(vNodes).enter().append('text')
-            .attr("dy", ".31em")
-            .attr("x", 0)
-            .style("text-anchor", function(d) { return d.x < 180 * (Math.PI/180) ? "start" : "end"; })
-            .attr("transform", function (d) { return "translate(" + d3.pointRadial(d.x, d.y + 50) + ")"; })
-            .text(function(d) { return d.data.id });
+                if(d.data.assignmentNames){
+                    for(let i = 0; i < d.data.assignmentNames.length; i++){
+                        if(i == 0){
+                            g.append("text")
+                                .attr("transform", "translate(" + d.data.locationX + "," + d.data.locationY + ")")
+                                .append("tspan")
+                                .text(d.data.assignmentNames[i])
+                                .attr("class", "author")
+                                .attr("x", 10)
+                                .attr("dx", 10)
+                                .attr("dy", 22);
+                        }else{
+                            g.select("text")
+                                .attr("transform", "translate(" + d.data.locationX + "," + d.data.locationY + ")")
+                                .append("tspan")
+                                .text(d.data.assignmentNames[i])
+                                // .attr("class", "author")
+                                .attr("x", 10)
+                                .attr("dx", 10)
+                                .attr("dy", 25);
+                        }
+                    }
+                    var assignmentString = d.data.assignmentNames.join("\n");
+                }else{
+                    g.append("text")
+                        .attr("transform", "translate(" + d.data.locationX + "," + d.data.locationY + ")")
+                        .append("tspan")
+                        .text(d.data.id);
+                }
+            })
+            .on("mouseout", handleMouseOut);
 
-        d3.select("#RadialContainer").select("svg").call(d3.zoom()
+        // g.selectAll('text').data(vNodes).enter().append('text')
+        //   .attr("dy", ".31em")
+        //   .attr("x", 0)
+        //   .style("text-anchor", function(d) { return d.x < 180 * (Math.PI/180) ? "start" : "end"; })
+        //   .attr("transform", function (d) { return "translate(" + d.data.locationX + "," + d.data.locationY + ")"; })
+        //   .text(function(d) { return d.data.id });
+
+        this.container.select("svg").call(d3.zoom()
             .scaleExtent([-1, 20])
             .on("zoom", zoomed));
 
         function zoomed() {
-            console.log("zoom zoom");
             d3.select("g").attr("transform", d3.event.transform);
         }
 
         function radialPoint(x, y) {
             return [(y = +y) * Math.cos(x -= Math.PI / 2), y * Math.sin(x)];
+        }
+
+        function handleMouseOut(d, i) {
+
+            // Select text by id and then remove
+            d3.select("text").remove();  // Remove text location
         }
 
     }
