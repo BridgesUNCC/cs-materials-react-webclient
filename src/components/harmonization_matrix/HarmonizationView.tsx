@@ -33,6 +33,7 @@ interface Props extends RouteComponentProps<MatchParams>{
 interface ViewInfo {
     data: HarmonizationData | null;
     ids: string;
+    filter: string;
     fetched: boolean;
     init_fetched: boolean;
 }
@@ -77,6 +78,7 @@ const createEmptyInfo = (): ViewInfo => {
     return {
         data: null,
         ids: "",
+        filter: "",
         fetched: false,
         init_fetched: false,
     };
@@ -101,14 +103,18 @@ export const HarmonizationView: FunctionComponent<Props> = ({
         console.log("pinging");
 
         let ids = "";
+        let filter = "";
         if (!viewInfo.init_fetched) {
-            ids = location.search.split("ids=")[1];
+            if (location.search.split("ids=")[1])
+                ids = location.search.split("ids=")[1].split("&")[0];
+            if (location.search.split("filter=")[1])
+                filter = location.search.split("filter=")[1].split("&")[0];
         } else {
             ids = viewInfo.ids;
         }
 
         console.log(ids);
-        const url = api_url + "/data/harmonization?ids=" + ids;
+        const url = api_url + "/data/harmonization?ids=" + ids + "&filter=" + filter;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         getJSONData(url, auth).then(resp => {
@@ -149,7 +155,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
 
                     console.log(data);
 
-                    setViewInfo({...viewInfo, init_fetched: true, fetched: true, data, ids})
+                    setViewInfo({...viewInfo, init_fetched: true, fetched: true, data, ids, filter})
                 }
             }
         })
