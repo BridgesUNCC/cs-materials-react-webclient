@@ -17,6 +17,7 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import {MaterialForm} from "./components/MaterialForm";
 import {HarmonizationView} from "./components/harmonization_matrix/HarmonizationView";
 import OntologyWrapper from "./components/ontology_tree/OntologyWrapper";
+import {Search} from "./components/search/Search";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -267,6 +268,10 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
         setAppInfo({...appInfo, snackbar_flags: flags});
     };
 
+    const redirect = (new_location: string) => {
+        history.push({pathname: new_location});
+    };
+
 
     return (
         <div className="App">
@@ -315,6 +320,11 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 To Materials List
                             </Button>
                         </Link>
+                        <Link to={"/search"}>
+                            <Button className={classes.margin} variant="contained" color="primary">
+                                Search
+                            </Button>
+                        </Link>
                         {appInfo.user_data &&
                         <Link to={"/material/create"}>
                             <Button className={classes.margin} variant="contained" color="primary">
@@ -327,6 +337,12 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 />
 
                 <Switch>
+                    <Route path="/search" render={(route_props) => (
+                        <Container maxWidth="lg">
+                            <Search {...route_props} api_url={appInfo.api_url} redirect={redirect}/>
+                        </Container>
+                    )}
+                    />
                     <Route path="/matrix" render={(route_props) => (
                         <Container maxWidth="xl">
                             <HarmonizationView {...route_props} api_url={appInfo.api_url}/>
@@ -339,9 +355,9 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         </Container>
                     )}
                     />
-                    <Route path="/materials" render={() => (
+                    <Route path="/materials" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialList api_url={appInfo.api_url}/>
+                            <MaterialList {...route_props} api_url={appInfo.api_url}/>
                         </Container>
                     )}
                     />

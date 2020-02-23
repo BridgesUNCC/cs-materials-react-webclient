@@ -6,6 +6,7 @@ import {ListItemLink} from "./ListItemLink";
 import {createStyles, Paper, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import Typography from "@material-ui/core/Typography";
+import {RouteComponentProps} from "react-router";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -37,21 +38,38 @@ const createEmptyEntity = (): ListEntity => {
     }
 };
 
-interface ListProps {
+interface MatchParams {
+    id: string;
+}
+
+interface ListProps extends RouteComponentProps<MatchParams> {
     api_url: string;
 }
 
-export const MaterialList: FunctionComponent<ListProps> = ({api_url}) => {
+export const MaterialList: FunctionComponent<ListProps> = ({   history,
+                                                               location,
+                                                               match,
+                                                               api_url,
+                                                           }) => {
     const classes = useStyles();
 
     const [listInfo, setListInfo] = React.useState<ListEntity>(
         createEmptyEntity()
     );
+    console.log("in material list");
 
     if (!listInfo.fetched) {
         setListInfo({...listInfo, fetched: true});
 
-        const url = api_url + "/data/list/materials";
+
+        let ids = "";
+        let tags = "";
+        if (location.search.split("ids=")[1])
+            ids = location.search.split("ids=")[1].split("&")[0];
+        if (location.search.split("tags=")[1])
+            tags = location.search.split("tags=")[1].split("&")[0];
+
+        const url = api_url + "/data/list/materials?ids=" + ids + "&tags=" + tags;
 
         // @TODO pass in auth token
         getJSONData(url).then(resp => {
