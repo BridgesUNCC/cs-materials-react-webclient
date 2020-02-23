@@ -119,7 +119,7 @@ export const Search: FunctionComponent<Props> = (
                           >
                         <Link to={"/materials?tags=" + searchInfo.tags.map(e => e.id)}>
                             <Button className={classes.margin} variant="contained" color="primary">
-                                Create Material
+                                Search
                             </Button>
                         </Link>
                     </Grid>
