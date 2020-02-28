@@ -14,7 +14,7 @@ import Button from "@material-ui/core/Button";
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         margin: {
-            margin: theme.spacing(1),
+            margin: theme.spacing(2),
             marginLeft: 'auto',
         },
         root: {
@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
             textAlign: 'center',
         },
         content: {
-            margin: theme.spacing(0),
+            margin: theme.spacing(2, 1),
             textAlign: 'left',
         }
     }),

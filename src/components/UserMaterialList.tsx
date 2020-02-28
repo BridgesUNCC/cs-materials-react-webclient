@@ -179,6 +179,7 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({
                 {listInfo.materials === null &&
                 <CircularProgress/>
                 }
+                <Divider/>
                 <List>
                     {output}
                 </List>
