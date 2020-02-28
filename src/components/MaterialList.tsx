@@ -96,7 +96,8 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                 return null;
 
             return (
-                <ListItemLink primary={value.title} to={"/material/" + value.id} key={value.id}/>
+                <ListItemLink history={history} location={location} match={match} primary={value.title}
+                              to={"/material/" + value.id} key={value.id}/>
             )
         });
     }

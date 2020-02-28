@@ -8,7 +8,7 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import {Link} from "react-router-dom";
-
+import {RouteComponentProps} from "react-router";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -45,12 +45,21 @@ const createEmptyEntity = (): ListEntity => {
     }
 };
 
-interface ListProps {
+interface MatchParams {
+    id: string;
+}
+
+interface ListProps extends RouteComponentProps<MatchParams> {
     api_url: string;
     user_materials: number[];
 }
 
-export const UserMaterialList: FunctionComponent<ListProps> = ({api_url, user_materials}) => {
+export const UserMaterialList: FunctionComponent<ListProps> = ({
+                                                                   history,
+                                                                   location,
+                                                                   match,
+                                                                   api_url,
+                                                                   user_materials}) => {
     const classes = useStyles();
 
     const [listInfo, setListInfo] = React.useState<ListEntity>(
@@ -85,21 +94,27 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({api_url, user_ma
     // @Speed @TODO, smart cull entries so rendering doesn't take too long, maybe have a callback that renders more as
     // user scrolls down?
     let output;
+    let count = 0;
     if (listInfo.materials !== null) {
         output = listInfo.materials.map((value, index) => {
             // @Hack @FIXME cull entries for speed
-            if (index > 250)
+            if (count++ > 250)
                 return null;
 
             return (
                 <div>
 
                     <Divider/>
-                    <ListItemLink primary={value.title} to={"/material/" + value.id} key={value.id}
+                    <ListItemLink
+                        history={history}
+                        location={location}
+                        match={match}
+                        primary={value.title} to={"/material/" + value.id} key={value.id}
                                   input={
                                       <Checkbox id={`checkbox-${value.id}`}
                                                 checked={listInfo.selected_materials.includes(value.id)}
                                                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                                    event.stopPropagation();
                                                     handleCheck(event, value.id);
                                                 }}
                                                 onClick={e => (e.stopPropagation())}

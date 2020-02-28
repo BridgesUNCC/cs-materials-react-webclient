@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {RouteComponentProps} from "react-router";
 import {getJSONData} from "../util/util";
-import {createStyles, Theme} from "@material-ui/core";
+import {createStyles, Divider, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Typography from "@material-ui/core/Typography";
@@ -19,9 +19,11 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         root: {
             margin: theme.spacing(3, 2),
+            textAlign: 'center',
         },
         content: {
             margin: theme.spacing(0),
+            textAlign: 'left',
         }
     }),
 );
@@ -113,10 +115,11 @@ export const MaterialOverview: FunctionComponent<Props> = (
     if (overviewInfo.data) {
         output = (
             <div>
+                <Divider/>
                 <Typography variant={"h5"}>
-                    Author(s)
+                    Authors
                 </Typography>
-                <Typography variant="body1" component="p" className={classes.content} >
+                <Typography variant="body1" component="ul" className={classes.content} >
                     {overviewInfo.data.tags.map((value) => {
                         if (value.type !== "author") {
                             return null;
@@ -126,10 +129,11 @@ export const MaterialOverview: FunctionComponent<Props> = (
                     })}
                 </Typography>
 
+                <Divider/>
                 <Typography variant={"h5"}>
-                    Course(s)
+                    Courses
                 </Typography>
-                <Typography variant="body1" component="p" className={classes.content} >
+                <Typography variant="body1" component="ul" className={classes.content} >
                     {overviewInfo.data.tags.map((value) => {
                         if (value.type !== "course") {
                             return null;
@@ -138,10 +142,11 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         return <li key={value.id}>{value.title}</li>;
                     })}
                 </Typography>
+                <Divider/>
                  <Typography variant={"h5"}>
-                    topic(s)
+                    Topics
                 </Typography>
-                <Typography variant="body1" component="p" className={classes.content} >
+                <Typography variant="body1" component="ul" className={classes.content} >
                     {overviewInfo.data.tags.map((value) => {
                         if (value.type !== "topic") {
                             return null;
@@ -150,10 +155,11 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         return <li key={value.id}>{value.title}</li>;
                     })}
                 </Typography>
+                <Divider/>
                  <Typography variant={"h5"}>
-                    programming language(s)
+                    Programming Languages
                 </Typography>
-                <Typography variant="body1" component="p" className={classes.content} >
+                <Typography variant="body1" component="ul" className={classes.content} >
                     {overviewInfo.data.tags.map((value) => {
                         if (value.type !== "language") {
                             return null;
@@ -162,10 +168,11 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         return <li key={value.id}>{value.title}</li>;
                     })}
                 </Typography>
+                <Divider/>
                  <Typography variant={"h5"}>
-                    dataset(s)
+                    Datasets
                 </Typography>
-                <Typography variant="body1" component="p" className={classes.content} >
+                <Typography variant="body1" component="ul" className={classes.content} >
                     {overviewInfo.data.tags.map((value) => {
                         if (value.type !== "dataset") {
                             return null;
@@ -174,8 +181,9 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         return <li key={value.id}>{value.title}</li>;
                     })}
                 </Typography>
+                <Divider/>
                  <Typography variant={"h5"}>
-                    ontologies(s)
+                    Ontologies
                 </Typography>
                 <Typography variant="body1" component="ul" className={classes.content} >
                     {overviewInfo.data.tags.map((value) => {
@@ -212,15 +220,24 @@ export const MaterialOverview: FunctionComponent<Props> = (
                                     </Button>
                                 </Link>
                             }
-                            <Typography variant="h5" component="h3" className={classes.content}>
+                            <Typography variant="h4" component="h3" className={classes.root}>
                                 {overviewInfo.data.title}
+                            </Typography>
+                            <Divider/>
+                            <Typography variant={"h5"}>
+                                Upstream URL
                             </Typography>
                             <Typography variant="body2" component="p" className={classes.content} >
                                 {overviewInfo.data.upstream_url}
                             </Typography>
+                            <Divider/>
+                            <Typography variant={"h5"}>
+                                Description
+                            </Typography>
                             <Typography variant="body1" component="p" className={classes.content} >
                                 {overviewInfo.data.description}
                             </Typography>
+                            <Divider/>
                             {output}
                         </div>
                     }

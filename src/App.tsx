@@ -220,7 +220,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
         getJSONData(url).then(resp => {
             console.log(resp);
 
-            let ok = false, request_confirm = false, expired = false, server_fail = false, invalid = false;
             if (resp === undefined) {
                 console.log("API SERVER ERROR");
 
@@ -362,10 +361,12 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     )}
                     />
                     {appInfo.user_data &&
-                    <Route path="/my_materials" render={() => (
+                    <Route path="/my_materials" render={(route_props) => (
                         <Container maxWidth="md">
-                            <UserMaterialList api_url={appInfo.api_url}
-                                              user_materials={appInfo.user_data.owned_materials}/>
+                            <UserMaterialList
+                                {...route_props}
+                                api_url={appInfo.api_url}
+                                user_materials={appInfo.user_data.owned_materials}/>
                         </Container>
                     )}
                     />
@@ -395,7 +396,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         @TODO figure out how to tell thing to refetch data on login/logout
                      */}
                     <Route path="/material/:id" render={(route_props) => (
-                        <Container maxWidth="md">
+                        <Container maxWidth="lg">
                             <MaterialOverview {...route_props} api_url={appInfo.api_url}
                                               force_fetch_data={false}/>
                         </Container>
@@ -417,20 +418,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 <SnackbarContentWrapper
                     variant="success"
                     message="Login Successful"
-                    onClose={() => {
-                        /**
-                         This is a hack, essentially; in order to use handleSnackbarClose like  passing a
-                         string to determine which is to be closed, we must pass a true "function" to the Wrapper
-                         when in reality is just messy way to reuse some logic. I will probably
-                         end up doing in general when handling multiple snackbar messages
-
-                         https://stackoverflow.com/a/51977836/11015039
-
-                         Placing message here in hopes of preventing myself from seeing the NOP and trying
-                         "refactor" which will break the type checker and make it yell at you
-                         */
-                        handleSnackbarClose("ok")
-                    }}
+                    onClose={() => {handleSnackbarClose("ok")}}
                 />
             </Snackbar>
 
