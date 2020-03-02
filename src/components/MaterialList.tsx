@@ -3,10 +3,12 @@ import {getJSONData} from "../util/util";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import List from "@material-ui/core/List";
 import {ListItemLink} from "./ListItemLink";
-import {createStyles, Paper, Theme} from "@material-ui/core";
+import {Checkbox, createStyles, Divider, Grid, Paper, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import Typography from "@material-ui/core/Typography";
 import {RouteComponentProps} from "react-router";
+import Button from "@material-ui/core/Button";
+import {Link} from "react-router-dom";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -15,9 +17,11 @@ const useStyles = makeStyles((theme: Theme) =>
             padding: theme.spacing(3, 2),
             margin: theme.spacing(5),
         },
+        margin: {
+            margin: theme.spacing(5),
+        },
     }),
 );
-
 
 
 interface MaterialEntry {
@@ -28,12 +32,14 @@ interface MaterialEntry {
 
 interface ListEntity {
     materials: MaterialEntry[] | null;
+    selected_materials: number[]
     fetched: boolean;
 }
 
 const createEmptyEntity = (): ListEntity => {
     return {
         materials: null,
+        selected_materials: [],
         fetched: false,
     }
 };
@@ -64,12 +70,15 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
 
         let ids = "";
         let tags = "";
+        let sim_mats = "";
         if (location.search.split("ids=")[1])
             ids = location.search.split("ids=")[1].split("&")[0];
         if (location.search.split("tags=")[1])
             tags = location.search.split("tags=")[1].split("&")[0];
+        if (location.search.split("sim_mats=")[1])
+            sim_mats = location.search.split("sim_mats=")[1].split("&")[0];
 
-        const url = api_url + "/data/list/materials?ids=" + ids + "&tags=" + tags;
+        const url = api_url + "/data/list/materials?ids=" + ids + "&tags=" + tags + "&sim_mats=" + sim_mats;
 
         // @TODO pass in auth token
         getJSONData(url).then(resp => {
@@ -89,19 +98,47 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     // @Speed @TODO, smart cull entries so rendering doesn't take too long, maybe have a callback that renders more as
     // user scrolls down?
     let output;
+    let count = 0;
     if (listInfo.materials !== null) {
         output = listInfo.materials.map((value, index) => {
             // @Hack @FIXME cull entries for speed
-            if (index > 250)
+            if (count++ > 250)
                 return null;
-
             return (
-                <ListItemLink history={history} location={location} match={match} primary={value.title}
-                              to={"/material/" + value.id} key={value.id}/>
+                <div key={`${value.id}`}>
+
+                    <Divider/>
+                    <ListItemLink
+                        history={history}
+                        location={location}
+                        match={match}
+                        primary={value.title} to={"/material/" + value.id} key={value.id}
+                        input={
+                            <Checkbox id={`checkbox-${value.id}`}
+                                      checked={listInfo.selected_materials.includes(value.id)}
+                                      onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                          event.stopPropagation();
+                                          handleCheck(event, value.id);
+                                      }}
+                                      onClick={e => (e.stopPropagation())}
+                            />
+                        }
+                    />
+                </div>
             )
         });
     }
 
+    const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, id: number) => {
+        let selected = listInfo.selected_materials;
+        if (event.target.checked) {
+            selected.push(id);
+        } else {
+            selected = selected.filter(e => e !== id);
+        }
+
+        setListInfo({...listInfo, selected_materials: selected});
+    };
 
     return (
         <div>
@@ -109,6 +146,50 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                 <Typography variant="h5" component="h3">
                     Results
                 </Typography>
+
+                <Grid container
+                      direction="column"
+
+                >
+                    <Grid item>
+                        <Button className={classes.margin} variant="contained" color="primary"
+                                component={ Link } to={"/matrix?ids=" + (listInfo.selected_materials.length === 0 ?
+                                -1
+                                :
+                                listInfo.selected_materials
+                        )
+                        }>
+                            Harmonization Matrix
+                        </Button>
+                        <Button className={classes.margin} variant="contained" color="primary"
+                                component={ Link } to={"/radial?ids=" + listInfo.selected_materials}>
+                            Radial View
+                        </Button>
+                        <Button className={classes.margin} variant="contained" color="primary"
+                                onClick={() => {
+                                    history.push("/materials?sim_mats=" + listInfo.selected_materials)
+                                    setListInfo({...listInfo, materials: null, fetched: false});
+                                }}>
+                            Search for Similar Materials
+                        </Button>
+                    </Grid>
+                    <Divider/>
+                    <Grid item>
+                        <Button className={classes.margin} variant="contained" color="primary"
+                                onClick={() => {
+                                    if (listInfo.materials !== null)
+                                        setListInfo({...listInfo, selected_materials:listInfo.materials.map(e => e.id)})}
+                                }
+                        >
+                            Select All
+                        </Button>
+                        <Button className={classes.margin} variant="contained" color="primary"
+                                onClick={() => {setListInfo({...listInfo, selected_materials:[]})}}
+                        >
+                            Select None
+                        </Button>
+                    </Grid>
+                </Grid>
                 {listInfo.materials === null &&
                 <CircularProgress/>
                 }

@@ -102,7 +102,7 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({
                 return null;
 
             return (
-                <div>
+                <div key={`${value.id}`}>
 
                     <Divider/>
                     <ListItemLink
@@ -161,6 +161,13 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({
                                 component={ Link } to={"/radial?ids=" + listInfo.selected_materials}>
                             Radial View
                         </Button>
+                        <Button className={classes.margin} variant="contained" color="primary"
+                                onClick={() => {
+                                    history.push("/materials?sim_mats=" + listInfo.selected_materials)
+                                }}
+                        >
+                            Search for Similar Materials
+                        </Button>
                     </Grid>
                     <Divider/>
                       <Grid item>
@@ -177,13 +184,12 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({
                     </Grid>
                 </Grid>
                 {listInfo.materials === null &&
-                <CircularProgress/>
+                 <CircularProgress/>
                 }
-                <Divider/>
                 <List>
                     {output}
                 </List>
             </Paper>
         </div>
     )
-}
+};
