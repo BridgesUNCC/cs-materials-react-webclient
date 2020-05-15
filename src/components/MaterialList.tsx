@@ -71,14 +71,18 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
         let ids = "";
         let tags = "";
         let sim_mats = "";
+        let keyword = "";
         if (location.search.split("ids=")[1])
             ids = location.search.split("ids=")[1].split("&")[0];
         if (location.search.split("tags=")[1])
             tags = location.search.split("tags=")[1].split("&")[0];
         if (location.search.split("sim_mats=")[1])
             sim_mats = location.search.split("sim_mats=")[1].split("&")[0];
+        if (location.search.split("keyword=")[1])
+            keyword = location.search.split("keyword=")[1].split("&")[0];
 
-        const url = api_url + "/data/list/materials?ids=" + ids + "&tags=" + tags + "&sim_mats=" + sim_mats;
+        const url = api_url + "/data/list/materials?ids=" + ids + "&tags=" + tags + "&sim_mats=" + sim_mats
+            + "&keyword=" + keyword;
 
         // @TODO pass in auth token
         getJSONData(url).then(resp => {
@@ -173,6 +177,14 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                             Search for Similar Materials
                         </Button>
                     </Grid>
+                    <Divider/>
+                        <Button className={classes.margin} variant="contained" color="primary"
+                                onClick={() => {
+                                    history.push("/collection/create?ids=" + listInfo.selected_materials)
+                                    setListInfo({...listInfo, materials: null, fetched: false});
+                                }}>
+                            Create Collection from Selected Materials
+                        </Button>
                     <Divider/>
                     <Grid item>
                         <Button className={classes.margin} variant="contained" color="primary"

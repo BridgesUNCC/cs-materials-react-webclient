@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {RouteComponentProps} from "react-router";
-import {createStyles, Paper, Theme, Grid, Button} from "@material-ui/core";
+import {createStyles, Paper, Theme, Grid, Button, TextField} from "@material-ui/core";
 import {TreeDialog} from "../forms/TreeDialog";
 import {makeStyles} from "@material-ui/core/styles";
 import {TagData} from "../MaterialForm";
@@ -38,6 +38,7 @@ interface Props extends RouteComponentProps<MatchParams> {
 
 
 interface SearchEntity {
+    keyword: string;
     tags: TagData[];
     show_acm: boolean;
     show_pdc: boolean;
@@ -45,6 +46,7 @@ interface SearchEntity {
 
 const createEmptyEntity = (): SearchEntity => {
     return {
+        keyword: '',
         tags: [],
         show_acm: false,
         show_pdc: false,
@@ -92,6 +94,12 @@ export const Search: FunctionComponent<Props> = (
         setSearchInfo({...searchInfo, tags: tags});
     };
 
+    const onTextFieldChange = (field_id: string) => (e: React.ChangeEvent<HTMLInputElement>): void => {
+        let fields = searchInfo;
+        fields = {...fields, [field_id]: e.currentTarget.value};
+        setSearchInfo(fields)
+    };
+
     return (
         <div className={classes.root}>
             <Paper>
@@ -99,6 +107,14 @@ export const Search: FunctionComponent<Props> = (
                     container
                     direction="column"
                 >
+                      <Grid item>
+                        <TextField
+                            label={"Keyword"}
+                            value={searchInfo.keyword}
+                            className={classes.textField}
+                            onChange={onTextFieldChange("keyword")}
+                        />
+                      </Grid>
                     <Grid
                         item
                     >
@@ -117,7 +133,7 @@ export const Search: FunctionComponent<Props> = (
                     </Grid>
                     <Grid item
                           >
-                        <Link to={"/materials?tags=" + searchInfo.tags.map(e => e.id)}>
+                        <Link to={"/materials?keyword=" + searchInfo.keyword +"&tags=" + searchInfo.tags.map(e => e.id)}>
                             <Button className={classes.margin} variant="contained" color="primary">
                                 Search
                             </Button>

@@ -18,6 +18,8 @@ import {MaterialForm} from "./components/MaterialForm";
 import {HarmonizationView} from "./components/harmonization_matrix/HarmonizationView";
 import OntologyWrapper from "./components/ontology_tree/OntologyWrapper";
 import {Search} from "./components/search/Search";
+import {CollectionForm} from "./components/forms/CollectionForm";
+import {CollectionOverview} from "./components/CollectionOverview";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -374,6 +376,20 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 </Switch>
 
                 <Switch>
+                    <Route path="/collection/create" render={(route_props) => (
+                        <Container maxWidth={"md"}>
+                            <CollectionForm {...route_props} api_url={appInfo.api_url} />
+                        </Container>
+                    )}
+                    />
+
+                    <Route path="/collection/:id" render={(route_props) => (
+                        <Container maxWidth={"md"}>
+                            <CollectionOverview {...route_props} api_url={appInfo.api_url} />
+                        </Container>
+                    )}
+                    />
+
                     <Route path="/material/create" render={(route_props) => (
                         <Container maxWidth="md">
                             <MaterialForm {...route_props} api_url={appInfo.api_url}/>

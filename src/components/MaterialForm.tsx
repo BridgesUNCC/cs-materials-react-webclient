@@ -253,11 +253,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                      setFormInfo({...formInfo, posting: false, fail: true});
                  }
            }
-
         });
-
     }
-
 
 
     const onTagTextFieldChange = (field_id: string) => (e: any, value: any): void => {
@@ -473,7 +470,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                             <TextField
                                 {...params}
                                 variant="standard"
-                                label="Programming Languagess"
+                                label="Programming Languages"
                                 margin="normal"
                                 className={classes.textArea}
                                 fullWidth

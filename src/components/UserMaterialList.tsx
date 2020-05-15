@@ -85,6 +85,7 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({
             else {
                 if (resp['status'] === "OK") {
                     const data = resp['data'];
+                    console.log(data);
                     setListInfo({...listInfo, fetched: true, materials: data, selected_materials: user_materials})
                 }
             }
@@ -169,6 +170,14 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({
                             Search for Similar Materials
                         </Button>
                     </Grid>
+                    <Divider/>
+                        <Button className={classes.margin} variant="contained" color="primary"
+                                onClick={() => {
+                                    history.push("/collection/create?ids=" + listInfo.selected_materials)
+                                    setListInfo({...listInfo, materials: null, fetched: false});
+                                }}>
+                            Create Collection from Selected Materials
+                        </Button>
                     <Divider/>
                       <Grid item>
                         <Button className={classes.margin} variant="contained" color="primary"
