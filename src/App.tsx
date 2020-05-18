@@ -271,6 +271,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
     const redirect = (new_location: string) => {
         history.push({pathname: new_location});
+        window.location.reload();
     };
 
 
@@ -319,6 +320,11 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         <Link to={"/materials"}>
                             <Button className={classes.margin} variant="contained" color="primary">
                                 To Materials List
+                            </Button>
+                        </Link>
+                        <Link to={"/materials?collectionsOnly=true"}>
+                            <Button className={classes.margin} variant="contained" color="primary">
+                                To Collections List
                             </Button>
                         </Link>
                         <Link to={"/search"}>

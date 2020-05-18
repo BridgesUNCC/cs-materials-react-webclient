@@ -1,13 +1,14 @@
 import React, {FunctionComponent} from "react";
 import {RouteComponentProps} from "react-router";
 import {getJSONData} from "../util/util";
-import {createStyles, Divider, Theme} from "@material-ui/core";
+import {createStyles, Divider, Theme, List} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import {Link} from "react-router-dom";
 import Button from "@material-ui/core/Button";
+import {ListItemLink} from "./ListItemLink";
 
 
 
@@ -38,13 +39,21 @@ interface Props extends RouteComponentProps<MatchParams> {
     force_fetch_data: boolean;
 }
 
+
+export interface MaterialListData {
+    title: string;
+    id: number;
+}
+
 // @TODO finish the rest of the fields
 interface MaterialData {
     id: number;
     title: string;
+    type: string;
     description: string;
     upstream_url: string;
     tags: TagData[];
+    materials: MaterialListData[]
 }
 
 interface TagData {
@@ -84,6 +93,10 @@ export const MaterialOverview: FunctionComponent<Props> = (
         createEmptyEntity()
     );
 
+    if (overviewInfo.fetched && overviewInfo.data !== null && Number(match.params.id) !== overviewInfo.data.id) {
+        setOverviewInfo({...overviewInfo, data: null, fetched: false})
+    }
+
     console.log("mat overview");
     if (!overviewInfo.fetched || force_fetch_data) {
         setOverviewInfo({...overviewInfo, fetched: true});
@@ -112,6 +125,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
     }
 
     let output;
+    let count = 0;
     if (overviewInfo.data) {
         output = (
             <div>
@@ -194,6 +208,31 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         return <li key={value.id}>{value.title}</li>;
                     })}
                 </Typography>
+                <Divider/>
+                <Typography variant={"h5"}>
+                    Mapped Materials
+                </Typography>
+                <List>
+                    {
+                        overviewInfo.data.materials.map((value, index) => {
+                            // @Hack @FIXME cull entries for speed
+                            if (count++ > 250)
+                                return null;
+                            return (
+                                <div key={`${value.id}`}>
+
+                                    <Divider/>
+                                    <ListItemLink
+                                        history={history}
+                                        location={location}
+                                        match={match}
+                                        primary={value.title} to={"/material/" + value.id} key={value.id}
+                                    />
+                                </div>
+                            )
+                        })
+                    }
+                </List>
             </div>
         )
 
@@ -220,6 +259,9 @@ export const MaterialOverview: FunctionComponent<Props> = (
                                     </Button>
                                 </Link>
                             }
+                            <Typography variant={"h5"}>
+                                {overviewInfo.data.type}
+                            </Typography>
                             <Typography variant="h4" component="h3" className={classes.root}>
                                 {overviewInfo.data.title}
                             </Typography>

@@ -14,6 +14,7 @@ import SnackbarContentWrapper from "./SnackbarContentWrapper";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import {TreeDialog} from "./forms/TreeDialog";
+import {MaterialListData} from "./MaterialOverview";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -48,10 +49,12 @@ interface Props extends RouteComponentProps<MatchParams> {
 interface MaterialData {
     id: number | null;
     title: string;
+    type: string;
     description: string
     instance_of: string;
     upstream_url: string;
     tags: TagData[];
+    materials: MaterialListData[];
 }
 
 export interface TagData {
@@ -88,8 +91,10 @@ const createEmptyData = (): MaterialData => {
       title: "",
       description: "",
       instance_of: "material",
+      type: "",
       upstream_url: "",
       tags: [],
+      materials: [],
   } ;
 };
 
@@ -233,6 +238,8 @@ export const MaterialForm: FunctionComponent<Props> = (
         });
 
         const data = {"data": [data_tmp]};
+
+        console.log(data);
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 

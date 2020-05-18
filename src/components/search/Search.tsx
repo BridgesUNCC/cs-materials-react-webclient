@@ -94,6 +94,10 @@ export const Search: FunctionComponent<Props> = (
         setSearchInfo({...searchInfo, tags: tags});
     };
 
+    const submit = (): void => {
+        redirect("/materials?keyword=" + searchInfo.keyword +"&tags=" + searchInfo.tags.map(e => e.id));
+    };
+
     const onTextFieldChange = (field_id: string) => (e: React.ChangeEvent<HTMLInputElement>): void => {
         let fields = searchInfo;
         fields = {...fields, [field_id]: e.currentTarget.value};
@@ -113,6 +117,13 @@ export const Search: FunctionComponent<Props> = (
                             value={searchInfo.keyword}
                             className={classes.textField}
                             onChange={onTextFieldChange("keyword")}
+                            onKeyPress={(ev: React.KeyboardEvent<HTMLDivElement>) => {
+                                if (ev.key === 'Enter') {
+                                    ev.preventDefault();
+                                    ev.stopPropagation();
+                                    submit();
+                                }
+                            }}
                         />
                       </Grid>
                     <Grid

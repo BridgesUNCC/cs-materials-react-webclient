@@ -44,11 +44,24 @@ class OntologyWrapper extends Component{
         const radialresponse = await fetch(radialapi);
         const radialdata = await radialresponse.json();
 
-        //@TODO FIXME ALL OF THIS
-        const assignmentresponse = await fetch(api_url + "/data/ontology_data_old?ids=" + ids);
-        const assignmentdata = await assignmentresponse.json();
+        let assignmentdata;
+        let assignmentresponse;
 
-        this.setState({data: [radialdata, assignmentdata], loading: false})
+        //@TODO FIXME ALL OF THIS
+        if (false) {
+            // comparison view is broken
+            let assignmentresponse2;
+            let assignmentdata2;
+            assignmentresponse = await fetch(api_url + "/data/ontology_data_old?ids=" + ids[0]);
+            assignmentdata = await assignmentresponse.json();
+            assignmentresponse2 =  await fetch(api_url + "/data/ontology_data_old?ids=" + ids[1]);
+            assignmentdata2 = await assignmentresponse2.json();
+            this.setState({data: [radialdata, assignmentdata, assignmentdata2], loading: false})
+        } else {
+            assignmentresponse = await fetch(api_url + "/data/ontology_data_old?ids=" + ids);
+            assignmentdata = await assignmentresponse.json();
+            this.setState({data: [radialdata, assignmentdata], loading: false})
+        }
     }
 
     render() {
