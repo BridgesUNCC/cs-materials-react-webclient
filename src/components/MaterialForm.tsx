@@ -243,12 +243,12 @@ export const MaterialForm: FunctionComponent<Props> = (
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
-        //@TODO send Auth token
         postJSONData(url, data, auth).then(resp => {
            console.log(resp);
 
            if (resp === undefined) {
                console.log("API SERVER FAIL")
+               setFormInfo({...formInfo, posting: false, fail: true});
            } else {
                  if (resp['status'] === "OK") {
                      let id = resp['id'];

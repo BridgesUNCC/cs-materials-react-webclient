@@ -9,7 +9,7 @@ import Paper from "@material-ui/core/Paper";
 import {Link} from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import {ListItemLink} from "./ListItemLink";
-
+import {DeleteDialog} from "./forms/DeleteDialog";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -67,6 +67,8 @@ interface OverviewEntity {
     data:  MaterialData | null;
     fetched: boolean;
     can_edit: boolean;
+    can_delete: boolean;
+    not_found: boolean;
 }
 
 const createEmptyEntity = (): OverviewEntity => {
@@ -74,6 +76,8 @@ const createEmptyEntity = (): OverviewEntity => {
         data: null,
         fetched: false,
         can_edit: false,
+        can_delete: false,
+        not_found: false,
     };
 };
 
@@ -111,14 +115,15 @@ export const MaterialOverview: FunctionComponent<Props> = (
             }
               else {
                 if (resp['status'] === "OK") {
-                    let can_edit = false;
-                    if (resp['access'] === "owner" || resp['access'] === "write") {
-                        can_edit = true;
-                    }
+                    let can_edit = resp['access'] === "owner" || resp['access'] === "write";
+
+                    let can_delete = resp['access'] === "owner";
 
                     const data = resp['data'];
                     console.log(resp);
-                    setOverviewInfo({...overviewInfo, fetched: true, data, can_edit})
+                    setOverviewInfo({...overviewInfo, fetched: true, data, can_edit, can_delete})
+                } else {
+                    setOverviewInfo({...overviewInfo, fetched: true, not_found: true})
                 }
             }
         })
@@ -249,7 +254,9 @@ export const MaterialOverview: FunctionComponent<Props> = (
 
                 <Paper>
                     {overviewInfo.data === null ?
-                        <CircularProgress/>
+                        <div>
+                            {!overviewInfo.not_found && <CircularProgress/>}
+                        </div>
                         :
                         <div>
                             {overviewInfo.can_edit &&
@@ -259,7 +266,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                                     </Button>
                                 </Link>
                             }
-                            <Typography variant={"h5"}>
+                           <Typography variant={"h5"}>
                                 {overviewInfo.data.type}
                             </Typography>
                             <Typography variant="h4" component="h3" className={classes.root}>
@@ -281,6 +288,13 @@ export const MaterialOverview: FunctionComponent<Props> = (
                             </Typography>
                             <Divider/>
                             {output}
+
+                            <Divider/>
+                            {overviewInfo.can_delete &&
+                            <DeleteDialog id={overviewInfo.data.id} name={overviewInfo.data.title} api_url={api_url}
+                                          history={history} location={location} match={match}/>
+                            }
+
                         </div>
                     }
                 </Paper>
