@@ -113,23 +113,10 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
         setTreeInfo({...treeInfo, expanded, propagate_expand: false});
     };
 
-    const onCheckLocal = (event: React.ChangeEvent<HTMLInputElement>, id: number ) => {
-        let selected = treeInfo.checked;
-        if (event.target.checked)
-            selected.push(String(id));
-        else {
-            selected = selected.filter(e => e !== String(id));
-        }
-
-        console.log(treeInfo.expanded);
-        setTreeInfo({...treeInfo, checked: selected});
-    };
-
-
     const createTree = (node: OntologyData, parent_id: number, expanded: string[], propagate_expand: boolean):
         ReactNode => {
 
-        const is_match = search_term.length != 0 && kmpSearch(search_term, node.title) != -1;
+        const is_match = search_term.length !== 0 && kmpSearch(search_term, node.title) !== -1;
         // @ts-ignore
         const font_weight = is_match ? "fontWeightBold" : "inherit";
         const font_style = is_match ? "italic" : "normal";
@@ -181,7 +168,7 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
             return ele;
         }
         else {
-            let ele = (<TreeItem nodeId={String(node.id)} key={String(node.id)} label={label} />)
+            let ele = (<TreeItem nodeId={String(node.id)} key={String(node.id)} label={label} />);
             if (
                 propagate_expand &&
                 expanded.find(e => Number(e) === node.id) !== undefined

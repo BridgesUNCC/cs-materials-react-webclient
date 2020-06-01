@@ -4,7 +4,6 @@ import {createStyles, Paper, Theme, Grid, Button, TextField} from "@material-ui/
 import {TreeDialog} from "../forms/TreeDialog";
 import {makeStyles} from "@material-ui/core/styles";
 import {TagData} from "../MaterialForm";
-import {CircularProgress} from "material-ui";
 import {Link} from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>

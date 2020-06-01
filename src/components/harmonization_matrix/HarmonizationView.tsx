@@ -5,7 +5,6 @@ import {getJSONData, postJSONData} from "../../util/util";
 import {Button, CircularProgress, createStyles, Paper, TextField, Theme} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import {RouteComponentProps} from "react-router";
-import {element} from "prop-types";
 
 
 
@@ -192,9 +191,6 @@ export const HarmonizationView: FunctionComponent<Props> = ({
 
     const onSubmit = () => {
 
-        let materials: MaterialData[];
-
-
 
         const post_url = api_url + "/data/post/material";
         const fetch_url = api_url + "/data/materials?ids=" + viewInfo.ids;
@@ -214,7 +210,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                     //@ts-ignore
                     let post_data = {"data": []};
                     data.forEach((material) => {
-                        let tags = relevant_mapping.filter(element => element.mat_id == material.id);
+                        let tags = relevant_mapping.filter(element => element.mat_id === material.id);
 
                         material.tags = tags.map(element => {
                             return {"instance_of": "tag", "id": element.tag_id}

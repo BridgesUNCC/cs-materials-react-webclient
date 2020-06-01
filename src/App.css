@@ -25,41 +25,62 @@
   color: #09d3ac;
 }
 
-.Ontology-Circle {
+#ontology-Circle {
     stroke: #05668D;
     opacity: 1.0;
     stroke-width: 1px;
 }
 
-.Ontology-Path {
+#ontology-Path {
     fill: none;
     stroke: #05668D;
     opacity: 1.0;
     stroke-width: 4px;
 }
 
-.Tooltip {
-    position: absolute;
-    width: 200px;
-    height: auto;
-    padding: 10px;
-    background-color: white;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    border-radius: 10px;
-    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-    pointer-events: none;
+#tooltip{
+  position: fixed;
+  width: auto;
+  height: auto;
+  padding: 10px;
+  right: 50%;
+  text-align: center;
+  background-color: white;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  color: black;
 }
 
-.Tooltip.hidden {
-    display: none;
+#assignmenttooltip {
+  position: fixed;
+  width: auto;
+  height: auto;
+  padding: 10px;
+  left: 50%;
+  background-color: white;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  color: black;
 }
 
-.Tooltip p {
-    margin: 0;
-    font-family: Futura;
-    font-size: 16px;
-    line-height: 20px;
+
+#tooltip.hidden, #assignmenttooltip.hidden {
+  display: none;
+}
+
+#tooltip p, #assignmenttooltip p {
+  margin: 0;
+  font-family: Futura;
+  font-size: 16px;
+  line-height: 20px;
 }

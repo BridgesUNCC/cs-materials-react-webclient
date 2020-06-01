@@ -97,7 +97,7 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({
     let output;
     let count = 0;
     if (listInfo.materials !== null) {
-        output = listInfo.materials.map((value, index) => {
+        output = listInfo.materials.map((value) => {
             // @Hack @FIXME cull entries for speed
             if (count++ > 250)
                 return null;
@@ -158,9 +158,13 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({
                                 }>
                             Harmonization Matrix
                         </Button>
+                         <Button className={classes.margin} variant="contained" color="primary"
+                                component={ Link } to={"/radial?tree=acm&ids=" + listInfo.selected_materials}>
+                            Radial View ACM-CSC 2013
+                        </Button>
                         <Button className={classes.margin} variant="contained" color="primary"
-                                component={ Link } to={"/radial?ids=" + listInfo.selected_materials}>
-                            Radial View
+                                component={ Link } to={"/radial?tree=pdc&ids=" + listInfo.selected_materials}>
+                            Radial View PDC 2012
                         </Button>
                         <Button className={classes.margin} variant="contained" color="primary"
                                 onClick={() => {
@@ -173,7 +177,7 @@ export const UserMaterialList: FunctionComponent<ListProps> = ({
                     <Divider/>
                         <Button className={classes.margin} variant="contained" color="primary"
                                 onClick={() => {
-                                    history.push("/collection/create?ids=" + listInfo.selected_materials)
+                                    history.push("/collection/create?ids=" + listInfo.selected_materials);
                                     setListInfo({...listInfo, materials: null, fetched: false});
                                 }}>
                             Create Collection from Selected Materials
