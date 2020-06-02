@@ -28,7 +28,7 @@ class OntologyWrapper extends Component{
         const radialresponse = await fetch(radialapi);
         let radialdata = await radialresponse.json();
 
-        radialdata = radialdata[tree];
+        radialdata = radialdata.data[tree];
 
         let assignmentdata;
         let assignmentresponse;
