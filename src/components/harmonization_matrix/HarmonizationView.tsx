@@ -73,6 +73,12 @@ export interface HarmonizationData {
     tag_axis: AxisData[],
 }
 
+export interface BiclusterData {
+    pair: number[];
+    bit: number[];
+    pattern?: string[];
+}
+
 const createEmptyInfo = (): ViewInfo => {
     return {
         data: null,
@@ -152,7 +158,180 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                         });
                     });
 
+                    /*
+                        DO BICLUSTERING
+                     */
+
+                        //Function to encode the matrix into bits for comaprison to
+                    //minimize runtime for biclustering
+                    const encodedMatrix = (): number[][] => {
+                        let matrix = [];
+                        //need length bits divisible by 4 during encoding so find remainder and add to length
+                        let encodingRemainder = (data.tag_axis.length)%4;
+                        let encodingLength = (data.tag_axis.length);//the current length of the row to be encoded
+
+                        //iterate over each row in the matrix to perform the encoding
+                        for (let i = 0; i < data.material_axis.length; i++){
+                            let encodedList = [];
+                            //Since we are encoding 4 bits at a time, we start at every 4 columns
+                            //and encode the 4 bits inbetween
+                            for (let j = 0; j <= encodingLength - 4; j+=4){
+                                let currentEncode = "";
+                                //get the first encoded bits before remainders added
+                                //add the remainder of 0's for make comparisons even
+                                //iterate over the 4 bits to be encoded
+                                for (let k = 0; k < 4; k++){
+                                    //if we reach the end of the columns in this row their is a remainder left (not divisible by 4)
+                                    //add the remainder of 0's to the encoding
+                                    if (encodingLength + encodingRemainder == j + k){
+                                        for (let k = 4 - encodingRemainder; k < encodingRemainder; k++){
+                                            currentEncode += "0";
+                                        }
+                                        //else just grab current weight for encoding
+                                     } else {
+                                        currentEncode += JSON.parse(JSON.stringify(data.mapping[i*encodingLength+j + k].weight > 0 ? "1" : "0"));
+                                    }
+                                }
+                                //push current encoded 4 bits to the encoded list for this row/material
+                                encodedList.push(parseInt(currentEncode, 2))
+                            }
+                            matrix.push(encodedList); //push encoded material list to global encoded matrix
+                        }
+
+                        return matrix;
+                    };
+
+
+                    //after the encoding of the matrix is done we generate biclusters using BiBit Pattern Algorithm
+                    const genereateBiclusters = (matrix: number[][], mnr: number, mnc: number): BiclusterData[] => {
+                        let pairs = [];//row pairs from bit comparisons
+                        let bic: BiclusterData;//temp bicluster for building final cluster
+                        let biclusters: BiclusterData[] = [];
+                        //Start bitwise AND comparisons with each row
+                        for (let i = 0; i < matrix.length; i++){
+                            for (let j = matrix.length - 1; j > i; j--){
+                                let currentPair = [];
+                                //bitwise AND comparison of two rows
+                                for(let m = 0; m < matrix[i].length; m++){
+                                    currentPair.push(matrix[i][m] & matrix[j][m]);
+                                }
+                                //Loop through the list of bitwise encoded pairs to
+                                //make sure current pair isnt a duplicate
+                                let duplicate = false;
+                                for (let n = 0; n < pairs.length; n++){
+                                    //only check if list has pairs
+                                    if(pairs.length > 1){
+                                        if(JSON.stringify(pairs[n].bit)==JSON.stringify(currentPair)){
+                                            duplicate = true;
+                                        }
+                                    }
+                                }
+                                //if current pair isn't a duplicate used already
+                                if (!duplicate) {
+                                    //add current pair to the temp bicluster to build
+                                    bic = {pair: [i, j], bit: currentPair};
+                                    //loop through the rest of the matrix rows and see if bitwise AND
+                                    //has same result to match for biclustering
+                                    for(let k = 0; k < matrix.length; k++){
+                                        //if same row dont compare
+                                        if((k == i || k == j) && k != matrix.length){
+                                            k++
+                                        }else{
+                                            let tempCompare = [];
+                                            //bitwise AND compare of the current row
+                                            for(let m = 0; m < currentPair.length; m++){
+                                                tempCompare.push(currentPair[m] & matrix[k][m]);
+                                            }
+                                            //see if the result from comparison matches current pairs to cluster
+                                            if(JSON.stringify(tempCompare)==JSON.stringify(currentPair)){
+                                                //add to temp bicluster
+                                                bic.pair.push(k);
+                                            }
+                                        }
+                                    }
+                                    //check if the temp bicluster has 2 or more rows and is not all 0's
+                                    if (bic.pair.length >= mnr && parseInt(bic.bit.join(''), 2) != 0) {
+                                        biclusters.push(bic);//add to global bicluster list
+                                    }
+                                }
+                                //add the encoded pair to pairs list to not repeat same sequence
+                                pairs.push({pair: i.toString() + j.toString(), bit: currentPair})
+                            }
+                        }
+                        return biclusters;
+                    };
+
+                      //after all bicluster are created and formed
+                    //decode the bicluster matrix and determine clusters to be used
+                    const decodeMatrix = (matrix: number[][], biclusters: BiclusterData[]): BiclusterData[] => {
+                        let tempLength = 0;
+                        let largestBI: BiclusterData = {pair: [], bit: []}; //largest bicluster
+                        let usedRows: number[] = []; //list of used rows to avoid collisions
+                        let otherClusters = [];
+
+                        for(let i = 0; i < biclusters.length; i++){
+                            //sums the int size of the bicluster pair to determine the biggest cluster
+                            //to use as the first bicluster
+                            if(tempLength < biclusters[i].bit.reduce((a, b) => a + b, 0)){
+                                largestBI = biclusters[i];
+                                tempLength = biclusters[i].bit.reduce((a, b) => a + b, 0)
+                                //checks through all other bicluster pairs and includes biclusters that
+                                //have not had their rows used yet to avoid collisions
+                            }
+                        }
+                        usedRows = usedRows.concat(largestBI.pair);
+                        otherClusters.push(largestBI);
+                        for(let i = 0; i < biclusters.length; i++){
+                            if (!usedRows.some(v => biclusters[i].pair.includes(v))) {
+                                usedRows = usedRows.concat(biclusters[i].pair);
+                                otherClusters.push(biclusters[i]);//non largest biclusters
+                            }
+                            console.log(otherClusters)
+                        }
+
+                        for(let j = 0; j < data.tag_axis.length - 4; j+=4){
+
+                            for(let m = 0; m < otherClusters.length; m++){
+                                let pattern: string[] = [];
+                                for(let k = 0; k < otherClusters[m].bit.length; k++){
+                                    let p = otherClusters[m].bit[k].toString(2).split('');
+                                    //after converting from int to binary, add zeros to the end to equal 4 bits
+                                    //int 0.toString(2) -> binary 0.unshift -> '0000'
+                                    if(p.length < 4){
+                                        for(let i = 4 - p.length; i > 0; i--){
+                                            p.unshift("0");
+                                        }
+                                    }
+                                    pattern = pattern.concat(p)
+                                }
+                                otherClusters[m].pattern = pattern;
+                            }
+                        }
+                        return otherClusters;
+                    };
+
+                    const highlightBiclusters = (otherClusters: BiclusterData[]): void => {
+                        for(let i = 0; i < otherClusters.length; i++){
+                            for(let j = 0; j < otherClusters[i].pair.length; j++){
+                                for(let k = 0; k < data.mapping.length; k++){
+                                    if(data.mapping[k].mat_index == otherClusters[i].pair[j] &&
+                                        otherClusters[i].pattern?.[k - data.tag_axis.length * data.mapping[k].mat_index] === "1"){
+
+                                        data.mapping[k].weight = 0.6
+                                    }
+                                }
+                            }
+                        }
+                    };
+
+                    let matrix = encodedMatrix();
+                    let biclusters = genereateBiclusters(matrix,2, 4);
+                    let otherClusters = decodeMatrix(matrix, biclusters);
+                    highlightBiclusters(otherClusters);
+
                     console.log(data);
+                    console.log(biclusters);
+                    console.log(otherClusters);
 
                     setViewInfo({...viewInfo, init_fetched: true, fetched: true, data, ids, filter})
                 }
@@ -164,7 +343,6 @@ export const HarmonizationView: FunctionComponent<Props> = ({
 
     const onTextFieldChange = (field_id: string) => (e: React.ChangeEvent<HTMLInputElement>): void => {
         let fields = viewInfo;
-        // @TODO @FIXME bad form
         fields = {...fields, [field_id]: e.currentTarget.value, fetched: false};
         setViewInfo(fields);
     };
@@ -190,8 +368,6 @@ export const HarmonizationView: FunctionComponent<Props> = ({
     };
 
     const onSubmit = () => {
-
-
         const post_url = api_url + "/data/post/material";
         const fetch_url = api_url + "/data/materials?ids=" + viewInfo.ids;
 

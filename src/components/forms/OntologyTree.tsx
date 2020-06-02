@@ -202,7 +202,7 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
 
     let expanded = treeInfo.expanded.map(e => e);
 
-    let propagate_expand = treeInfo.search_term != search_term || treeInfo.propagate_expand;
+    let propagate_expand = treeInfo.search_term !== search_term || treeInfo.propagate_expand;
     console.log("tree redraw");
     const tree = treeInfo.fetched && treeInfo.ontology !== null ?
         createTree(treeInfo.ontology, -1, expanded, propagate_expand) : <CircularProgress/>;

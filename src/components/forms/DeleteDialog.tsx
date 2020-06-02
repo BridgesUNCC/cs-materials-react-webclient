@@ -9,8 +9,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import {createStyles, TextField, Theme} from "@material-ui/core";
 import LinearProgress from "@material-ui/core/LinearProgress";
-import SnackbarContentWrapper from "../SnackbarContentWrapper";
-import Snackbar from "@material-ui/core/Snackbar";
 import Grid from "@material-ui/core/Grid";
 import {postJSONData} from "../../util/util";
 
@@ -69,7 +67,7 @@ export const DeleteDialog: FunctionComponent<DeleteProps> = ({
     const classes = useStyles();
 
     async function submit() {
-        updateDeleteInfo({...deleteInfo, loading: true})
+        updateDeleteInfo({...deleteInfo, loading: true});
         const url = api_url + "/data/delete/material";
         let data = {"data": {"id": id}};
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
@@ -86,7 +84,7 @@ export const DeleteDialog: FunctionComponent<DeleteProps> = ({
                   }
               }
         });
-    };
+    }
 
     const validateAndSubmit = () => {
         if (name === deleteInfo.confirm_text) {
@@ -162,4 +160,4 @@ export const DeleteDialog: FunctionComponent<DeleteProps> = ({
             </Dialog>
         </div>
     );
-}
+};

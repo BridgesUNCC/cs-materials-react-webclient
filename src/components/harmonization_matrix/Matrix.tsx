@@ -49,18 +49,24 @@ export const Matrix: FunctionComponent<Props> = ({
             .style("stroke", "black")
             .style("stroke-width", "1px")
             .style("fill", function (d) {
-                    switch (d.weight) {
-                        case -0.5:
-                            return "grey";
-                        case 0:
-                            return "white";
-                        case 0.5:
-                            return "red";
-                        case 1:
-                            return "blue"
-                    }
+                switch (d.weight) {
+                    case -0.5:
+                        return "grey";
+                    case 0:
+                        return "white";
+                    case 0.5:
+                        return "red";
+                    case 1:
+                        return "blue";
 
-                    return "black";
+                    // not sure what toggling a bicluster should look like
+                    case 0.6:
+                        return "yellow";
+                    case -0.4:
+                        return "orange";
+                }
+
+                return "black";
             })
             .style("fill-opacity", function (d) {return 1})
             .on("mouseover", gridOver)
@@ -73,9 +79,7 @@ export const Matrix: FunctionComponent<Props> = ({
             .scaleExtent([-1, 20])
             .on("zoom", zoomed));
 
-        // draw axi,
-        let scale_size = data.material_axis.length * 25;
-
+        // draw axi
         let mat_range = data.material_axis.map((ele, index) => index * 25 + 12.5);
         let name_scale = d3.scaleOrdinal().domain(data.material_axis.map(e => e.title)).range(mat_range);
 
