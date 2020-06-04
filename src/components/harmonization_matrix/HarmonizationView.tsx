@@ -5,7 +5,7 @@ import {getJSONData, postJSONData} from "../../util/util";
 import {Button, CircularProgress, createStyles, Paper, TextField, Theme} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import {RouteComponentProps} from "react-router";
-
+import {Bicluster} from "./Bicluster";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -162,12 +162,12 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                         DO BICLUSTERING
                      */
 
-                        //Function to encode the matrix into bits for comaprison to
+                    //Function to encode the matrix into bits for comparison to
                     //minimize runtime for biclustering
                     const encodedMatrix = (): number[][] => {
                         let matrix = [];
                         //need length bits divisible by 4 during encoding so find remainder and add to length
-                        let encodingRemainder = (data.tag_axis.length)%4;
+                        let encodingRemainder = (data.tag_axis.length) % 4;
                         let encodingLength = (data.tag_axis.length);//the current length of the row to be encoded
 
                         //iterate over each row in the matrix to perform the encoding
@@ -175,12 +175,12 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                             let encodedList = [];
                             //Since we are encoding 4 bits at a time, we start at every 4 columns
                             //and encode the 4 bits inbetween
-                            for (let j = 0; j <= encodingLength - 4; j+=4){
+                            for (let j = 0; j <= encodingLength - 4; j += 4){
                                 let currentEncode = "";
                                 //get the first encoded bits before remainders added
                                 //add the remainder of 0's for make comparisons even
                                 //iterate over the 4 bits to be encoded
-                                for (let k = 0; k < 4; k++){
+                                for (let k = 0; k < 4; k++) {
                                     //if we reach the end of the columns in this row their is a remainder left (not divisible by 4)
                                     //add the remainder of 0's to the encoding
                                     if (encodingLength + encodingRemainder == j + k){
@@ -189,7 +189,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                                         }
                                         //else just grab current weight for encoding
                                      } else {
-                                        currentEncode += JSON.parse(JSON.stringify(data.mapping[i*encodingLength+j + k].weight > 0 ? "1" : "0"));
+                                        currentEncode += JSON.parse(JSON.stringify(data.mapping[j * encodingLength + i + k].weight > 0 ? "1" : "0"));
                                     }
                                 }
                                 //push current encoded 4 bits to the encoded list for this row/material
@@ -234,23 +234,23 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                                     //has same result to match for biclustering
                                     for(let k = 0; k < matrix.length; k++){
                                         //if same row dont compare
-                                        if((k == i || k == j) && k != matrix.length){
+                                        if ((k == i || k == j) && k != matrix.length){
                                             k++
-                                        }else{
+                                        } else {
                                             let tempCompare = [];
                                             //bitwise AND compare of the current row
-                                            for(let m = 0; m < currentPair.length; m++){
+                                            for (let m = 0; m < currentPair.length; m++){
                                                 tempCompare.push(currentPair[m] & matrix[k][m]);
                                             }
                                             //see if the result from comparison matches current pairs to cluster
-                                            if(JSON.stringify(tempCompare)==JSON.stringify(currentPair)){
+                                            if (JSON.stringify(tempCompare)==JSON.stringify(currentPair)){
                                                 //add to temp bicluster
                                                 bic.pair.push(k);
                                             }
                                         }
                                     }
                                     //check if the temp bicluster has 2 or more rows and is not all 0's
-                                    if (bic.pair.length >= mnr && parseInt(bic.bit.join(''), 2) != 0) {
+                                    if (bic.pair.length >= mnc && parseInt(bic.bit.join(''), 2) !== 0) {
                                         biclusters.push(bic);//add to global bicluster list
                                     }
                                 }
@@ -261,7 +261,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                         return biclusters;
                     };
 
-                      //after all bicluster are created and formed
+                    //after all bicluster are created and formed
                     //decode the bicluster matrix and determine clusters to be used
                     const decodeMatrix = (matrix: number[][], biclusters: BiclusterData[]): BiclusterData[] => {
                         let tempLength = 0;
@@ -314,7 +314,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                         for(let i = 0; i < otherClusters.length; i++){
                             for(let j = 0; j < otherClusters[i].pair.length; j++){
                                 for(let k = 0; k < data.mapping.length; k++){
-                                    if(data.mapping[k].mat_index == otherClusters[i].pair[j] &&
+                                    if (data.mapping[k].tag_index == otherClusters[i].pair[j] &&
                                         otherClusters[i].pattern?.[k - data.tag_axis.length * data.mapping[k].mat_index] === "1"){
 
                                         data.mapping[k].weight = 0.6
@@ -324,14 +324,32 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                         }
                     };
 
-                    let matrix = encodedMatrix();
-                    let biclusters = genereateBiclusters(matrix,2, 4);
-                    let otherClusters = decodeMatrix(matrix, biclusters);
-                    highlightBiclusters(otherClusters);
+                   // let matrix = encodedMatrix();
+                    //let biclusters = genereateBiclusters(matrix,2, 4);
+                    //let otherClusters = decodeMatrix(matrix, biclusters);
+                    //highlightBiclusters(otherClusters);
 
-                    console.log(data);
-                    console.log(biclusters);
-                    console.log(otherClusters);
+                    //console.log(data);
+                    //console.log(biclusters);
+                   // console.log(otherClusters);
+
+                    const fix_matrix = (data: HarmonizationData): void => {
+                        let fixed_mapping = Array(data.mapping.length);
+                        let row_len = data.tag_axis.length;
+
+                        data.mapping.forEach(value => {
+                            let x = value.tag_index;
+                            let y = value.mat_index;
+
+                            // insert mapping into proper location for encoding
+                            fixed_mapping[(y * row_len) + x] = value;
+                        });
+
+                        data.mapping = fixed_mapping;
+                    };
+
+                    fix_matrix(data);
+                    Bicluster(data);
 
                     setViewInfo({...viewInfo, init_fetched: true, fetched: true, data, ids, filter})
                 }

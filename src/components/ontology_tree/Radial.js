@@ -429,9 +429,6 @@ class Radial extends Component {
         .attr("transform", function (d) {return "translate(" + d.data.locationX + "," + d.data.locationY + ")"; })
         .style("fill", function (d) {return d.data.color})
         .on("mouseover", function(d){
-          let xPosition = d.data.locationX;
-          let yPosition = d.data.locationY;
-
           let currentNode = d.data;
           let breadcrumbs = [d.data.id];
 
