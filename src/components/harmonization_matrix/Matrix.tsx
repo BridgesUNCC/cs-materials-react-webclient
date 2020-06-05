@@ -1,19 +1,20 @@
-import React, {FunctionComponent, useEffect, useRef} from "react";
+import React, {FunctionComponent, useEffect, useRef, useState} from "react";
 import * as d3 from "d3";
 import {HarmonizationData, MappingData} from "./HarmonizationView";
 import {svg} from "d3";
 
-
 interface Props {
     data: HarmonizationData
-    handleClick: (clicked: MappingData) => void;
+    handleClick: (clicked: MappingData, transform: string) => void;
+    transform: string
 }
+
 
 export const Matrix: FunctionComponent<Props> = ({
     data,
     handleClick,
+    transform,
 }) => {
-
     const ref = useRef(null);
     
     function gridOver(d: any, i: any) {
@@ -36,7 +37,8 @@ export const Matrix: FunctionComponent<Props> = ({
         svgElement.attr("width", 5000)
             .attr("height", 5000)
             .append("g")
-            .attr("transform", "translate(150,150)")
+            // @ts-ignore
+            .attr("transform", transform)
             .attr("id", "adjacencyG")
             .selectAll("rect")
             .data(data.mapping)
@@ -48,7 +50,7 @@ export const Matrix: FunctionComponent<Props> = ({
             .attr("y", function (d: MappingData) {return d.tag_index * 25})
             .style("stroke", "black")
             .style("stroke-width", "1px")
-            .style("fill", function (d) {
+            .style("fill", function (d: MappingData) {
                 switch (d.weight) {
                     case -0.5:
                         return "grey";
@@ -68,10 +70,12 @@ export const Matrix: FunctionComponent<Props> = ({
 
                 return "black";
             })
-            .style("fill-opacity", function (d) {return 1})
+            .style("fill-opacity", function () {return 1})
             .on("mouseover", gridOver)
             .on("click", function (d: MappingData) {
-                handleClick(d);
+                // @ts-ignore
+                let transform = d3.select("g").attr("transform");
+                handleClick(d, transform);
             });
 
         // @ts-ignore

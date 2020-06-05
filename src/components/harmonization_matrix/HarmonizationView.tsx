@@ -7,7 +7,6 @@ import {makeStyles} from "@material-ui/core/styles";
 import {RouteComponentProps} from "react-router";
 import {Bicluster} from "./Bicluster";
 
-
 const useStyles = makeStyles((theme: Theme) =>
     createStyles ( {
         textField: {
@@ -35,6 +34,7 @@ interface ViewInfo {
     filter: string;
     fetched: boolean;
     init_fetched: boolean;
+    transform: string;
 }
 
 interface MaterialData {
@@ -86,6 +86,7 @@ const createEmptyInfo = (): ViewInfo => {
         filter: "",
         fetched: false,
         init_fetched: false,
+        transform: "translate(150, 150)"
     };
 };
 
@@ -192,7 +193,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
         setViewInfo(fields);
     };
 
-    const handleBoxToggle = (selected: MappingData) => {
+    const handleBoxToggle = (selected: MappingData, transform: string) => {
         if (viewInfo.data !== null) {
             let mapping = viewInfo.data.mapping;
 
@@ -207,7 +208,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                 mapping: mapping
             };
 
-            setViewInfo({...viewInfo, data: new_data});
+            setViewInfo({...viewInfo, data: new_data, transform});
         }
 
     };
@@ -273,7 +274,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
             {
                 viewInfo.fetched && viewInfo.data !== null? (
                     <div id={"matrix-container"}>
-                        <Matrix data={viewInfo.data} handleClick={handleBoxToggle}/>
+                        <Matrix data={viewInfo.data} handleClick={handleBoxToggle} transform={viewInfo.transform}/>
                     </div>
                     ):
                     <CircularProgress/>
