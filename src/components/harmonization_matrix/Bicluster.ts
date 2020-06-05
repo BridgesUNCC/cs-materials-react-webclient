@@ -21,6 +21,8 @@ export const Bicluster = (data: HarmonizationData): HarmonizationData => {
     let enc_len = data.tag_axis.length / WORD_SIZE;
     let row_len = data.tag_axis.length;
     let col_len = data.material_axis.length;
+    let min_mats = 3;
+    let min_tags = 3;
 
     // https://stackoverflow.com/questions/109023/how-to-count-the-number-of-set-bits-in-a-32-bit-integer
     const hamming_weight = (i: number): number => {
@@ -133,60 +135,85 @@ export const Bicluster = (data: HarmonizationData): HarmonizationData => {
         return max;
     };
 
+    const filter_remaining_clusters = (biclusters: BiclusterInfo[], max: BiclusterInfo,
+                                       min_tags: number, min_mats: number): BiclusterInfo[] => {
+        let ret: BiclusterInfo[] = [];
+
+        biclusters.forEach(val => {
+            val.materials = val.materials.filter(mat => !max.materials.includes(mat));
+            val.tags = val.tags.filter(tag => !max.tags.includes((tag)));
+
+            if (val.materials.length >= min_mats && val.tags.length >= min_tags)
+                ret.push(val);
+        });
+
+        return ret;
+    };
+
     let matrix = encode_matrix((data));
     console.log(matrix);
-    let biclusters = BiBit_cluster_search(data, matrix, 3, 3);
+    let biclusters = BiBit_cluster_search(data, matrix, min_tags, min_mats);
     console.log(biclusters);
+
     let max = detect_max_cluster(biclusters);
-
-    console.log(max);
-
-    // old_index -> new_index mapping
-    let mat_mapping = Array(data.material_axis.length);
-    let tag_mapping = Array(data.tag_axis.length);
-
-    max.materials.forEach((value, index) => {
-        mat_mapping[value] = index;
-    });
-
-    let next_index = max.materials.length;
-    data.material_axis.forEach((value, index) => {
-        if (mat_mapping[index] === undefined) {
-            mat_mapping[index] = next_index++;
+    let next = max;
+    do {
+        biclusters = filter_remaining_clusters(biclusters, max, min_tags, min_mats);
+        next = detect_max_cluster(biclusters);
+        if (next !== undefined) {
+            max.materials = max.materials.concat(next.materials);
+            max.tags = max.tags.concat(next.tags);
         }
-    });
-    console.log(mat_mapping);
+    } while (next !== undefined);
 
-    let new_mat_axis = Array(data.material_axis.length);
-    mat_mapping.forEach((val, index) => {
-        new_mat_axis[val] = data.material_axis[index];
-    });
-    data.material_axis = new_mat_axis;
+    if (max !== undefined) {
+        console.log(max);
+        // old_index -> new_index mapping
+        let mat_mapping = Array(data.material_axis.length);
+        let tag_mapping = Array(data.tag_axis.length);
 
-    max.tags.forEach((value, index) => {
-        tag_mapping[value] = index;
-    });
+        max.materials.forEach((value, index) => {
+            mat_mapping[value] = index;
+        });
 
-    next_index = max.tags.length;
-    data.tag_axis.forEach((value, index) => {
-        if (tag_mapping[index] === undefined) {
-            tag_mapping[index] = next_index++;
-        }
-    });
+        let next_index = max.materials.length;
+        data.material_axis.forEach((value, index) => {
+            if (mat_mapping[index] === undefined) {
+                mat_mapping[index] = next_index++;
+            }
+        });
+        console.log(mat_mapping);
 
-    let new_tag_axis = Array(data.tag_axis.length);
-    tag_mapping.forEach((val, index) => {
-        new_tag_axis[val] = data.tag_axis[index];
-    });
-    console.log(data.tag_axis);
-    console.log(new_tag_axis);
-    data.tag_axis = new_tag_axis;
+        let new_mat_axis = Array(data.material_axis.length);
+        mat_mapping.forEach((val, index) => {
+            new_mat_axis[val] = data.material_axis[index];
+        });
+        data.material_axis = new_mat_axis;
 
-    data.mapping.forEach((val, index) => {
-       val.mat_index = mat_mapping[val.mat_index];
-       val.tag_index = tag_mapping[val.tag_index];
-    });
+        max.tags.forEach((value, index) => {
+            tag_mapping[value] = index;
+        });
 
+        next_index = max.tags.length;
+        data.tag_axis.forEach((value, index) => {
+            if (tag_mapping[index] === undefined) {
+                tag_mapping[index] = next_index++;
+            }
+        });
+
+        let new_tag_axis = Array(data.tag_axis.length);
+        tag_mapping.forEach((val, index) => {
+            new_tag_axis[val] = data.tag_axis[index];
+        });
+        console.log(data.tag_axis);
+        console.log(new_tag_axis);
+        data.tag_axis = new_tag_axis;
+
+        data.mapping.forEach((val, index) => {
+            val.mat_index = mat_mapping[val.mat_index];
+            val.tag_index = tag_mapping[val.tag_index];
+        });
+    }
     return data;
 };
 
