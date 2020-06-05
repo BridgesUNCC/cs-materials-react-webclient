@@ -165,9 +165,11 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                         data.mapping.forEach(value => {
                             let x = value.tag_index;
                             let y = value.mat_index;
+                            let index = (y * row_len + x);
+                            value.index = index;
 
                             // insert mapping into proper location for encoding
-                            fixed_mapping[(y * row_len) + x] = value;
+                            fixed_mapping[index] = value;
                         });
 
                         data.mapping = fixed_mapping;
