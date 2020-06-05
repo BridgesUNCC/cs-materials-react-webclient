@@ -8,13 +8,14 @@ export interface BiclusterInfo {
     i: number;
     j: number;
 
+    p_ij: number[];
     // rows and cols in bicluster
-    rows: number[];
-    columns: number[];
+    materials: number[];
+    tags: number[];
 }
 
 
-export const Bicluster = (data: HarmonizationData): void => {
+export const Bicluster = (data: HarmonizationData): HarmonizationData => {
     const WORD_SIZE = 8;
     let enc_remainder = data.tag_axis.length % WORD_SIZE;
     let enc_len = data.tag_axis.length / WORD_SIZE;
@@ -66,7 +67,7 @@ export const Bicluster = (data: HarmonizationData): void => {
     // https://academic.oup.com/bioinformatics/article/27/19/2738/231788
     const BiBit_cluster_search = (data: HarmonizationData,
                                   matrix: number[][],
-                                  min_cols: number, min_rows: number): BiclusterInfo[] => {
+                                  min_tags: number, min_mats: number): BiclusterInfo[] => {
         let out: BiclusterInfo[] = [];
 
         // get seed rows
@@ -81,7 +82,7 @@ export const Bicluster = (data: HarmonizationData): void => {
                 }, 0);
 
                 // @TODO check if p_ij is not part of another maximal bicluster
-                if (cols >= min_cols) {
+                if (cols >= min_tags) {
                     let rows = [i, j];
 
                     for (let k = 0; k !== i && k !== j && k < col_len; ++k) {
@@ -92,14 +93,25 @@ export const Bicluster = (data: HarmonizationData): void => {
                     }
 
                     // bicluster found
-                    if (rows.length >= min_rows) {
-                        // @TODO decode p_ij
+                    // decode bits back into relevant column
+                    if (rows.length >= min_mats) {
+                        let columns: number[] = [];
+                        p_ij.forEach((num, index) => {
+                            let remaining = num;
+                            for (let pow = WORD_SIZE - 1; pow >= 0; --pow) {
+                                if (remaining >= (2 ** pow)) {
+                                    remaining -= 2 ** pow;
+                                    columns.push(index * WORD_SIZE + (WORD_SIZE - (pow + 1)));
+                                }
+                            }
+                        });
 
                         out.push({
                                 i: i,
                                 j: j,
-                                rows: rows,
-                                columns: p_ij,
+                                p_ij: p_ij,
+                                materials: rows,
+                                tags: columns,
                             }
                         )
                     }
@@ -110,10 +122,71 @@ export const Bicluster = (data: HarmonizationData): void => {
         return out;
     };
 
+    const detect_max_cluster = (biclusters: BiclusterInfo[]): BiclusterInfo => {
+        let max = biclusters[0];
+
+        biclusters.forEach(val => {
+           if (val.tags.length * val.materials.length > max.tags.length * max.materials.length)
+               max = val;
+        });
+
+        return max;
+    };
+
     let matrix = encode_matrix((data));
     console.log(matrix);
     let biclusters = BiBit_cluster_search(data, matrix, 3, 3);
     console.log(biclusters);
+    let max = detect_max_cluster(biclusters);
 
+    console.log(max);
+
+    // old_index -> new_index mapping
+    let mat_mapping = Array(data.material_axis.length);
+    let tag_mapping = Array(data.tag_axis.length);
+
+    max.materials.forEach((value, index) => {
+        mat_mapping[value] = index;
+    });
+
+    let next_index = max.materials.length;
+    data.material_axis.forEach((value, index) => {
+        if (mat_mapping[index] === undefined) {
+            mat_mapping[index] = next_index++;
+        }
+    });
+    console.log(mat_mapping);
+
+    let new_mat_axis = Array(data.material_axis.length);
+    mat_mapping.forEach((val, index) => {
+        new_mat_axis[val] = data.material_axis[index];
+    });
+    data.material_axis = new_mat_axis;
+
+    max.tags.forEach((value, index) => {
+        tag_mapping[value] = index;
+    });
+
+    next_index = max.tags.length;
+    data.tag_axis.forEach((value, index) => {
+        if (tag_mapping[index] === undefined) {
+            tag_mapping[index] = next_index++;
+        }
+    });
+
+    let new_tag_axis = Array(data.tag_axis.length);
+    tag_mapping.forEach((val, index) => {
+        new_tag_axis[val] = data.tag_axis[index];
+    });
+    console.log(data.tag_axis);
+    console.log(new_tag_axis);
+    data.tag_axis = new_tag_axis;
+
+    data.mapping.forEach((val, index) => {
+       val.mat_index = mat_mapping[val.mat_index];
+       val.tag_index = tag_mapping[val.tag_index];
+    });
+
+    return data;
 };
 

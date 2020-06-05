@@ -349,7 +349,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                     };
 
                     fix_matrix(data);
-                    Bicluster(data);
+                    data = Bicluster(data);
 
                     setViewInfo({...viewInfo, init_fetched: true, fetched: true, data, ids, filter})
                 }
