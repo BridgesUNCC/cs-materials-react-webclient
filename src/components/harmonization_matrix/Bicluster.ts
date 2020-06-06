@@ -58,6 +58,9 @@ export const Bicluster = (data: HarmonizationData): HarmonizationData => {
                     val = val << 1;
                     val += data.mapping[(row_num * row_len) + i].weight > 0 ? 1 : 0;
                 }
+                // shift remaining bits, do not remove!
+                val = val << WORD_SIZE - enc_remainder;
+
                 enc_row.push(val);
             }
             matrix.push(enc_row);
@@ -151,9 +154,7 @@ export const Bicluster = (data: HarmonizationData): HarmonizationData => {
     };
 
     let matrix = encode_matrix((data));
-    console.log(matrix);
     let biclusters = BiBit_cluster_search(data, matrix, min_tags, min_mats);
-    console.log(biclusters);
 
     let max = detect_max_cluster(biclusters);
     let next = max;
@@ -167,7 +168,6 @@ export const Bicluster = (data: HarmonizationData): HarmonizationData => {
     } while (next !== undefined);
 
     if (max !== undefined) {
-        console.log(max);
         // old_index -> new_index mapping
         let mat_mapping = Array(data.material_axis.length);
         let tag_mapping = Array(data.tag_axis.length);
@@ -182,7 +182,6 @@ export const Bicluster = (data: HarmonizationData): HarmonizationData => {
                 mat_mapping[index] = next_index++;
             }
         });
-        console.log(mat_mapping);
 
         let new_mat_axis = Array(data.material_axis.length);
         mat_mapping.forEach((val, index) => {
@@ -193,6 +192,7 @@ export const Bicluster = (data: HarmonizationData): HarmonizationData => {
         max.tags.forEach((value, index) => {
             tag_mapping[value] = index;
         });
+
 
         next_index = max.tags.length;
         data.tag_axis.forEach((value, index) => {
@@ -205,8 +205,6 @@ export const Bicluster = (data: HarmonizationData): HarmonizationData => {
         tag_mapping.forEach((val, index) => {
             new_tag_axis[val] = data.tag_axis[index];
         });
-        console.log(data.tag_axis);
-        console.log(new_tag_axis);
         data.tag_axis = new_tag_axis;
 
         data.mapping.forEach((val, index) => {
