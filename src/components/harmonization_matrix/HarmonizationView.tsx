@@ -214,8 +214,9 @@ export const HarmonizationView: FunctionComponent<Props> = ({
     };
 
     const onSubmit = () => {
+        const ids = viewInfo.data?.material_axis.map(e => e.id);
         const post_url = api_url + "/data/post/material";
-        const fetch_url = api_url + "/data/materials?ids=" + viewInfo.ids;
+        const fetch_url = api_url + "/data/materials?ids=" + ids;
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
@@ -229,11 +230,14 @@ export const HarmonizationView: FunctionComponent<Props> = ({
 
                     let relevant_mapping = viewInfo.data.mapping.filter(element => element.weight > 0.0);
 
+                    console.log(relevant_mapping);
+
                     //@ts-ignore
                     let post_data = {"data": []};
                     data.forEach((material) => {
                         let tags = relevant_mapping.filter(element => element.mat_id === material.id);
 
+                        console.log(tags);
                         material.tags = tags.map(element => {
                             return {"instance_of": "tag", "id": element.tag_id}
                         });
@@ -241,6 +245,8 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                         // @ts-ignore
                         post_data.data.push(material)
                     });
+
+                    console.log(post_data);
 
                     postJSONData(post_url, post_data, auth).then((resp) => {
                         setViewInfo({...viewInfo, fetched: false});
