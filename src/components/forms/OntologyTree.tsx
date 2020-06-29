@@ -116,7 +116,7 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
     const createTree = (node: OntologyData, parent_id: number, expanded: string[], propagate_expand: boolean):
         ReactNode => {
 
-        const is_match = search_term.length !== 0 && kmpSearch(search_term, node.title) !== -1;
+        const is_match = search_term.length > 2 && kmpSearch(search_term.toLowerCase(), node.title.toLowerCase()) !== -1;
         // @ts-ignore
         const font_weight = is_match ? "fontWeightBold" : "inherit";
         const font_style = is_match ? "italic" : "normal";
