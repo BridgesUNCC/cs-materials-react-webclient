@@ -43,6 +43,7 @@ interface MatchParams {
 
 interface Props extends RouteComponentProps<MatchParams> {
     api_url: string;
+    force_user_data_reload: () => void;
 }
 
 // @TODO finish the rest of the fields
@@ -144,6 +145,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         location,
         match,
         api_url,
+        force_user_data_reload,
     }
 ) => {
 
@@ -255,7 +257,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                      history.push({
                              pathname: "/material/" + id
                          }
-                     )
+                     );
+                     force_user_data_reload();
                  } else {
                      setFormInfo({...formInfo, posting: false, fail: true});
                  }

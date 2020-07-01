@@ -34,13 +34,15 @@ interface ListEntity {
     materials: MaterialEntry[] | null;
     selected_materials: number[]
     fetched: boolean;
+    path: string
 }
 
-const createEmptyEntity = (): ListEntity => {
+const createEmptyEntity = (path: string): ListEntity => {
     return {
         materials: null,
         selected_materials: [],
         fetched: false,
+        path
     }
 };
 
@@ -50,31 +52,34 @@ interface MatchParams {
 
 interface ListProps extends RouteComponentProps<MatchParams> {
     api_url: string;
+    user_materials?: number[];
 }
 
 export const MaterialList: FunctionComponent<ListProps> = ({   history,
                                                                location,
                                                                match,
                                                                api_url,
+                                                               user_materials,
                                                            }) => {
     const classes = useStyles();
 
+    let path = location.pathname;
     const [listInfo, setListInfo] = React.useState<ListEntity>(
-        createEmptyEntity()
+        createEmptyEntity(path)
     );
-    console.log("in material list");
-
-    if (!listInfo.fetched) {
-        setListInfo({...listInfo, fetched: true});
 
 
-        let ids = "";
+    let reload = path !== listInfo.path;
+
+    if (!listInfo.fetched || reload) {
+
+        let ids = user_materials?.toString() || "";
         let tags = "";
         let sim_mats = "";
         let keyword = "";
         let collectionsOnly = "";
         if (location.search.split("ids=")[1])
-            ids = location.search.split("ids=")[1].split("&")[0];
+            ids += location.search.split("ids=")[1].split("&")[0];
         if (location.search.split("tags=")[1])
             tags = location.search.split("tags=")[1].split("&")[0];
         if (location.search.split("sim_mats=")[1])
@@ -96,7 +101,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
             else {
                 if (resp['status'] === "OK") {
                     const data = resp['data'];
-                    setListInfo({...listInfo, fetched: true, materials: data})
+                    setListInfo({...listInfo, fetched: true, materials: data, path})
                 }
             }
         })
@@ -106,7 +111,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     // user scrolls down?
     let output;
     let count = 0;
-    if (listInfo.materials !== null) {
+    if (listInfo.materials !== null && !reload) {
         output = listInfo.materials.map((value, index) => {
             // @Hack @FIXME cull entries for speed
             if (count++ > 250)
@@ -209,7 +214,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                         </Button>
                     </Grid>
                 </Grid>
-                {listInfo.materials === null &&
+                {(listInfo.materials === null || reload) &&
                 <CircularProgress/>
                 }
                 <List>

@@ -172,7 +172,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
         );
 
     };
-    if (!appInfo.fetched_initial_data && appInfo.user_id !== null) {
+    if ((!appInfo.fetched_initial_data || appInfo.force_fetch_data) && appInfo.user_id !== null) {
         /**
          *  This may be an anti pattern not sure
          *
@@ -274,6 +274,9 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
         window.location.reload();
     };
 
+    const force_user_data_refresh = () => {
+        setAppInfo({...appInfo, force_fetch_data: true});
+    };
 
     return (
         <div className="App">
@@ -371,10 +374,11 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     {appInfo.user_data &&
                     <Route path="/my_materials" render={(route_props) => (
                         <Container maxWidth="md">
-                            <UserMaterialList
+                            <MaterialList
                                 {...route_props}
                                 api_url={appInfo.api_url}
-                                user_materials={appInfo.user_data.owned_materials}/>
+                                user_materials={appInfo.user_data.owned_materials}
+                            />
                         </Container>
                     )}
                     />
@@ -398,7 +402,9 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
                     <Route path="/material/create" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialForm {...route_props} api_url={appInfo.api_url}/>
+                            <MaterialForm {...route_props} api_url={appInfo.api_url}
+                                      force_user_data_reload={force_user_data_refresh}
+                            />
                         </Container>
                     )}
                     />
@@ -406,7 +412,8 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
                     <Route path="/material/:id/edit" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialForm {...route_props} api_url={appInfo.api_url}/>
+                            <MaterialForm {...route_props} api_url={appInfo.api_url}
+                                          force_user_data_reload={force_user_data_refresh}/>
                         </Container>
                     )}
                     />

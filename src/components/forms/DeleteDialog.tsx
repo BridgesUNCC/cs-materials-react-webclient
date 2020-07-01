@@ -79,6 +79,9 @@ export const DeleteDialog: FunctionComponent<DeleteProps> = ({
                   if (resp['status'] === "OK") {
                       // do confirm of delete
                       console.log("Deleted")
+                      history.push({
+                          pathname: "/my_materials",
+                      });
                   } else {
                       updateDeleteInfo({...deleteInfo, loading: false, error_submitting: true});
                   }
