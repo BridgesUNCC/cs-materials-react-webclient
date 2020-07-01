@@ -247,7 +247,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
         <div>
             <Link to={"/materials"}>
                 <Button className={classes.margin} variant="contained" color="primary">
-                    back to list
+                    To Materials List
                 </Button>
             </Link>
             <div className={classes.root}>

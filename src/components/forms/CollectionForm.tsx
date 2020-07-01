@@ -102,9 +102,9 @@ export const CollectionForm: FunctionComponent<Props> = (
     console.log(formInfo.data);
 
     if (!formInfo.fetched) {
-        let ids = "";
+        let ids = "-1,";
         if (location.search.split("ids=")[1])
-            ids = location.search.split("ids=")[1].split("&")[0];
+            ids += location.search.split("ids=")[1].split("&")[0];
 
         const url = api_url + "/data/list/materials?ids=" + ids;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
@@ -206,7 +206,7 @@ export const CollectionForm: FunctionComponent<Props> = (
                     </Grid>
 
                     <Grid item>
-                        {output === null &&
+                        {!formInfo.fetched &&
                             <CircularProgress/>
                         }
                         <List>
