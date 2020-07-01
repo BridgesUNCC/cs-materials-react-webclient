@@ -1,6 +1,6 @@
 import React, {FunctionComponent, SyntheticEvent} from "react";
 import {RouteComponentProps} from "react-router";
-import {getJSONData, postJSONData} from "../util/util";
+import {getJSONData, postJSONData} from "../../util/util";
 import {createStyles, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -10,11 +10,11 @@ import Grid from "@material-ui/core/Grid";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Button from "@material-ui/core/Button";
 import Snackbar from '@material-ui/core/Snackbar';
-import SnackbarContentWrapper from "./SnackbarContentWrapper";
+import SnackbarContentWrapper from "../SnackbarContentWrapper";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
-import {TreeDialog} from "./forms/TreeDialog";
-import {MaterialListData} from "./MaterialOverview";
+import {TreeDialog} from "./TreeDialog";
+import {MaterialListData} from "../MaterialOverview";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -155,7 +155,6 @@ export const MaterialForm: FunctionComponent<Props> = (
         createEmptyEntity(location)
     );
 
-    console.log(formInfo.temp_tags);
     let tag_map: { [tag_type: string]: (TagData | string)[]} = {
         'author': formInfo.temp_tags.author,
         'course': formInfo.temp_tags.course,
@@ -170,7 +169,6 @@ export const MaterialForm: FunctionComponent<Props> = (
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
         getJSONData(url, auth).then(resp => {
-           console.log(resp);
            if (resp === undefined) {
                 console.log("API SERVER FAIL")
            } else {
@@ -187,7 +185,6 @@ export const MaterialForm: FunctionComponent<Props> = (
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
         getJSONData(url, auth).then(resp => {
-            console.log(resp);
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
             } else {
@@ -241,8 +238,6 @@ export const MaterialForm: FunctionComponent<Props> = (
 
         const data = {"data": [data_tmp]};
 
-        console.log(data);
-
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         postJSONData(url, data, auth).then(resp => {
@@ -268,10 +263,8 @@ export const MaterialForm: FunctionComponent<Props> = (
 
 
     const onTagTextFieldChange = (field_id: string) => (e: any, value: any): void => {
-        console.log(value);
         let fields = formInfo.temp_tags;
         fields = {...fields, [field_id]: value};
-        console.log(fields);
         setFormInfo({...formInfo, temp_tags: fields});
 
     };

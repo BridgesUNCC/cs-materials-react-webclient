@@ -1,6 +1,4 @@
-import {AxisData, MappingData, HarmonizationData} from "./HarmonizationView";
-import {number} from "prop-types";
-import {jsxMemberExpression} from "@babel/types";
+import {HarmonizationData} from "./HarmonizationView";
 
 
 export interface BiclusterInfo {
@@ -47,7 +45,6 @@ export const Bicluster = (data: HarmonizationData): HarmonizationData => {
                     val = val << 1;
 
                     // weight is either 0 or 0.5 at this point, for UI reasons
-                    let index = (row_num * row_len) + (i*WORD_SIZE) + j;
                     val += data.mapping[(row_num * row_len) + (i * WORD_SIZE) + j].weight > 0 ? 1 : 0;
                 }
                 enc_row.push(val);

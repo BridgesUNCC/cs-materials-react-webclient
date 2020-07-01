@@ -4,7 +4,7 @@ import TreeView from '@material-ui/lab/TreeView';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import TreeItem from '@material-ui/lab/TreeItem';
-import {OntologyData, TagData} from "../MaterialForm";
+import {OntologyData, TagData} from "./MaterialForm";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import {Box, Checkbox, CircularProgress, Divider} from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";

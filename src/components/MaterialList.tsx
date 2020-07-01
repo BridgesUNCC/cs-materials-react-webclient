@@ -94,7 +94,6 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
 
         // @TODO pass in auth token
         getJSONData(url).then(resp => {
-            console.log(resp);
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
             }
@@ -190,6 +189,9 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                         </Button>
                     </Grid>
                     <Divider/>
+                    <Grid
+                        item
+                    >
                         <Button className={classes.margin} variant="contained" color="primary"
                                 onClick={() => {
                                     history.push("/collection/create?ids=" + listInfo.selected_materials);
@@ -197,6 +199,16 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                                 }}>
                             Create Collection from Selected Materials
                         </Button>
+                    { typeof localStorage.getItem("access_token") === "string" &&
+                        <Button className={classes.margin} variant="contained" color="primary"
+                                onClick={() => {
+                                    history.push("/material/create");
+                                    setListInfo({...listInfo, materials: null, fetched: false});
+                                }}>
+                            Create Material
+                        </Button>
+                    }
+                    </Grid>
                     <Divider/>
                     <Grid item>
                         <Button className={classes.margin} variant="contained" color="primary"

@@ -13,7 +13,7 @@ import {
 import LinearProgress from "@material-ui/core/LinearProgress";
 import {Forgot} from "./Forgot";
 import {PasswordReset} from "./PasswordReset";
-import SnackbarContentWrapper from "./SnackbarContentWrapper";
+import SnackbarContentWrapper from "../SnackbarContentWrapper";
 import Snackbar from "@material-ui/core/Snackbar";
 
 const useStyles = makeStyles((theme: Theme) =>

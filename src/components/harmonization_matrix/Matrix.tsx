@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useEffect, useRef, useState} from "react";
+import React, {FunctionComponent, useEffect, useRef} from "react";
 import * as d3 from "d3";
 import {HarmonizationData, MappingData} from "./HarmonizationView";
 import {svg} from "d3";

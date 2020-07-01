@@ -5,7 +5,7 @@ import {createStyles, Theme} from "@material-ui/core";
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import {AppEntity} from "../App";
+import {AppEntity} from "../../App";
 import {RouteComponentProps} from "react-router";
 
 
@@ -35,10 +35,10 @@ export const AppBarUserMenu: FunctionComponent<Props> = ({history, location, log
         setAnchorEl(null);
     };
 
-    const toMyMaterials = () => {
+    const toPath = (path: string) => {
         history.push(
             {
-                pathname: "/my_materials",
+                pathname: path,
             }
         );
         handleClose();
@@ -57,7 +57,8 @@ export const AppBarUserMenu: FunctionComponent<Props> = ({history, location, log
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
             >
-                <MenuItem onClick={toMyMaterials}>My materials</MenuItem>
+                <MenuItem onClick={() => toPath("/my_materials")}>My materials</MenuItem>
+                <MenuItem onClick={() => toPath("/material/create")}>Create material</MenuItem>
                 <MenuItem onClick={logout}>Logout</MenuItem>
             </Menu>
         </div>

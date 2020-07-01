@@ -44,6 +44,7 @@ interface MatchParams {
 
 interface Props extends RouteComponentProps<MatchParams> {
     api_url: string;
+    force_user_data_reload: () => void;
 }
 
 interface CollectionData {
@@ -90,6 +91,7 @@ export const CollectionForm: FunctionComponent<Props> = (
         location,
         match,
         api_url,
+        force_user_data_reload,
     }
 ) => {
 
@@ -99,8 +101,6 @@ export const CollectionForm: FunctionComponent<Props> = (
       createEmptyEntity(location)
     );
 
-    console.log(formInfo.data);
-
     if (!formInfo.fetched) {
         let ids = "-1,";
         if (location.search.split("ids=")[1])
@@ -109,7 +109,6 @@ export const CollectionForm: FunctionComponent<Props> = (
         const url = api_url + "/data/list/materials?ids=" + ids;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
         getJSONData(url, auth).then(resp => {
-            console.log(resp);
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
             } else {
@@ -147,7 +146,8 @@ export const CollectionForm: FunctionComponent<Props> = (
                      history.push({
                              pathname: "/collection/" + id
                          }
-                     )
+                     );
+                     force_user_data_reload();
                  } else {
                      setFormInfo({...formInfo, posting: false, fail: true});
                  }

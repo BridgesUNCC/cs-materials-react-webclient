@@ -1,10 +1,10 @@
 import React, {FunctionComponent, SyntheticEvent} from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import {postJSONData} from "../util/util";
+import {postJSONData} from "../../util/util";
 import {createStyles, makeStyles, Theme} from "@material-ui/core";
 import Snackbar from '@material-ui/core/Snackbar';
-import SnackbarContentWrapper from "./SnackbarContentWrapper";
+import SnackbarContentWrapper from "../SnackbarContentWrapper";
 import Grid from "@material-ui/core/Grid";
 
 

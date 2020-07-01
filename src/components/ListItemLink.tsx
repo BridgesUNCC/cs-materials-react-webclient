@@ -26,14 +26,11 @@ export function ListItemLink(props: ListItemLinkProps) {
         history.push(to);
     };
 
-    // <ListItem button component={renderLink}>
     return (
-        <li>
-            <ListItem button onClick={routeChange}>
-                {input ? <ListItemSecondaryAction>{input}</ListItemSecondaryAction> : null}
-                {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
-                <ListItemText primary={primary} />
-            </ListItem>
-        </li>
+        <ListItem button onClick={routeChange}>
+            {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
+            <ListItemText primary={primary} />
+            {input ? <ListItemSecondaryAction>{input}</ListItemSecondaryAction> : null}
+        </ListItem>
     );
 }

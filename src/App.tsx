@@ -1,11 +1,10 @@
 import React, {FunctionComponent} from 'react';
 import './App.css';
 import {getJSONData, parseJwt} from './util/util';
-import {LoginDialog} from "./components/LoginDialog";
+import {LoginDialog} from "./components/user/LoginDialog";
 import {MaterialList} from "./components/MaterialList";
-import {UserMaterialList} from "./components/UserMaterialList";
 import {AppBar, createStyles, Grid, Theme} from "@material-ui/core";
-import {AppBarUserMenu} from "./components/AppBarUserMenu";
+import {AppBarUserMenu} from "./components/user/AppBarUserMenu";
 import {Route, RouteComponentProps, Switch} from "react-router";
 import Container from "@material-ui/core/Container";
 import Snackbar from '@material-ui/core/Snackbar';
@@ -14,7 +13,7 @@ import {MaterialOverview} from "./components/MaterialOverview";
 import Button from "@material-ui/core/Button";
 import {Link} from "react-router-dom";
 import makeStyles from "@material-ui/core/styles/makeStyles";
-import {MaterialForm} from "./components/MaterialForm";
+import {MaterialForm} from "./components/forms/MaterialForm";
 import {HarmonizationView} from "./components/harmonization_matrix/HarmonizationView";
 import OntologyWrapper from "./components/ontology_tree/OntologyWrapper";
 import {Search} from "./components/search/Search";
@@ -58,7 +57,7 @@ const createInitialAppEntity = (): AppEntity => {
     console.log(process.env.REACT_APP_API_URL);
     let api_url = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-    if (typeof jwt == "string") {
+    if (typeof jwt === "string") {
         let payload = parseJwt(jwt);
 
         if (payload !== null) {
@@ -164,7 +163,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
                 setAppInfo({
                     ...appInfo, user_id: id_to_set, user_data: resp,
-                    snackbar_flags: flags, fetched_initial_data: true,
+                    snackbar_flags: flags, fetched_initial_data: true, force_fetch_data: false,
                 });
                 console.log(id);
                 console.log(resp);
@@ -388,7 +387,9 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 <Switch>
                     <Route path="/collection/create" render={(route_props) => (
                         <Container maxWidth={"md"}>
-                            <CollectionForm {...route_props} api_url={appInfo.api_url} />
+                            <CollectionForm {...route_props} api_url={appInfo.api_url}
+                                force_user_data_reload={force_user_data_refresh}
+                            />
                         </Container>
                     )}
                     />
