@@ -1,3 +1,6 @@
+// @TODO cleanup file to not require this disable
+/* eslint-disable */
+
 import React, {Component} from 'react';
 import * as d3 from "d3";
 

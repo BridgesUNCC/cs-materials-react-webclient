@@ -54,7 +54,6 @@ const createInitialAppEntity = (): AppEntity => {
     // @TODO if token is blacklisted, drop it
     let jwt = localStorage.getItem("access_token");
 
-    console.log(process.env.REACT_APP_API_URL);
     let api_url = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
     if (typeof jwt === "string") {
@@ -132,7 +131,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 let ok = false, request_confirm = false, expired = false, server_fail = false, invalid = false;
                 let id_to_set = null;
 
-                console.log(resp);
                 if (resp === undefined) {
                     console.log("API SERVER ERROR");
                     server_fail = true;
@@ -165,8 +163,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     ...appInfo, user_id: id_to_set, user_data: resp,
                     snackbar_flags: flags, fetched_initial_data: true, force_fetch_data: false,
                 });
-                console.log(id);
-                console.log(resp);
             }
         );
 
