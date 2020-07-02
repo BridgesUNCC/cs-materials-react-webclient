@@ -19,7 +19,7 @@ $ yarn start
 REACT_APP_API_URL=# URL used for api requests e.g. "https://cs-materials-api.herokuapp.com"
 ```
 
-##Debian specific
+## Debian specific
 
 In Debian, the apt package is call yarnpkg and the executable is also called yarnpkg. So you would run:
 
