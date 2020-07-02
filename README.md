@@ -25,7 +25,7 @@ In Debian, the apt package is call yarnpkg and the executable is also called yar
 
 ```sh
 $ apt install yarnpkg
-$ yar install
+$ yarn install
 $ export REACT_APP_API_URL="https://cs-materials-api.herokuapp.com"
 $ yarn start
 ```
