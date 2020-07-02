@@ -42,6 +42,7 @@ interface MaterialData {
     title: string;
     description: string
     instance_of: string;
+    material_type: string;
     upstream_url: string;
     tags: TagData[];
 }

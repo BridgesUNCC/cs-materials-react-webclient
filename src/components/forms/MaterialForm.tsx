@@ -164,6 +164,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         'ontology': formInfo.temp_tags.ontology,
     };
 
+
     if (!formInfo.tags_fetched) {
         const url = api_url + "/data/meta_tags";
 
@@ -318,241 +319,93 @@ export const MaterialForm: FunctionComponent<Props> = (
 
 
     let tags_fields;
+
     if (formInfo.fetched || (formInfo.tags_fetched && formInfo.new)) {
 
-        let default_authors = formInfo.temp_tags.author.map(e => {
-            if (typeof e === "string")
-                return e;
+        let defaults: {[tag_type: string]: (TagData | string | undefined)[]} = {
+            "author": [],
+            "course": [],
+            "language": [],
+            "topic": [],
+            "dataset": [],
+        };
 
-            return formInfo.meta_tags.author.find(ref => {
-                if (typeof ref ==="string" )
-                    return false;
 
-                return ref.id === e.id;
-            });
+        let meta_tag_map: { [tag_type: string]: (TagData | string)[]} = {
+            'author': formInfo.meta_tags.author,
+            'course': formInfo.meta_tags.course,
+            'language': formInfo.meta_tags.language,
+            'topic': formInfo.meta_tags.topic,
+            'dataset': formInfo.meta_tags.dataset,
+        };
+
+
+        Object.keys(defaults).forEach(key => {
+            defaults[key] = tag_map[key].map(e => {
+                    if (typeof e === "string")
+                        return e;
+
+                    return meta_tag_map[key].find(ref => {
+                        if (typeof ref === "string")
+                            return false;
+
+                        return ref.id === e.id;
+                    });
+                }
+            );
         });
 
-        let default_courses = formInfo.temp_tags.course.map(e => {
-            if (typeof e === "string")
-                return e;
+        interface KeyProp {
+            name: string
+        }
 
-            return formInfo.meta_tags.course.find(ref => {
-                if (typeof ref ==="string" )
-                    return false;
+        const MyAutocomplete: FunctionComponent<KeyProp> = ({name}) => {
+            return (
+                <Grid item>
+                    <Autocomplete
+                        multiple
+                        disableClearable={true}
+                        options={meta_tag_map[name]}
+                        value={defaults[name]}
+                        getOptionLabel={option => {
+                            if (option === undefined)
+                                return "";
 
-                return ref.id === e.id;
-            });
-        });
+                            if (typeof option === "string")
+                                return option;
 
-        let default_languages = formInfo.temp_tags.language.map(e => {
-            if (typeof e === "string")
-                return e;
+                            if (option.title !== undefined)
+                                return option.title;
 
-            return formInfo.meta_tags.language.find(ref => {
-                if (typeof ref ==="string" )
-                    return false;
-
-                    return ref.id === e.id;
-            });
-        });
-
-        let default_topics = formInfo.temp_tags.topic.map(e => {
-            if (typeof e === "string")
-                return e;
-
-            return formInfo.meta_tags.topic.find(ref => {
-                if (typeof ref ==="string" )
-                    return false;
-
-                    return ref.id === e.id;
-            });
-        });
-
-        let default_datasets = formInfo.temp_tags.dataset.map(e => {
-            if (typeof e === "string")
-                return e;
-
-            return formInfo.meta_tags.dataset.find(ref => {
-                if (typeof ref ==="string" )
-                    return false;
-
-                return ref.id === e.id;
-            });
-        });
+                            return String(option);
+                        }}
+                        freeSolo
+                        onChange={onTagTextFieldChange(name)}
+                        renderInput={params => (
+                            <TextField
+                                {...params}
+                                variant="standard"
+                                label={
+                                    name.charAt(0).toUpperCase() + name.slice(1) + "s"
+                                }
+                                margin="normal"
+                                className={classes.textArea}
+                                fullWidth
+                            />
+                        )}
+                    />
+                </Grid>
+            )
+        };
 
         tags_fields = (
             <div>
-                <Grid item>
-                <Autocomplete
-                    multiple
-                    disableClearable={true}
-                    options={formInfo.meta_tags.author}
-                    value={default_authors}
-                    getOptionLabel={option => {
-                            if (option === undefined)
-                                return "";
-
-                            if (typeof option === "string")
-                                return option;
-
-                            if (option.title !== undefined)
-                                return option.title;
-
-                            return String(option);
-                        }}
-                    freeSolo
-                    onChange={onTagTextFieldChange("author")}
-                    renderInput={params => (
-                    <TextField
-                        {...params}
-                        variant="standard"
-                        label="Authors"
-                        margin="normal"
-                        className={classes.textArea}
-                        fullWidth
-                    />
-                )}
-                />
-                </Grid>
-
-                <Grid item>
-                    <Autocomplete
-                        multiple
-                        disableClearable={true}
-                        options={formInfo.meta_tags.course}
-                        value={default_courses}
-                        getOptionLabel={option => {
-                            if (option === undefined)
-                                return "";
-
-                            if (typeof option === "string")
-                                return option;
-
-                            if (option.title !== undefined)
-                                return option.title;
-
-                            return String(option);
-                        }}
-                        freeSolo
-                        onChange={onTagTextFieldChange("course")}
-                        renderInput={params => (
-                            <TextField
-                                {...params}
-                                variant="standard"
-                                label="Courses"
-                                margin="normal"
-                                className={classes.textArea}
-                                fullWidth
-                            />
-                        )}
-                    />
-                </Grid>
-
-                <Grid item>
-                    <Autocomplete
-                        multiple
-                        disableClearable={true}
-                        options={formInfo.meta_tags.language}
-                        value={default_languages}
-                        getOptionLabel={option => {
-                            if (option === undefined)
-                                return "";
-
-
-                            if (typeof option === "string")
-                                return option;
-
-                            if (option.title !== undefined)
-                                return option.title;
-
-                            return String(option);
-                        }}
-                        freeSolo
-                        onChange={onTagTextFieldChange("language")}
-                        renderInput={params => (
-                            <TextField
-                                {...params}
-                                variant="standard"
-                                label="Programming Languages"
-                                margin="normal"
-                                className={classes.textArea}
-                                fullWidth
-                            />
-                        )}
-                    />
-                </Grid>
-
-
-                <Grid item>
-                    <Autocomplete
-                        multiple
-                        disableClearable={true}
-                        options={formInfo.meta_tags.topic}
-                        value={default_topics}
-                        getOptionLabel={option => {
-                            if (option === undefined)
-                                return "";
-
-
-                            if (typeof option === "string")
-                                return option;
-
-                            if (option.title !== undefined)
-                                return option.title;
-
-                            return String(option);
-                        }}
-                        freeSolo
-                        onChange={onTagTextFieldChange("topic")}
-                        renderInput={params => (
-                            <TextField
-                                {...params}
-                                variant="standard"
-                                label="Topics"
-                                margin="normal"
-                                className={classes.textArea}
-                                fullWidth
-                            />
-                        )}
-                    />
-                </Grid>
-
-                <Grid item>
-                    <Autocomplete
-                        multiple
-                        disableClearable={true}
-                        options={formInfo.meta_tags.dataset}
-                        value={default_datasets}
-                        getOptionLabel={option => {
-                            if (option === undefined)
-                                return "";
-
-                            if (typeof option === "string")
-                                return option;
-
-                            if (option.title !== undefined)
-                                return option.title;
-
-                            return String(option);
-                        }}
-                        freeSolo
-                        onChange={onTagTextFieldChange("dataset")}
-                        renderInput={params => (
-                            <TextField
-                                {...params}
-                                variant="standard"
-                                label="Datasets"
-                                margin="normal"
-                                className={classes.textArea}
-                                fullWidth
-                            />
-                        )}
-                    />
-                </Grid>
-
+                <MyAutocomplete name={"author"}/>
+                <MyAutocomplete name={"course"}/>
+                <MyAutocomplete name={"language"}/>
+                <MyAutocomplete name={"topic"}/>
+                <MyAutocomplete name={"dataset"}/>
             </div>
-
-
         )
 
     }

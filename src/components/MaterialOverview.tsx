@@ -101,7 +101,6 @@ export const MaterialOverview: FunctionComponent<Props> = (
         setOverviewInfo({...overviewInfo, data: null, fetched: false})
     }
 
-    console.log("mat overview");
     if (!overviewInfo.fetched || force_fetch_data) {
         setOverviewInfo({...overviewInfo, fetched: true});
 
