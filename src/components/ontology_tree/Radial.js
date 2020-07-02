@@ -234,8 +234,13 @@ class Radial extends Component {
       let howManyNodes = countVertices(tree,root);
       let anglePerVertex = 2*Math.PI/howManyNodes;
       let neededLength = howManyNodes * 15;
-      neededLength /= layers;
-      let depthOffset = neededLength / Math.PI / 2 / 3;
+	neededLength /= layers;
+
+	//depthOffset is the radius of the circle where all the nodes at a particular level are going to sit.
+	//in other words, all node at depth D should sit between D*depthOffset and (D+1)*depthOffset
+	let depthOffset = neededLength / Math.PI / 2 / layers;
+	if (depthOffset < 1.01*layers*layerDepth)
+	    depthOffset = 1.01*layers*layerDepth;
 
       function findNodeInClassTree(tree, node){
         let currNode = node;
