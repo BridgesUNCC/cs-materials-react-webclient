@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {RouteComponentProps} from "react-router";
 import {getJSONData} from "../util/util";
-import {createStyles, Divider, Theme, List} from "@material-ui/core";
+import {createStyles, Divider, Theme, List, MenuItem} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Typography from "@material-ui/core/Typography";
@@ -10,6 +10,7 @@ import {Link} from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import {ListItemLink} from "./ListItemLink";
 import {DeleteDialog} from "./forms/DeleteDialog";
+import {material_types} from "./forms/MaterialForm";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -49,7 +50,7 @@ export interface MaterialListData {
 interface MaterialData {
     id: number;
     title: string;
-    type: string;
+    material_type: string;
     description: string;
     upstream_url: string;
     tags: TagData[];
@@ -244,11 +245,30 @@ export const MaterialOverview: FunctionComponent<Props> = (
 
     return (
         <div>
+            <div>
             <Link to={"/materials"}>
                 <Button className={classes.margin} variant="contained" color="primary">
                     To Materials List
                 </Button>
             </Link>
+            {
+                typeof localStorage.getItem("access_token") === "string" &&
+                    <Link to={"/my_materials"}>
+                        <Button className={classes.margin} variant="contained" color="primary">
+                            To My Materials
+                        </Button>
+                    </Link>
+            }
+            </div>
+
+            {
+                typeof localStorage.getItem("access_token") === "string" &&
+                <Link to={"/material/create?source=" + overviewInfo.data?.id}>
+                    <Button className={classes.margin} variant="contained" color="primary">
+                        Duplicate
+                    </Button>
+                </Link>
+            }
             <div className={classes.root}>
 
                 <Paper>
@@ -258,15 +278,8 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         </div>
                         :
                         <div>
-                            {overviewInfo.can_edit &&
-                                <Link to={overviewInfo.data.id + "/edit"}>
-                                    <Button className={classes.margin} variant="contained" color="primary">
-                                        edit
-                                    </Button>
-                                </Link>
-                            }
                            <Typography variant={"h5"}>
-                                {overviewInfo.data.type}
+                                {material_types.find(e => e.value === overviewInfo.data?.material_type)?.label}
                             </Typography>
                             <Typography variant="h4" component="h3" className={classes.root}>
                                 {overviewInfo.data.title}

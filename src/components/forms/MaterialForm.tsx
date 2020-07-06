@@ -1,7 +1,7 @@
 import React, {FunctionComponent, SyntheticEvent} from "react";
 import {RouteComponentProps} from "react-router";
 import {getJSONData, postJSONData} from "../../util/util";
-import {createStyles, Theme} from "@material-ui/core";
+import {createStyles, MenuItem, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Paper from "@material-ui/core/Paper";
@@ -36,6 +36,45 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
+export const material_types = [
+    {
+        value: 'assignment',
+        label: 'Assignment',
+    },
+    {
+        value: 'slide',
+        label: 'Slides',
+    },
+    {
+        value: 'video',
+        label: 'Video',
+    },
+    {
+        value: 'lecture',
+        label: 'Lecture',
+    },
+    {
+        value: 'note',
+        label: 'Notes',
+    },
+    {
+        value: 'exam',
+        label: 'Exam',
+    },
+    {
+        value: 'project',
+        label: 'Project',
+    },
+    {
+        value: 'collection',
+        label: 'Collection',
+    },
+    {
+        value: 'other',
+        label: 'Other',
+    }
+]
+
 
 interface MatchParams {
     id: string;
@@ -53,6 +92,7 @@ interface MaterialData {
     type: string;
     description: string
     instance_of: string;
+    material_type: string;
     upstream_url: string;
     tags: TagData[];
     materials: MaterialListData[];
@@ -92,6 +132,7 @@ const createEmptyData = (): MaterialData => {
       title: "",
       description: "",
       instance_of: "material",
+      material_type: "assignment",
       type: "",
       upstream_url: "",
       tags: [],
@@ -181,8 +222,18 @@ export const MaterialForm: FunctionComponent<Props> = (
         });
     }
 
-    if (formInfo.tags_fetched && !formInfo.fetched && !formInfo.new) {
-        const url = api_url + "/data/material/meta?id=" + match.params.id;
+    let has_source = false;
+    let id = "-1";
+    if (!formInfo.fetched && formInfo.new) {
+        if (location.search.split("source=")[1]) {
+            id = location.search.split("source=")[1].split("&")[0];
+            has_source = true;
+        }
+    }
+
+    if (formInfo.tags_fetched && !formInfo.fetched && (!formInfo.new || has_source)) {
+        const q_id = has_source ? id : match.params.id;
+        const url = api_url + "/data/material/meta?id=" + q_id;
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
         getJSONData(url, auth).then(resp => {
@@ -201,6 +252,10 @@ export const MaterialForm: FunctionComponent<Props> = (
                             tag_map[tag.type].push(tag);
                         }
                     });
+
+                    if (has_source) {
+                        data.id = null
+                    }
 
                     setFormInfo({...formInfo, fetched: true, data})
                 }
@@ -281,6 +336,9 @@ export const MaterialForm: FunctionComponent<Props> = (
         onUpdateMaterialTextField(field_id, e.currentTarget.value);
     };
 
+    const onTypeFieldChange = (e:  React.ChangeEvent<HTMLInputElement>): void => {
+        onUpdateMaterialTextField("material_type", e.target.value);
+    };
 
     const handleSnackbarClose =  (name: string, event?: SyntheticEvent, reason?: string) => {
         if (reason === 'clickaway') {
@@ -433,6 +491,23 @@ export const MaterialForm: FunctionComponent<Props> = (
                         />
                         </Grid>
 
+                        <Grid item>
+                            <TextField
+                                id="standard-select-currency"
+                                select
+                                label="Material Type"
+                                value={formInfo.data?.material_type}
+                                onChange={onTypeFieldChange}
+                                helperText=""
+                                className={classes.textField}
+                            >
+                                {material_types.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
                         <Grid item>
                         <TextField
                             label={"Upstream URL"}
