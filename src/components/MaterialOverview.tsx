@@ -278,6 +278,13 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         </div>
                         :
                         <div>
+                            {overviewInfo.can_edit &&
+                            <Link to={overviewInfo.data.id + "/edit"}>
+                                <Button className={classes.margin} variant="contained" color="primary">
+                                    edit
+                                </Button>
+                            </Link>
+                            }
                            <Typography variant={"h5"}>
                                 {material_types.find(e => e.value === overviewInfo.data?.material_type)?.label}
                             </Typography>
