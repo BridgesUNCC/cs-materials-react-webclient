@@ -255,6 +255,7 @@ export const MaterialForm: FunctionComponent<Props> = (
 
                     if (has_source) {
                         data.id = null
+                        data.title += " Copy"
                     }
 
                     setFormInfo({...formInfo, fetched: true, data})
