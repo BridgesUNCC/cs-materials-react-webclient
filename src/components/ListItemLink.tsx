@@ -21,11 +21,7 @@ interface ListItemLinkProps extends RouteComponentProps<MatchParams> {
  * src: https://github.com/mui-org/material-ui/blob/master/docs/src/pages/guides/composition/ListRouter.tsx
  */
 export function ListItemLink(props: ListItemLinkProps) {
-    const { history, icon, primary, to, input } = props;
-
-    const routeChange = () => {
-        history.push(to);
-    };
+    const { icon, primary, to, input } = props;
 
     return (
         <ListItem button component={Link} to={to}>
