@@ -109,7 +109,8 @@ export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, api_
             <Dialog
                 open={open}
                 onClose={localOnClose}
-                fullScreen={true}
+                maxWidth="xl"
+                fullWidth={true}
             >
                 <AppBar className={classes.appBar}>
                 <Toolbar>

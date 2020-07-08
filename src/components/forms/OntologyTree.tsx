@@ -140,14 +140,12 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
             </div>
         );
 
-        if (
-            is_match ||
-            (
-                propagate_expand &&
-                expanded.find(e => Number(e) === node.id) !== undefined
-            )
-        )
+        // expand if matching term, or is parent of matching term
+        const should_expand = is_match
+            || (propagate_expand && expanded.find(e => Number(e) === node.id) !== undefined)
+        if (should_expand) {
             expanded.push(String(parent_id));
+        }
 
         if (node.children.length > 0) {
             let ele = (
@@ -159,11 +157,17 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
                 </div>
             );
 
+            // expand parent nodes of selected nodes
             if (
                 propagate_expand &&
                 expanded.find(e => Number(e) === node.id) !== undefined
             )
                 expanded.push(String(parent_id));
+
+            // expand root node, even if nothing is selected/matched
+            if (parent_id === -1 && expanded.find(e => Number(e) === node.id) === undefined) {
+                expanded.push(String(node.id));
+            }
 
             return ele;
         }
