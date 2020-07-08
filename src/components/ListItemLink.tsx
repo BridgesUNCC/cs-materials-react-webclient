@@ -4,6 +4,7 @@ import {RouteComponentProps} from "react-router";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import {ListItemSecondaryAction} from "@material-ui/core";
+import {Link} from "react-router-dom";
 
 interface MatchParams {
     id: string;
@@ -27,7 +28,7 @@ export function ListItemLink(props: ListItemLinkProps) {
     };
 
     return (
-        <ListItem button onClick={routeChange}>
+        <ListItem button component={Link} to={to}>
             {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
             <ListItemText primary={primary} />
             {input ? <ListItemSecondaryAction>{input}</ListItemSecondaryAction> : null}
