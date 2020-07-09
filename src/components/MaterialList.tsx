@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {getJSONData} from "../util/util";
+import {getJSONData} from "../common/util";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import List from "@material-ui/core/List";
 import {ListItemLink} from "./ListItemLink";
@@ -9,6 +9,7 @@ import Typography from "@material-ui/core/Typography";
 import {RouteComponentProps} from "react-router";
 import Button from "@material-ui/core/Button";
 import {Link} from "react-router-dom";
+import {MaterialListEntry} from "../common/types";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -23,15 +24,8 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-
-interface MaterialEntry {
-    title: string;
-    id: number;
-}
-
-
 interface ListEntity {
-    materials: MaterialEntry[] | null;
+    materials: MaterialListEntry[] | null;
     selected_materials: number[]
     fetched: boolean;
     path: string

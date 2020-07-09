@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 
 import {Matrix} from "./Matrix";
-import {getJSONData, postJSONData} from "../../util/util";
+import {getJSONData, postJSONData} from "../../common/util";
 import {Button, CircularProgress, createStyles, Paper, TextField, Theme} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import {RouteComponentProps} from "react-router";

@@ -10,7 +10,7 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import {createStyles, TextField, Theme} from "@material-ui/core";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Grid from "@material-ui/core/Grid";
-import {postJSONData} from "../../util/util";
+import {postJSONData} from "../../common/util";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

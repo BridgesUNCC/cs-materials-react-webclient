@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import {Button} from "@material-ui/core";
 import * as d3 from "d3";
 
-import {postJSONData} from "../../util/util";
+import {postJSONData} from "../../common/util";
 
 var materials = {};
 

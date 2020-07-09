@@ -1,6 +1,6 @@
 import React, {FunctionComponent, SyntheticEvent} from "react";
 import {RouteComponentProps} from "react-router";
-import {getJSONData, postJSONData} from "../../util/util";
+import {getJSONData, postJSONData} from "../../common/util";
 import {createStyles, Divider, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import CircularProgress from "@material-ui/core/CircularProgress";

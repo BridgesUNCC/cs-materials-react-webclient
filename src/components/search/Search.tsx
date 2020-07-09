@@ -3,7 +3,7 @@ import {RouteComponentProps} from "react-router";
 import {createStyles, Paper, Theme, Grid, Button, TextField} from "@material-ui/core";
 import {TreeDialog} from "../forms/TreeDialog";
 import {makeStyles} from "@material-ui/core/styles";
-import {TagData} from "../forms/MaterialForm";
+import {TagData} from "../../common/types"
 import {Link} from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>

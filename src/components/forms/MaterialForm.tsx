@@ -1,6 +1,6 @@
 import React, {FunctionComponent, SyntheticEvent} from "react";
 import {RouteComponentProps} from "react-router";
-import {getJSONData, postJSONData} from "../../util/util";
+import {getJSONData, postJSONData} from "../../common/util";
 import {createStyles, MenuItem, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -14,7 +14,7 @@ import SnackbarContentWrapper from "../SnackbarContentWrapper";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import {TreeDialog} from "./TreeDialog";
-import {MaterialListData} from "../MaterialOverview";
+import {MaterialTypesArray, TagData, MaterialData} from "../../common/types";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -36,46 +36,6 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-export const material_types = [
-    {
-        value: 'assignment',
-        label: 'Assignment',
-    },
-    {
-        value: 'slide',
-        label: 'Slides',
-    },
-    {
-        value: 'video',
-        label: 'Video',
-    },
-    {
-        value: 'lecture',
-        label: 'Lecture',
-    },
-    {
-        value: 'note',
-        label: 'Notes',
-    },
-    {
-        value: 'exam',
-        label: 'Exam',
-    },
-    {
-        value: 'project',
-        label: 'Project',
-    },
-    {
-        value: 'collection',
-        label: 'Collection',
-    },
-    {
-        value: 'other',
-        label: 'Other',
-    }
-]
-
-
 interface MatchParams {
     id: string;
 }
@@ -83,38 +43,6 @@ interface MatchParams {
 interface Props extends RouteComponentProps<MatchParams> {
     api_url: string;
     force_user_data_reload: () => void;
-}
-
-// @TODO finish the rest of the fields
-interface MaterialData {
-    id: number | null;
-    title: string;
-    type: string;
-    description: string
-    instance_of: string;
-    material_type: string;
-    upstream_url: string;
-    tags: TagData[];
-    materials: MaterialListData[];
-}
-
-export interface TagData {
-    id: number;
-    title: string;
-    bloom: string;
-    type: string;
-}
-
-export interface OntologyData {
-    id: number;
-    title: string;
-    instance_of: string;
-    children: OntologyData[];
-}
-
-interface OntologyWrapper {
-    acm: OntologyData;
-    pdc: OntologyData;
 }
 
 interface MetaTags {
@@ -150,7 +78,6 @@ const createEmptyTags = (): MetaTags => {
         ontology: []
     }
 };
-
 
 interface FormEntity {
     data:  MaterialData;
@@ -502,7 +429,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 helperText=""
                                 className={classes.textField}
                             >
-                                {material_types.map((option) => (
+                                {MaterialTypesArray.map((option) => (
                                     <MenuItem key={option.value} value={option.value}>
                                         {option.label}
                                     </MenuItem>

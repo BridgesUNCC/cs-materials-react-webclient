@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from 'react';
 import './App.css';
-import {getJSONData, parseJwt} from './util/util';
+import {getJSONData, parseJwt} from './common/util';
 import {LoginDialog} from "./components/user/LoginDialog";
 import {MaterialList} from "./components/MaterialList";
 import {AppBar, createStyles, Grid, Theme} from "@material-ui/core";
@@ -15,7 +15,7 @@ import {Link} from "react-router-dom";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import {MaterialForm} from "./components/forms/MaterialForm";
 import {HarmonizationView} from "./components/harmonization_matrix/HarmonizationView";
-import OntologyWrapper from "./components/ontology_tree/OntologyWrapper";
+import OntologyWrapper from "./components/radial/OntologyWrapper";
 import {Search} from "./components/search/Search";
 import {CollectionForm} from "./components/forms/CollectionForm";
 import {CollectionOverview} from "./components/CollectionOverview";

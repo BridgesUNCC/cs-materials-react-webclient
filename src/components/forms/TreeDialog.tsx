@@ -1,7 +1,7 @@
 import React, {FunctionComponent,} from "react";
 import Dialog from '@material-ui/core/Dialog';
 import {OntologyTree} from './OntologyTree'
-import {TagData} from "./MaterialForm";
+import {TagData} from "../../common/types";
 import {AppBar, createStyles, fade, IconButton, Theme, Toolbar, Typography} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import {DelayedSearch} from "./DelayedInput";
