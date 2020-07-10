@@ -71,7 +71,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
         let tags = "";
         let sim_mats = "";
         let keyword = "";
-        let collectionsOnly = "";
+        let material_types = "";
         if (location.search.split("ids=")[1])
             ids += location.search.split("ids=")[1].split("&")[0];
         if (location.search.split("tags=")[1])
@@ -80,11 +80,11 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
             sim_mats = location.search.split("sim_mats=")[1].split("&")[0];
         if (location.search.split("keyword=")[1])
             keyword = location.search.split("keyword=")[1].split("&")[0];
-        if (location.search.split("collectionsOnly=")[1])
-            collectionsOnly = location.search.split("collectionsOnly=")[1].split("&")[0];
+        if (location.search.split("material_types=")[1])
+            material_types = location.search.split("material_types=")[1].split("&")[0];
 
         const url = api_url + "/data/list/materials?ids=" + ids + "&tags=" + tags + "&sim_mats=" + sim_mats
-            + "&keyword=" + keyword + "&collectionsOnly=" + collectionsOnly;
+            + "&keyword=" + keyword + "&material_types=" + material_types;
 
         // @TODO pass in auth token
         getJSONData(url).then(resp => {

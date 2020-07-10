@@ -14,7 +14,7 @@ import SnackbarContentWrapper from "../SnackbarContentWrapper";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import {TreeDialog} from "./TreeDialog";
-import {MaterialTypesArray, TagData, MaterialData} from "../../common/types";
+import {MaterialTypesArray, TagData, MaterialData, MaterialListEntry} from "../../common/types";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -162,6 +162,16 @@ export const MaterialForm: FunctionComponent<Props> = (
         const q_id = has_source ? id : match.params.id;
         const url = api_url + "/data/material/meta?id=" + q_id;
 
+        let material_type = "assignment";
+        if (location.search.split("type=")[1]) {
+            material_type = location.search.split("type=")[1].split("&")[0];
+        }
+
+        let mapped_ids = "";
+        if (location.search.split("ids=")[1]) {
+            mapped_ids += location.search.split("ids=")[1].split("&")[0];
+        }
+
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
         getJSONData(url, auth).then(resp => {
             if (resp === undefined) {
@@ -184,6 +194,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                         data.id = null
                         data.title += " Copy"
                     }
+
+                    data.material_type = material_type;
 
                     setFormInfo({...formInfo, fetched: true, data})
                 }
