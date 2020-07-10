@@ -258,7 +258,12 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
         confirm(appInfo.api_url);
     }
 
-    const handleSnackbarClose = (name: string) => {
+    const handleSnackbarClose = (name: string) => (event?: object, reason?: string) => {
+        console.log("closing")
+        if (reason === 'clickaway') {
+            return;
+        }
+
         let flags = appInfo.snackbar_flags;
         flags = {...flags, [name]: false};
         setAppInfo({...appInfo, snackbar_flags: flags});
@@ -440,31 +445,39 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
              move it into its own component, that takes in the snackbar_flags from the appInfo of the app.
              currently that may be too abstract for my own good, so I am doing it way
              */}
-            <Snackbar open={appInfo.snackbar_flags.ok}>
+            <Snackbar autoHideDuration={5000}
+                      onClose={handleSnackbarClose("ok")}
+                      open={appInfo.snackbar_flags.ok}>
                 <SnackbarContentWrapper
                     variant="success"
                     message="Login Successful"
-                    onClose={() => {handleSnackbarClose("ok")}}
+                    onClose={() => {handleSnackbarClose("ok")()}}
                 />
             </Snackbar>
 
-            <Snackbar open={appInfo.snackbar_flags.logged_out}>
+            <Snackbar autoHideDuration={5000}
+                      onClose={handleSnackbarClose("logged_out")}
+                      open={appInfo.snackbar_flags.logged_out}>
                 <SnackbarContentWrapper
                     variant="success"
                     message="Logged out successfully"
-                    onClose={() => handleSnackbarClose("logged_out")}
+                    onClose={() => handleSnackbarClose("logged_out")()}
                 />
             </Snackbar>
 
-            <Snackbar open={appInfo.snackbar_flags.confirmed}>
+            <Snackbar autoHideDuration={5000}
+                      onClose={handleSnackbarClose("confirmed")}
+                      open={appInfo.snackbar_flags.confirmed}>
                 <SnackbarContentWrapper
                     variant="success"
                     message="Email Confirmed"
-                    onClose={() => handleSnackbarClose("confirmed")}
+                    onClose={() => handleSnackbarClose("confirmed")()}
                 />
             </Snackbar>
 
-            <Snackbar open={appInfo.snackbar_flags.request_confirm}>
+            <Snackbar autoHideDuration={5000}
+                      onClose={handleSnackbarClose("request_confirm")}
+                      open={appInfo.snackbar_flags.request_confirm}>
                 <SnackbarContentWrapper
                     variant="info"
                     message="A confirmation email has been sent, please confirm"
@@ -472,27 +485,33 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 />
             </Snackbar>
 
-            <Snackbar open={appInfo.snackbar_flags.expired}>
+            <Snackbar autoHideDuration={5000}
+                      onClose={handleSnackbarClose("expired")}
+                      open={appInfo.snackbar_flags.expired}>
                 <SnackbarContentWrapper
                     variant="info"
                     message="Session Expired, please login again"
-                    onClose={() => handleSnackbarClose("expired")}
+                    onClose={() => handleSnackbarClose("expired")()}
                 />
             </Snackbar>
 
-            <Snackbar open={appInfo.snackbar_flags.server_fail}>
+            <Snackbar autoHideDuration={5000}
+                      onClose={handleSnackbarClose("server_fail")}
+                      open={appInfo.snackbar_flags.server_fail}>
                 <SnackbarContentWrapper
                     variant="error"
                     message="API Error, contact admins"
-                    onClose={() => handleSnackbarClose("server_fail")}
+                    onClose={() => handleSnackbarClose("server_fail")()}
                 />
             </Snackbar>
 
-            <Snackbar open={appInfo.snackbar_flags.invalid}>
+            <Snackbar autoHideDuration={5000}
+                      onClose={handleSnackbarClose("invalid")}
+                      open={appInfo.snackbar_flags.invalid}>
                 <SnackbarContentWrapper
                     variant="error"
                     message="Invalid session, please login again"
-                    onClose={() => handleSnackbarClose("invalid")}
+                    onClose={() => handleSnackbarClose("invalid")()}
                 />
             </Snackbar>
 
