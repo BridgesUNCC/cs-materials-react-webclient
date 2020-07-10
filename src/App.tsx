@@ -320,7 +320,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 To Materials List
                             </Button>
                         </Link>
-                        <Link to={"/materials?collectionsOnly=true"}>
+                        <Link to={"/materials?material_types=collection"}>
                             <Button className={classes.margin} variant="contained" color="primary">
                                 To Collections List
                             </Button>

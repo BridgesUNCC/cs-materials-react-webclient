@@ -162,7 +162,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         const q_id = has_source ? id : match.params.id;
         const url = api_url + "/data/material/meta?id=" + q_id;
 
-        let material_type = "assignment";
+        let material_type = "";
         if (location.search.split("type=")[1]) {
             material_type = location.search.split("type=")[1].split("&")[0];
         }
@@ -195,12 +195,16 @@ export const MaterialForm: FunctionComponent<Props> = (
                         data.title += " Copy"
                     }
 
-                    data.material_type = material_type;
+                    if (material_type !== "") {
+                        data.material_type = material_type;
+                    }
 
                     setFormInfo({...formInfo, fetched: true, data})
                 }
             }
         })
+    } else if (!formInfo.fetched && !has_source) {
+        setFormInfo({...formInfo, fetched: true})
     }
 
     async function onSubmit() {
@@ -415,7 +419,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                 {formInfo.posting &&
                     <LinearProgress/>
                 }
-                {(formInfo.data === null && !formInfo.new) ?
+                {(!formInfo.fetched) ?
                     <CircularProgress/>
                     :
                     <Grid
@@ -433,7 +437,7 @@ export const MaterialForm: FunctionComponent<Props> = (
 
                         <Grid item>
                             <TextField
-                                id="standard-select-currency"
+                                id="standard-select-type"
                                 select
                                 label="Material Type"
                                 value={formInfo.data?.material_type}
@@ -460,7 +464,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                         <Grid item>
                         <TextField
                             label={"Description"}
-                            value={formInfo.data.description}
+                            value={formInfo.data.description === null ? "" : formInfo.data.upstream_url}
                             className={classes.textArea}
                             multiline={true}
                             onChange={onTextFieldChange("description")}
