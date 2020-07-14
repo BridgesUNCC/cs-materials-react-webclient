@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {getJSONData} from "../common/util";
+import {getJSONData, parse_query_variable} from "../common/util";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import List from "@material-ui/core/List";
 import {ListItemLink} from "./ListItemLink";
@@ -68,26 +68,19 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     if (!listInfo.fetched || reload) {
 
         let ids = user_materials?.toString() || "";
-        let tags = "";
-        let sim_mats = "";
-        let keyword = "";
-        let material_types = "";
-        if (location.search.split("ids=")[1])
-            ids += location.search.split("ids=")[1].split("&")[0];
-        if (location.search.split("tags=")[1])
-            tags = location.search.split("tags=")[1].split("&")[0];
-        if (location.search.split("sim_mats=")[1])
-            sim_mats = location.search.split("sim_mats=")[1].split("&")[0];
-        if (location.search.split("keyword=")[1])
-            keyword = location.search.split("keyword=")[1].split("&")[0];
-        if (location.search.split("material_types=")[1])
-            material_types = location.search.split("material_types=")[1].split("&")[0];
+        ids += parse_query_variable(location, "ids");
+        let tags = parse_query_variable(location, "tags");
+        let sim_mats = parse_query_variable(location, "sim_mats");
+        let keyword = parse_query_variable(location, "keyword");
+        let material_types = parse_query_variable(location, "material_types");
 
         const url = api_url + "/data/list/materials?ids=" + ids + "&tags=" + tags + "&sim_mats=" + sim_mats
             + "&keyword=" + keyword + "&material_types=" + material_types;
 
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+
         // @TODO pass in auth token
-        getJSONData(url).then(resp => {
+        getJSONData(url, auth).then(resp => {
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
             }

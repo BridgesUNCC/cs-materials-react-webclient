@@ -1,6 +1,6 @@
 import React, {FunctionComponent, SyntheticEvent} from "react";
 import {RouteComponentProps} from "react-router";
-import {getJSONData, postJSONData} from "../../common/util";
+import {getJSONData, parse_query_variable, postJSONData} from "../../common/util";
 import {createStyles, Divider, List, MenuItem, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -139,15 +139,11 @@ export const MaterialForm: FunctionComponent<Props> = (
         const url = api_url + "/data/meta_tags";
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
-        let material_type = "";
-        if (location.search.split("type=")[1]) {
-            material_type = location.search.split("type=")[1].split("&")[0];
-        }
+        let material_type = parse_query_variable(location, "type");
 
-        let mapped_ids = "";
+        let mapped_ids = parse_query_variable(location, "ids");
         let list_data_promise: Promise<any> | null = null;
-        if (location.search.split("ids=")[1]) {
-            mapped_ids += location.search.split("ids=")[1].split("&")[0];
+        if (mapped_ids !== "") {
             const list_url = api_url + "/data/list/materials?ids=" + mapped_ids;
             list_data_promise = getJSONData(list_url, auth);
         }
@@ -186,10 +182,9 @@ export const MaterialForm: FunctionComponent<Props> = (
     }
 
     let has_source = false;
-    let id = "-1";
+    let id = parse_query_variable(location, "source");
     if (!formInfo.fetched && formInfo.new) {
-        if (location.search.split("source=")[1]) {
-            id = location.search.split("source=")[1].split("&")[0];
+        if (id !== "") {
             has_source = true;
         }
     }
