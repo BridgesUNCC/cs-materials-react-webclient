@@ -17,9 +17,6 @@ import {MaterialForm} from "./components/forms/MaterialForm";
 import {HarmonizationView} from "./components/harmonization_matrix/HarmonizationView";
 import OntologyWrapper from "./components/radial/OntologyWrapper";
 import {Search} from "./components/search/Search";
-import {CollectionForm} from "./components/forms/CollectionForm";
-import {CollectionOverview} from "./components/CollectionOverview";
-
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -259,7 +256,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
     }
 
     const handleSnackbarClose = (name: string) => (event?: object, reason?: string) => {
-        console.log("closing")
         if (reason === 'clickaway') {
             return;
         }
@@ -386,22 +382,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 </Switch>
 
                 <Switch>
-                    <Route path="/collection/create" render={(route_props) => (
-                        <Container maxWidth={"md"}>
-                            <CollectionForm {...route_props} api_url={appInfo.api_url}
-                                force_user_data_reload={force_user_data_refresh}
-                            />
-                        </Container>
-                    )}
-                    />
-
-                    <Route path="/collection/:id" render={(route_props) => (
-                        <Container maxWidth={"md"}>
-                            <CollectionOverview {...route_props} api_url={appInfo.api_url} />
-                        </Container>
-                    )}
-                    />
-
                     <Route path="/material/create" render={(route_props) => (
                         <Container maxWidth="md">
                             <MaterialForm {...route_props} api_url={appInfo.api_url}
@@ -410,7 +390,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         </Container>
                     )}
                     />
-
 
                     <Route path="/material/:id/edit" render={(route_props) => (
                         <Container maxWidth="md">

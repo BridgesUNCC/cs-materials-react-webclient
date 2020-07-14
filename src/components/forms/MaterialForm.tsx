@@ -1,7 +1,7 @@
 import React, {FunctionComponent, SyntheticEvent} from "react";
 import {RouteComponentProps} from "react-router";
 import {getJSONData, postJSONData} from "../../common/util";
-import {createStyles, MenuItem, Theme} from "@material-ui/core";
+import {createStyles, Divider, List, MenuItem, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Paper from "@material-ui/core/Paper";
@@ -14,7 +14,9 @@ import SnackbarContentWrapper from "../SnackbarContentWrapper";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import {TreeDialog} from "./TreeDialog";
-import {MaterialTypesArray, TagData, MaterialData, MaterialListEntry} from "../../common/types";
+import {MaterialTypesArray, TagData, MaterialData} from "../../common/types";
+import {ListItemLink} from "../ListItemLink";
+import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -137,13 +139,47 @@ export const MaterialForm: FunctionComponent<Props> = (
         const url = api_url + "/data/meta_tags";
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+        let material_type = "";
+        if (location.search.split("type=")[1]) {
+            material_type = location.search.split("type=")[1].split("&")[0];
+        }
+
+        let mapped_ids = "";
+        let list_data_promise: Promise<any> | null = null;
+        if (location.search.split("ids=")[1]) {
+            mapped_ids += location.search.split("ids=")[1].split("&")[0];
+            const list_url = api_url + "/data/list/materials?ids=" + mapped_ids;
+            list_data_promise = getJSONData(list_url, auth);
+        }
         getJSONData(url, auth).then(resp => {
            if (resp === undefined) {
                 console.log("API SERVER FAIL")
            } else {
                if (resp['status'] === "OK") {
                    const meta_tags = resp['data'];
-                   setFormInfo({...formInfo, tags_fetched: true, meta_tags})
+                   const data = formInfo.data;
+
+                   if (material_type !== "") {
+                       data.material_type = material_type;
+                   }
+
+                   if (list_data_promise !== null) {
+                       list_data_promise.then(resp => {
+                           if (resp === undefined) {
+                               console.log("API SERVER FAIL")
+                           }
+                           else {
+                               if (resp['status'] === "OK") {
+                                   const mats = resp['data'];
+                                   data.materials = mats;
+
+                                   setFormInfo({...formInfo, tags_fetched: true, data, meta_tags})
+                               }
+                           }
+                       });
+                   } else {
+                       setFormInfo({...formInfo, tags_fetched: true, meta_tags})
+                   }
                }
            }
         });
@@ -161,18 +197,8 @@ export const MaterialForm: FunctionComponent<Props> = (
     if (formInfo.tags_fetched && !formInfo.fetched && (!formInfo.new || has_source)) {
         const q_id = has_source ? id : match.params.id;
         const url = api_url + "/data/material/meta?id=" + q_id;
-
-        let material_type = "";
-        if (location.search.split("type=")[1]) {
-            material_type = location.search.split("type=")[1].split("&")[0];
-        }
-
-        let mapped_ids = "";
-        if (location.search.split("ids=")[1]) {
-            mapped_ids += location.search.split("ids=")[1].split("&")[0];
-        }
-
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+
         getJSONData(url, auth).then(resp => {
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
@@ -193,10 +219,6 @@ export const MaterialForm: FunctionComponent<Props> = (
                     if (has_source) {
                         data.id = null
                         data.title += " Copy"
-                    }
-
-                    if (material_type !== "") {
-                        data.material_type = material_type;
                     }
 
                     setFormInfo({...formInfo, fetched: true, data})
@@ -436,6 +458,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                         </Grid>
 
                         <Grid item>
+
                             <TextField
                                 id="standard-select-type"
                                 select
@@ -485,6 +508,31 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 variant="contained" color="primary" onClick={() => {treeOpen("pdc_2012")}}>
                                  PDC 2012
                             </Button>
+                        </Grid>
+
+                        <Grid item>
+                            <Typography variant={"h5"}>
+                                Mapped Materials
+                            </Typography>
+
+                            <List>
+                                {
+                                    formInfo.data.materials.map((value, index) => {
+                                        return (
+                                            <div key={`${value.id}`}>
+
+                                                <Divider/>
+                                                <ListItemLink
+                                                    history={history}
+                                                    location={location}
+                                                    match={match}
+                                                    primary={value.title} to={"/material/" + value.id} key={value.id}
+                                                />
+                                            </div>
+                                        )
+                                    })
+                                }
+                            </List>
                         </Grid>
 
                         <Grid

@@ -188,7 +188,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                     >
                         <Button className={classes.margin} variant="contained" color="primary"
                                 onClick={() => {
-                                    history.push("/collection/create?ids=" + listInfo.selected_materials);
+                                    history.push("/material/create?type=collection&ids=" + listInfo.selected_materials);
                                     setListInfo({...listInfo, materials: null, fetched: false});
                                 }}>
                             Create Collection from Selected Materials
