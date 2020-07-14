@@ -17,6 +17,7 @@ import {MaterialForm} from "./components/forms/MaterialForm";
 import {HarmonizationView} from "./components/harmonization_matrix/HarmonizationView";
 import OntologyWrapper from "./components/radial/OntologyWrapper";
 import {Search} from "./components/search/Search";
+import {NotFound} from "./components/NotFound";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -314,35 +315,36 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
             <Container maxWidth="xl">
 
 
-                <Route exact path="/" render={() => (
-                    <div>
-                        <Link to={"/materials"}>
-                            <Button className={classes.margin} variant="contained" color="primary">
-                                To Materials List
-                            </Button>
-                        </Link>
-                        <Link to={"/materials?material_types=collection"}>
-                            <Button className={classes.margin} variant="contained" color="primary">
-                                To Collections List
-                            </Button>
-                        </Link>
-                        <Link to={"/search"}>
-                            <Button className={classes.margin} variant="contained" color="primary">
-                                Search
-                            </Button>
-                        </Link>
-                        {appInfo.user_data &&
-                        <Link to={"/material/create"}>
-                            <Button className={classes.margin} variant="contained" color="primary">
-                                Create Material
-                            </Button>
-                        </Link>
-                        }
-                    </div>
-                )}
-                />
 
                 <Switch>
+                    <Route exact path="/" render={() => (
+                        <div>
+                            <Link to={"/materials"}>
+                                <Button className={classes.margin} variant="contained" color="primary">
+                                    To Materials List
+                                </Button>
+                            </Link>
+                            <Link to={"/materials?material_types=collection"}>
+                                <Button className={classes.margin} variant="contained" color="primary">
+                                    To Collections List
+                                </Button>
+                            </Link>
+                            <Link to={"/search"}>
+                                <Button className={classes.margin} variant="contained" color="primary">
+                                    Search
+                                </Button>
+                            </Link>
+                            {appInfo.user_data &&
+                            <Link to={"/material/create"}>
+                                <Button className={classes.margin} variant="contained" color="primary">
+                                    Create Material
+                                </Button>
+                            </Link>
+                            }
+                        </div>
+                    )}
+                    />
+
                     <Route path="/search" render={(route_props) => (
                         <Container maxWidth="lg">
                             <Search {...route_props} api_url={appInfo.api_url} redirect={redirect}/>
@@ -379,9 +381,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     )}
                     />
                     }
-                </Switch>
-
-                <Switch>
                     <Route path="/material/create" render={(route_props) => (
                         <Container maxWidth="md">
                             <MaterialForm {...route_props} api_url={appInfo.api_url}
@@ -412,6 +411,8 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         </Container>
                     )}
                     />
+
+                    <Route component={NotFound} />
                 </Switch>
 
 
