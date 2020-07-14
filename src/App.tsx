@@ -412,6 +412,9 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     )}
                     />
 
+                    <Route path="/login"/>
+                    <Route path="/register"/>
+
                     <Route component={NotFound} />
                 </Switch>
 
