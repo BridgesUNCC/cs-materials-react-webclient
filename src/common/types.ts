@@ -46,6 +46,17 @@ export const MaterialTypesArray = [
     }
 ]
 
+export const MaterialVisibilityArray = [
+    {
+        value: "public",
+        label: "Public"
+    },
+    {
+        value: "private",
+        label: "Private",
+    }
+]
+
 // @TODO finish the rest of the fields
 export interface MaterialData {
     id: number | null;
@@ -55,6 +66,7 @@ export interface MaterialData {
     instance_of: string;
     material_type: string;
     upstream_url: string;
+    visibility: string;
     tags: TagData[];
     materials: MaterialListData[];
 }

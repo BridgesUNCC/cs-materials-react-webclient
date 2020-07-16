@@ -14,7 +14,7 @@ import SnackbarContentWrapper from "../SnackbarContentWrapper";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import {TreeDialog} from "./TreeDialog";
-import {MaterialTypesArray, TagData, MaterialData} from "../../common/types";
+import {MaterialTypesArray, TagData, MaterialData, MaterialVisibilityArray} from "../../common/types";
 import {ListItemLink} from "../ListItemLink";
 import Typography from "@material-ui/core/Typography";
 
@@ -65,6 +65,7 @@ const createEmptyData = (): MaterialData => {
       material_type: "assignment",
       type: "",
       upstream_url: "",
+      visibility: "public",
       tags: [],
       materials: [],
   } ;
@@ -297,8 +298,8 @@ export const MaterialForm: FunctionComponent<Props> = (
         onUpdateMaterialTextField(field_id, e.currentTarget.value);
     };
 
-    const onTypeFieldChange = (e:  React.ChangeEvent<HTMLInputElement>): void => {
-        onUpdateMaterialTextField("material_type", e.target.value);
+    const onTypeFieldChange = (field_id: string) => (e:  React.ChangeEvent<HTMLInputElement>): void => {
+        onUpdateMaterialTextField(field_id, e.target.value);
     };
 
     const handleSnackbarClose =  (name: string, event?: SyntheticEvent, reason?: string) => {
@@ -459,11 +460,30 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 select
                                 label="Material Type"
                                 value={formInfo.data?.material_type}
-                                onChange={onTypeFieldChange}
+                                onChange={onTypeFieldChange("material_type")}
                                 helperText=""
                                 className={classes.textField}
                             >
                                 {MaterialTypesArray.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
+
+                        <Grid item>
+
+                            <TextField
+                                id="standard-select-visibility"
+                                select
+                                label="Material Visibility"
+                                value={formInfo.data?.visibility}
+                                onChange={onTypeFieldChange("visibility")}
+                                helperText=""
+                                className={classes.textField}
+                            >
+                                {MaterialVisibilityArray.map((option) => (
                                     <MenuItem key={option.value} value={option.value}>
                                         {option.label}
                                     </MenuItem>
