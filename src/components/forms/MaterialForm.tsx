@@ -287,7 +287,6 @@ export const MaterialForm: FunctionComponent<Props> = (
 
     };
 
-    //@TODO handle the tags... somehow
     const onUpdateMaterialTextField = (name: string, value: string) => {
         let fields = formInfo.data;
         fields = {...fields, [name]: value};
