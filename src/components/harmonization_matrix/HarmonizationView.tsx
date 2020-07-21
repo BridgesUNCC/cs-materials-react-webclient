@@ -115,18 +115,18 @@ export const HarmonizationView: FunctionComponent<Props> = ({
         console.log("pinging");
 
         let ids = "";
-        let filter = "";
+        let tag_types = "";
         if (!viewInfo.init_fetched) {
             if (location.search.split("ids=")[1])
                 ids = location.search.split("ids=")[1].split("&")[0];
-            if (location.search.split("filter=")[1])
-                filter = location.search.split("filter=")[1].split("&")[0];
+            if (location.search.split("tag_types=")[1])
+                tag_types = location.search.split("tag_types=")[1].split("&")[0];
         } else {
             ids = viewInfo.ids;
         }
 
         console.log(ids);
-        const url = api_url + "/data/harmonization?ids=" + ids + "&filter=" + filter;
+        const url = api_url + "/data/harmonization?ids=" + ids + "&tag_types=" + tag_types;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         getJSONData(url, auth).then(resp => {
@@ -185,7 +185,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                     fix_matrix(data);
                     data = Bicluster(data);
 
-                    setViewInfo({...viewInfo, init_fetched: true, fetched: true, data, ids, filter})
+                    setViewInfo({...viewInfo, init_fetched: true, fetched: true, data, ids})
                 }
             }
         })
