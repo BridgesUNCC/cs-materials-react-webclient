@@ -20,8 +20,6 @@ import OntologyWrapper from "./components/radial/OntologyWrapper";
 import {Search} from "./components/search/Search";
 import {Analyze} from "./components/analyze/Analyze";
 import {Author} from "./components/author/Author";
-import {CollectionForm} from "./components/forms/CollectionForm";
-import {CollectionOverview} from "./components/CollectionOverview";
 import CameraIcon from '@material-ui/icons/PhotoCamera';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
@@ -29,6 +27,7 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Toolbar from '@material-ui/core/Toolbar';
+import  {NotFound} from "./components/NotFound";
 import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -368,98 +367,70 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
             <Container maxWidth="md" className={classes.heroContent}>
 
-                <Route exact path="/" render={() => (
-                    <div>
-                      <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
-                        CS Materials
-                      </Typography>
-                      <Typography variant="h5" align="center" color="textSecondary" paragraph>
-                        Put something about cs materials here. maybe a short description
-                      </Typography>
-                      <div className={classes.heroButtons}>
-                        <Grid container spacing={2} justify="center">
-                          <Grid item>
-
-                          </Grid>
-                          <Grid item>
-
-                          </Grid>
-                        </Grid>
-                      </div>
-                      {/* End hero unit */}
-                      <Grid container spacing={4}>
-                        {cards.map((card) => (
-                          <Grid item key={card.id} xs={12} sm={6} md={4}>
-                            <Card className={classes.card}>
-                              <CardMedia
-                                className={classes.cardMedia}
-                                image={card.image}
-                                title="Image title"
-                              />
-                              <CardContent className={classes.cardContent}>
-                                <Typography gutterBottom variant="h5" component="h2">
-                                  {card.title}
-                                </Typography>
-                                <Typography>
-                                  {card.text}
-                                </Typography>
-                              </CardContent>
-                              <CardActions>
-                              <Route exact path="/" render={() => (
-                                card.title === 'Author' ?
-                                  appInfo.user_id === null ?
-                                  <Route render={(props) => (
-                                      <LoginDialog {...props} updateId={updateUserId} api_url={appInfo.api_url}/>
-                                  )}
-                                  />
-                                    :
-                                    <Link to={card.link}>
-                                      <Button variant="contained" size="small" color="primary">
-                                        Begin
-                                      </Button>
-                                    </Link>
-                                  :
-                                  <Link to={card.link}>
-                                    <Button variant="contained" size="small" color="primary">
-                                      Begin
-                                    </Button>
-                                  </Link>
-                              )}
-                              />
-                              </CardActions>
-                            </Card>
-                          </Grid>
-                        ))}
-                      </Grid>
-                    </div>
-                )}
-                />
-
                 <Switch>
                     <Route exact path="/" render={() => (
                         <div>
-                            <Link to={"/materials"}>
-                                <Button className={classes.margin} variant="contained" color="primary">
-                                    To Materials List
-                                </Button>
-                            </Link>
-                            <Link to={"/materials?material_types=collection"}>
-                                <Button className={classes.margin} variant="contained" color="primary">
-                                    To Collections List
-                                </Button>
-                            </Link>
-                            <Link to={"/search"}>
-                                <Button className={classes.margin} variant="contained" color="primary">
-                                    Search
-                                </Button>
-                            </Link>
-                            {appInfo.user_data &&
-                            <Link to={"/material/create"}>
-                                <Button className={classes.margin} variant="contained" color="primary">
-                                    Create Material
-                                </Button>
-                            </Link>
-                            }
+                            <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
+                                CS Materials
+                            </Typography>
+                            <Typography variant="h5" align="center" color="textSecondary" paragraph>
+                                Put something about cs materials here. maybe a short description
+                            </Typography>
+                            <div className={classes.heroButtons}>
+                                <Grid container spacing={2} justify="center">
+                                    <Grid item>
+
+                                    </Grid>
+                                    <Grid item>
+
+                                    </Grid>
+                                </Grid>
+                            </div>
+                            {/* End hero unit */}
+                            <Grid container spacing={4}>
+                                {cards.map((card) => (
+                                    <Grid item key={card.id} xs={12} sm={6} md={4}>
+                                        <Card className={classes.card}>
+                                            <CardMedia
+                                                className={classes.cardMedia}
+                                                image={card.image}
+                                                title="Image title"
+                                            />
+                                            <CardContent className={classes.cardContent}>
+                                                <Typography gutterBottom variant="h5" component="h2">
+                                                    {card.title}
+                                                </Typography>
+                                                <Typography>
+                                                    {card.text}
+                                                </Typography>
+                                            </CardContent>
+                                            <CardActions>
+                                                <Route exact path="/" render={() => (
+                                                    card.title === 'Author' ?
+                                                        appInfo.user_id === null ?
+                                                            <Route render={(props) => (
+                                                                <LoginDialog {...props} updateId={updateUserId} api_url={appInfo.api_url}/>
+                                                            )}
+                                                            />
+                                                            :
+                                                            <Link to={card.link}>
+                                                                <Button variant="contained" size="small" color="primary">
+                                                                    Begin
+                                                                </Button>
+                                                            </Link>
+                                                        :
+                                                        <Link to={card.link}>
+                                                            <Button variant="contained" size="small" color="primary">
+                                                                Begin
+                                                            </Button>
+                                                        </Link>
+                                                )}
+                                                />
+                                            </CardActions>
+                                        </Card>
+                                    </Grid>
+                                ))}
+                            </Grid>
                         </div>
                     )}
                     />
@@ -533,26 +504,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         </Container>
                     )}
                     />
-                </Switch>
 
-
-                <Switch>
-                    <Route path="/collection/create" render={(route_props) => (
-                        <Container maxWidth={"md"}>
-                            <CollectionForm {...route_props} api_url={appInfo.api_url}
-                                force_user_data_reload={force_user_data_refresh}
-                            />
-                        </Container>
-                    )}
-                    />
-
-                    <Route path="/collection/:id" render={(route_props) => (
-                        <Container maxWidth={"md"}>
-                            <CollectionOverview {...route_props} api_url={appInfo.api_url} />
-                        </Container>
-                    )}
-                    />
-                  
                     <Route path="/material/create" render={(route_props) => (
                         <Container maxWidth="md">
                             <MaterialForm {...route_props} api_url={appInfo.api_url}

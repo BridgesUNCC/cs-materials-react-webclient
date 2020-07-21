@@ -35,13 +35,6 @@ export async function postJSONData(url = '', data = {}, auth_header= {}) {
   }
 }
 
-export function parse_query_variable(location: { search: string; }, name: string): string {
-  let ret = "";
-  if (location.search.split(`${name}=`)[1])
-    ret = location.search.split(`${name}=`)[1].split("&")[0];
-  return ret;
-}
-
 export async function getJSONData(url = '', auth_header= {}) { // Default options are marked with *
   const response = await fetch(url, {
     method: 'GET', // *GET, POST, PUT, DELETE, etc.

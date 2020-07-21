@@ -247,7 +247,10 @@ export const MaterialOverview: FunctionComponent<Props> = (
 
     return (
         <div>
-
+            {
+                localStorage.getItem("access_token") &&
+                <Author/>
+            }
             {
                 typeof localStorage.getItem("access_token") === "string" &&
                 <Link to={"/material/create?source=" + overviewInfo.data?.id}>
