@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import Radial from './Radial';
+import {Analyze} from "../analyze/Analyze";
+
 
 class OntologyWrapper extends Component{
     state = {
@@ -53,6 +55,7 @@ class OntologyWrapper extends Component{
     render() {
         return (
             <div>
+            <Analyze info={[]}/>
                 {this.state.loading ? (
                     <div>loading...</div>
                 ) : (

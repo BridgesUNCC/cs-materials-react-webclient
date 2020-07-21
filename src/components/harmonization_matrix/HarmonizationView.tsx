@@ -1,6 +1,7 @@
 import React, {FunctionComponent} from "react";
 
 import {Matrix} from "./Matrix";
+import {Analyze} from "../analyze/Analyze";
 import {getJSONData, postJSONData} from "../../common/util";
 import {Button, CircularProgress, createStyles, Paper, TextField, Theme} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
@@ -14,7 +15,11 @@ const useStyles = makeStyles((theme: Theme) =>
             width: 400,
         },
         margin: {
-            margin: theme.spacing(1),
+            margin: theme.spacing(1, 0),
+        },
+        paper: {
+          marginTop: '0%',
+          marginBottom: '10%'
         },
     }));
 
@@ -257,11 +262,13 @@ export const HarmonizationView: FunctionComponent<Props> = ({
         });
     };
 
+    console.log(viewInfo.data)
 
     return (
         <div>
+        <Analyze info={[]}/>
             {
-                <Paper>
+                <Paper className={classes.paper}>
                     <TextField
                         label={"Set of IDs"}
                         value={viewInfo.ids}
@@ -286,6 +293,12 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                     ):
                     <CircularProgress/>
             }
+            <div id="tooltips">
+              <div id="tooltipMatrix">
+                <p><strong>Breadcrumbs: </strong></p>
+                <p><span id="value"></span></p>
+              </div>
+            </div>
         </div>
     )
 };

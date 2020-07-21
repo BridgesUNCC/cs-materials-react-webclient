@@ -11,6 +11,8 @@ import Button from "@material-ui/core/Button";
 import {ListItemLink} from "./ListItemLink";
 import {DeleteDialog} from "./forms/DeleteDialog";
 import {MaterialTypesArray} from "../common/types";
+import {Author} from "./author/Author";
+
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -245,21 +247,6 @@ export const MaterialOverview: FunctionComponent<Props> = (
 
     return (
         <div>
-            <div>
-            <Link to={"/materials"}>
-                <Button className={classes.margin} variant="contained" color="primary">
-                    To Materials List
-                </Button>
-            </Link>
-            {
-                typeof localStorage.getItem("access_token") === "string" &&
-                    <Link to={"/my_materials"}>
-                        <Button className={classes.margin} variant="contained" color="primary">
-                            To My Materials
-                        </Button>
-                    </Link>
-            }
-            </div>
 
             {
                 typeof localStorage.getItem("access_token") === "string" &&

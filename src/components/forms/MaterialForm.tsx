@@ -1,7 +1,7 @@
 import React, {FunctionComponent, SyntheticEvent} from "react";
 import {RouteComponentProps} from "react-router";
-import {getJSONData, postJSONData} from "../../common/util";
-import {createStyles, MenuItem, Theme} from "@material-ui/core";
+import {getJSONData, parse_query_variable, postJSONData} from "../../common/util";
+import {createStyles, MenuItem, Divider, List, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Paper from "@material-ui/core/Paper";
@@ -12,9 +12,13 @@ import Button from "@material-ui/core/Button";
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContentWrapper from "../SnackbarContentWrapper";
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import {Author} from "../author/Author";
+
 
 import {TreeDialog} from "./TreeDialog";
-import {MaterialTypesArray, TagData, MaterialData} from "../../common/types";
+import {MaterialTypesArray, TagData, MaterialData, MaterialVisibilityArray} from "../../common/types";
+import {ListItemLink} from "../ListItemLink";
+import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -63,6 +67,7 @@ const createEmptyData = (): MaterialData => {
       material_type: "assignment",
       type: "",
       upstream_url: "",
+      visibility: "public",
       tags: [],
       materials: [],
   } ;
@@ -137,13 +142,48 @@ export const MaterialForm: FunctionComponent<Props> = (
         const url = api_url + "/data/meta_tags";
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+        let material_type = "";
+        if (location.search.split("type=")[1]) {
+            material_type = location.search.split("type=")[1].split("&")[0];
+        }
+
+        let mapped_ids = "";
+        let list_data_promise: Promise<any> | null = null;
+        if (location.search.split("ids=")[1]) {
+            mapped_ids += location.search.split("ids=")[1].split("&")[0];
+            const list_url = api_url + "/data/list/materials?ids=" + mapped_ids;
+            list_data_promise = getJSONData(list_url, auth);
+        }
+
         getJSONData(url, auth).then(resp => {
            if (resp === undefined) {
                 console.log("API SERVER FAIL")
            } else {
                if (resp['status'] === "OK") {
                    const meta_tags = resp['data'];
-                   setFormInfo({...formInfo, tags_fetched: true, meta_tags})
+                   const data = formInfo.data;
+
+                   if (material_type !== "") {
+                       data.material_type = material_type;
+                   }
+
+                   if (list_data_promise !== null) {
+                       list_data_promise.then(resp => {
+                           if (resp === undefined) {
+                               console.log("API SERVER FAIL")
+                           }
+                           else {
+                               if (resp['status'] === "OK") {
+                                   const mats = resp['data'];
+                                   data.materials = mats;
+
+                                   setFormInfo({...formInfo, tags_fetched: true, data, meta_tags})
+                               }
+                           }
+                       });
+                   } else {
+                       setFormInfo({...formInfo, tags_fetched: true, meta_tags})
+                   }
                }
            }
         });
@@ -264,8 +304,8 @@ export const MaterialForm: FunctionComponent<Props> = (
         onUpdateMaterialTextField(field_id, e.currentTarget.value);
     };
 
-    const onTypeFieldChange = (e:  React.ChangeEvent<HTMLInputElement>): void => {
-        onUpdateMaterialTextField("material_type", e.target.value);
+    const onTypeFieldChange = (field_id: string) => (e:  React.ChangeEvent<HTMLInputElement>): void => {
+        onUpdateMaterialTextField(field_id, e.target.value);
     };
 
     const handleSnackbarClose =  (name: string, event?: SyntheticEvent, reason?: string) => {
@@ -399,6 +439,7 @@ export const MaterialForm: FunctionComponent<Props> = (
     // @TODO, flash error messages for empty title
     return (
         <div className={classes.root}>
+        <Author />
             <Paper>
                 {formInfo.posting &&
                     <LinearProgress/>
@@ -425,11 +466,30 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 select
                                 label="Material Type"
                                 value={formInfo.data?.material_type}
-                                onChange={onTypeFieldChange}
+                                onChange={onTypeFieldChange("material_type")}
                                 helperText=""
                                 className={classes.textField}
                             >
                                 {MaterialTypesArray.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
+
+                        <Grid item>
+
+                            <TextField
+                                id="standard-select-visibility"
+                                select
+                                label="Material Visibility"
+                                value={formInfo.data?.visibility}
+                                onChange={onTypeFieldChange("visibility")}
+                                helperText=""
+                                className={classes.textField}
+                            >
+                                {MaterialVisibilityArray.map((option) => (
                                     <MenuItem key={option.value} value={option.value}>
                                         {option.label}
                                     </MenuItem>
@@ -458,9 +518,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                         {tags_fields}
 
 
-                        <Grid
-                            item
-                        >
+                        <Grid item>
                             <Button  className={classes.margin}
                                 variant="contained" color="primary" onClick={() => {treeOpen("acm_2013")}}>
                                 ACM CSC 2013
@@ -469,6 +527,31 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 variant="contained" color="primary" onClick={() => {treeOpen("pdc_2012")}}>
                                  PDC 2012
                             </Button>
+                        </Grid>
+
+                        <Grid item>
+                            <Typography variant={"h5"}>
+                                Mapped Materials
+                            </Typography>
+
+                            <List>
+                                {
+                                    formInfo.data.materials.map((value, index) => {
+                                        return (
+                                            <div key={`${value.id}`}>
+
+                                                <Divider/>
+                                                <ListItemLink
+                                                    history={history}
+                                                    location={location}
+                                                    match={match}
+                                                    primary={value.title} to={"/material/" + value.id} key={value.id}
+                                                />
+                                            </div>
+                                        )
+                                    })
+                                }
+                            </List>
                         </Grid>
 
                         <Grid

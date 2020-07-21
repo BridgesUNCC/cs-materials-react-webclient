@@ -16,11 +16,22 @@ export const Matrix: FunctionComponent<Props> = ({
     transform,
 }) => {
     const ref = useRef(null);
-    
+    d3.select("#tooltipMatrix").classed("hidden", true);
     function gridOver(d: any, i: any) {
         d3.selectAll("rect").style("stroke-width", function (p: any) {
             return p.tag_index === d.tag_index || p.mat_index === d.mat_index ? "3px" : "1px"
-        })
+        });
+        d3.select("#tooltipMatrix").select('#value').append('p').append('tspan').text("Tag: " + data.tag_axis[d.tag_index].title);
+        d3.select("#tooltipMatrix").select('#value').append('p').append('tspan').text("Material: " + data.material_axis[d.mat_index].title)
+        console.log(data.tag_axis[d.tag_index].title)
+        d3.select("#tooltipMatrix").classed("hidden", false);
+    }
+
+    function handleMouseOut(d: any, i: any) {
+      d3.select("#tooltipMatrix").classed("hidden", true);
+      d3.select("#assignmenttooltip").classed("hidden", true);
+      // Select text by id and then remove
+      d3.selectAll("tspan").remove();
     }
 
     function zoomed() {
@@ -72,11 +83,13 @@ export const Matrix: FunctionComponent<Props> = ({
             })
             .style("fill-opacity", function () {return 1})
             .on("mouseover", gridOver)
+            .on("mouseout", handleMouseOut)
             .on("click", function (d: MappingData) {
                 // @ts-ignore
                 let transform = d3.select("g").attr("transform");
                 handleClick(d, transform);
             });
+
 
         // @ts-ignore
         svgElement.call(d3.zoom()
@@ -86,6 +99,11 @@ export const Matrix: FunctionComponent<Props> = ({
         // draw axi
         let mat_range = data.material_axis.map((ele, index) => index * 25 + 12.5);
         let name_scale = d3.scaleOrdinal().domain(data.material_axis.map(e => e.title)).range(mat_range);
+
+        for(let i = 0; i < data.tag_axis.length; i++){
+          data.tag_axis[i].title = data.tag_axis[i].title.substring(data.tag_axis[i].title.lastIndexOf(">") + 1);
+
+        }
 
         let tag_range = data.tag_axis.map((ele, index) => index * 25 + 12.5);
         let tag_scale = d3.scaleOrdinal().domain(data.tag_axis.map(e => e.title)).range(tag_range);
@@ -101,6 +119,9 @@ export const Matrix: FunctionComponent<Props> = ({
             .selectAll("text")
             .style("text-anchor", "end")
             .attr("transform", "translate(-10,-10) rotate(90)");
+
+
+
     });
 
     return (
