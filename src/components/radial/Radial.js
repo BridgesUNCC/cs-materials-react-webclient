@@ -435,6 +435,8 @@ class Radial extends Component {
     g.selectAll('circle').data(vNodes).enter().append('circle')
         .attr('r', function (d) {return d.data.size - 5})
         .attr("transform", function (d) {return "translate(" + d.data.locationX + "," + d.data.locationY + ")"; })
+        .style("fill-opacity", .5) // set the fill opacity
+        .style("stroke", "black")
         .style("fill", function (d) {return d.data.color})
         .on("mouseover", function(d){
           let currentNode = d.data;
@@ -454,7 +456,6 @@ class Radial extends Component {
             }
           }
 
-
           d3.select("#tooltip")
               .attr("transform", "translate(" + d.data.locationX + "," + d.data.locationY + ")")
               .select("#value")
@@ -464,13 +465,16 @@ class Radial extends Component {
           if(d.data.assignmentNames){
             for (let i = 0; i < d.data.assignmentNames.length; i++){
               let text = "";
-              (i === d.data.assignmentNames.length - 1) ? text = d.data.assignmentNames[i] : text = d.data.assignmentNames[i] + " :: ";
+              (i === d.data.assignmentNames.length - 1) ? text = d.data.assignmentNames[i] : text = d.data.assignmentNames[i];
               d3.select("#assignmenttooltip")
-                  .attr("transform", "translate(" + d.data.locationX + "," + d.data.locationY + ")")
                   .select("#value")
+                  .append('p')
                   .append("tspan")
+                  .attr("dy", 25)
+                  .attr('x', 0)
                   .style("color", "black")
-                  .text(text);
+                  .text(text)
+
             }
           }
 
@@ -514,7 +518,7 @@ class Radial extends Component {
               </div>
               <div id="assignmenttooltip" class="hidden">
                 <p><b>Materials: </b></p>
-                <p><span id="value"></span></p>
+                <p id="value"></p>
               </div>
             </div>
           </div>

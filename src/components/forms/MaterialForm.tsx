@@ -12,6 +12,8 @@ import Button from "@material-ui/core/Button";
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContentWrapper from "../SnackbarContentWrapper";
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import {Author} from "../author/Author";
+
 
 import {TreeDialog} from "./TreeDialog";
 import {MaterialTypesArray, TagData, MaterialData, MaterialVisibilityArray} from "../../common/types";
@@ -140,6 +142,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         const url = api_url + "/data/meta_tags";
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+      
         let material_type = parse_query_variable(location, "type");
 
         let mapped_ids = parse_query_variable(location, "ids");
@@ -148,6 +151,7 @@ export const MaterialForm: FunctionComponent<Props> = (
             const list_url = api_url + "/data/list/materials?ids=" + mapped_ids;
             list_data_promise = getJSONData(list_url, auth);
         }
+
         getJSONData(url, auth).then(resp => {
            if (resp === undefined) {
                 console.log("API SERVER FAIL")
@@ -432,6 +436,7 @@ export const MaterialForm: FunctionComponent<Props> = (
     // @TODO, flash error messages for empty title
     return (
         <div className={classes.root}>
+        <Author />
             <Paper>
                 {formInfo.posting &&
                     <LinearProgress/>
@@ -511,9 +516,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                         {tags_fields}
 
 
-                        <Grid
-                            item
-                        >
+                        <Grid item>
                             <Button  className={classes.margin}
                                 variant="contained" color="primary" onClick={() => {treeOpen("acm_2013")}}>
                                 ACM CSC 2013

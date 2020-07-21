@@ -10,7 +10,7 @@ import {RouteComponentProps} from "react-router";
 import Button from "@material-ui/core/Button";
 import {Link} from "react-router-dom";
 import {MaterialListEntry} from "../common/types";
-import {Analyze} from "./analyze/Analyze";
+import {Author} from "./author/Author";
 import { useLocation } from 'react-router-dom'
 
 
@@ -31,7 +31,6 @@ interface ListEntity {
     materials: MaterialListEntry[] | null;
     selected_materials: number[]
     fetched: boolean;
-    search: string;
     path: string
 }
 
@@ -40,7 +39,6 @@ const createEmptyEntity = (path: string): ListEntity => {
         materials: null,
         selected_materials: [],
         fetched: false,
-        search: "N/A",
         path
     }
 };
@@ -54,7 +52,7 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     user_materials?: number[];
 }
 
-export const MaterialList: FunctionComponent<ListProps> = ({   history,
+export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
                                                                location,
                                                                match,
                                                                api_url,
@@ -62,13 +60,12 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                                                            }) => {
     const classes = useStyles();
     let path = location.pathname;
-    let search = location.search;
     const [listInfo, setListInfo] = React.useState<ListEntity>(
         createEmptyEntity(path)
     );
 
-    let reload = path !== listInfo.path || search != listInfo.search;
 
+    let reload = path !== listInfo.path;
 
     if (!listInfo.fetched || reload) {
 
@@ -92,7 +89,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
             else {
                 if (resp['status'] === "OK") {
                     const data = resp['data'];
-                    setListInfo({...listInfo, fetched: true, materials: data, search: search, path})
+                    setListInfo({...listInfo, fetched: true, materials: data, path})
                 }
             }
         })
@@ -146,13 +143,19 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
 
     return (
         <div>
-          {/*load selected material to analyze comp for visualze*/}
-          <Analyze info={listInfo.selected_materials}/>
+          <Author />
             <Paper className={classes.root}>
                 <Typography variant="h5" component="h3">
                     Results
                 </Typography>
-
+                        <Button className={classes.margin} variant="contained" color="primary"
+                                onClick={() => {
+                                    history.push("/material/create?type=collection&ids=" + listInfo.selected_materials);
+                                    setListInfo({...listInfo, materials: null, fetched: false});
+                                }}>
+                            Create Collection from Selected Materials
+                        </Button>
+                      <Divider/>
                 <Grid container direction="column">
                     <Grid item>
                         <Button className={classes.margin} variant="contained" color="primary"

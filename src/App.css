@@ -40,10 +40,30 @@
 
 #tooltip{
   position: fixed;
-  width: auto;
+  width: 500px;
   height: auto;
   padding: 10px;
-  right: 50%;
+  right: 40%;
+  top: 6%;
+  text-align: center;
+  background-color: white;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  color: black;
+}
+
+#tooltipMatrix{
+  position: fixed;
+  width: 500px;
+  height: auto;
+  padding: 10px;
+  right: 38%;
+  top: 22%;
   text-align: center;
   background-color: white;
   -webkit-border-radius: 10px;
@@ -61,7 +81,8 @@
   width: auto;
   height: auto;
   padding: 10px;
-  left: 50%;
+  left: 60%;
+  top: 6%;
   background-color: white;
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
@@ -74,11 +95,11 @@
 }
 
 
-#tooltip.hidden, #assignmenttooltip.hidden {
+#tooltip.hidden, #assignmenttooltip.hidden, #tooltipMatrix.hidden {
   display: none;
 }
 
-#tooltip p, #assignmenttooltip p {
+#tooltip p, #assignmenttooltip p, #tooltipMatrix p {
   margin: 0;
   font-family: Futura;
   font-size: 16px;

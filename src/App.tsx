@@ -3,6 +3,7 @@ import './App.css';
 import {getJSONData, parseJwt} from './common/util';
 import {LoginDialog} from "./components/user/LoginDialog";
 import {MaterialList} from "./components/MaterialList";
+import {MaterialListAuthor} from "./components/MaterialListAuthor";
 import {AppBar, createStyles, Grid, Theme} from "@material-ui/core";
 import {AppBarUserMenu} from "./components/user/AppBarUserMenu";
 import {Route, RouteComponentProps, Switch} from "react-router";
@@ -17,7 +18,18 @@ import {MaterialForm} from "./components/forms/MaterialForm";
 import {HarmonizationView} from "./components/harmonization_matrix/HarmonizationView";
 import OntologyWrapper from "./components/radial/OntologyWrapper";
 import {Search} from "./components/search/Search";
-import {NotFound} from "./components/NotFound";
+import {Analyze} from "./components/analyze/Analyze";
+import {Author} from "./components/author/Author";
+import {CollectionForm} from "./components/forms/CollectionForm";
+import {CollectionOverview} from "./components/CollectionOverview";
+import CameraIcon from '@material-ui/icons/PhotoCamera';
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -30,8 +42,51 @@ const useStyles = makeStyles((theme: Theme) =>
       toolbarButtons: {
           marginLeft: 'auto',
       },
+      icon: {
+        marginRight: theme.spacing(2),
+      },
+      heroContent: {
+        // backgroundColor: theme.palette.background.paper,
+        padding: theme.spacing(8, 0, 6),
+      },
+      heroButtons: {
+        marginTop: theme.spacing(4),
+        marginBottom: theme.spacing(4),
+      },
+      cardGrid: {
+        paddingTop: theme.spacing(8),
+        paddingBottom: theme.spacing(8),
+      },
+      card: {
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      },
+      cardMedia: {
+        paddingTop: '56.25%', // 16:9
+      },
+      cardContent: {
+        flexGrow: 1,
+      },
+      footer: {
+        backgroundColor: theme.palette.background.paper,
+        padding: theme.spacing(6),
+      },
   }),
 );
+
+const cards = [{id: 1, title: "Author", image: require("./author.PNG"),
+                       text: 'Enter your own \
+                       course information to analyze and compare against ACM and PDC guidelines',
+                       link: '/author'},
+               {id: 2, title: "Analyze", image: require("./analyze.PNG"),
+                       text: 'Here you can analyze your courses or collections to find relationships among your courses \
+                       or courses in a collection',
+                       link: '/analyze'},
+               {id: 3, title: "Search", image: require("./search.PNG"),
+                       text: 'Search the CS Materials database for new assignments',
+                       link: '/search'}];
+
 
 interface Props extends RouteComponentProps {
 
@@ -311,10 +366,74 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 </Route>
             </Switch>
 
+            <Container maxWidth="md" className={classes.heroContent}>
 
-            <Container maxWidth="xl">
+                <Route exact path="/" render={() => (
+                    <div>
+                      <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
+                        CS Materials
+                      </Typography>
+                      <Typography variant="h5" align="center" color="textSecondary" paragraph>
+                        Put something about cs materials here. maybe a short description
+                      </Typography>
+                      <div className={classes.heroButtons}>
+                        <Grid container spacing={2} justify="center">
+                          <Grid item>
 
+                          </Grid>
+                          <Grid item>
 
+                          </Grid>
+                        </Grid>
+                      </div>
+                      {/* End hero unit */}
+                      <Grid container spacing={4}>
+                        {cards.map((card) => (
+                          <Grid item key={card.id} xs={12} sm={6} md={4}>
+                            <Card className={classes.card}>
+                              <CardMedia
+                                className={classes.cardMedia}
+                                image={card.image}
+                                title="Image title"
+                              />
+                              <CardContent className={classes.cardContent}>
+                                <Typography gutterBottom variant="h5" component="h2">
+                                  {card.title}
+                                </Typography>
+                                <Typography>
+                                  {card.text}
+                                </Typography>
+                              </CardContent>
+                              <CardActions>
+                              <Route exact path="/" render={() => (
+                                card.title === 'Author' ?
+                                  appInfo.user_id === null ?
+                                  <Route render={(props) => (
+                                      <LoginDialog {...props} updateId={updateUserId} api_url={appInfo.api_url}/>
+                                  )}
+                                  />
+                                    :
+                                    <Link to={card.link}>
+                                      <Button variant="contained" size="small" color="primary">
+                                        Begin
+                                      </Button>
+                                    </Link>
+                                  :
+                                  <Link to={card.link}>
+                                    <Button variant="contained" size="small" color="primary">
+                                      Begin
+                                    </Button>
+                                  </Link>
+                              )}
+                              />
+                              </CardActions>
+                            </Card>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </div>
+                )}
+                />
 
                 <Switch>
                     <Route exact path="/" render={() => (
@@ -351,9 +470,21 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         </Container>
                     )}
                     />
+                    <Route path="/author" render={(route_props) => (
+                        <Container maxWidth="lg">
+                            <Author />
+                        </Container>
+                    )}
+                    />
+                    <Route path="/analyze" render={(route_props) => (
+                        <Container maxWidth="lg">
+                            <Analyze info={[]} />
+                        </Container>
+                    )}
+                    />
                     <Route path="/matrix" render={(route_props) => (
                         <Container maxWidth="xl">
-                            <HarmonizationView {...route_props} api_url={appInfo.api_url}/>
+                            <HarmonizationView {...route_props} api_url={appInfo.api_url} />
                         </Container>
                     )}
                     />
@@ -369,10 +500,16 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         </Container>
                     )}
                     />
+                    <Route path="/materials_author" render={(route_props) => (
+                        <Container maxWidth="md">
+                            <MaterialListAuthor {...route_props} api_url={appInfo.api_url}/>
+                        </Container>
+                    )}
+                    />
                     {appInfo.user_data &&
                     <Route path="/my_materials" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialList
+                            <MaterialListAuthor
                                 {...route_props}
                                 api_url={appInfo.api_url}
                                 user_materials={appInfo.user_data.owned_materials}
@@ -381,6 +518,41 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     )}
                     />
                     }
+                    <Route path="/material/create" render={(route_props) => (
+                        <Container maxWidth="md">
+                            <MaterialForm {...route_props} api_url={appInfo.api_url}
+                                      force_user_data_reload={force_user_data_refresh}
+                            />
+                        </Container>
+                    )}
+                    />
+                    <Route path="/material/:id/edit" render={(route_props) => (
+                        <Container maxWidth="md">
+                            <MaterialForm {...route_props} api_url={appInfo.api_url}
+                                          force_user_data_reload={force_user_data_refresh}/>
+                        </Container>
+                    )}
+                    />
+                </Switch>
+
+
+                <Switch>
+                    <Route path="/collection/create" render={(route_props) => (
+                        <Container maxWidth={"md"}>
+                            <CollectionForm {...route_props} api_url={appInfo.api_url}
+                                force_user_data_reload={force_user_data_refresh}
+                            />
+                        </Container>
+                    )}
+                    />
+
+                    <Route path="/collection/:id" render={(route_props) => (
+                        <Container maxWidth={"md"}>
+                            <CollectionOverview {...route_props} api_url={appInfo.api_url} />
+                        </Container>
+                    )}
+                    />
+                  
                     <Route path="/material/create" render={(route_props) => (
                         <Container maxWidth="md">
                             <MaterialForm {...route_props} api_url={appInfo.api_url}
@@ -417,12 +589,9 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
                     <Route component={NotFound} />
                 </Switch>
-
-
-
-
-
             </Container>
+
+            {/*handles cards for navigation*/}
             {/**
              Begin Snackbar stuff for account stuff, may be a @TODO or @FIXME at some point to
              move it into its own component, that takes in the snackbar_flags from the appInfo of the app.
