@@ -20,13 +20,10 @@ import OntologyWrapper from "./components/radial/OntologyWrapper";
 import {Search} from "./components/search/Search";
 import {Analyze} from "./components/analyze/Analyze";
 import {Author} from "./components/author/Author";
-import CameraIcon from '@material-ui/icons/PhotoCamera';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Toolbar from '@material-ui/core/Toolbar';
 import  {NotFound} from "./components/NotFound";
 import Typography from '@material-ui/core/Typography';
 
@@ -75,12 +72,10 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const cards = [{id: 1, title: "Author", image: require("./author.PNG"),
-                       text: 'Enter your own \
-                       course information to analyze and compare against ACM and PDC guidelines',
+                       text: 'Enter your own course information to analyze and compare against ACM and PDC guidelines',
                        link: '/author'},
                {id: 2, title: "Analyze", image: require("./analyze.PNG"),
-                       text: 'Here you can analyze your courses or collections to find relationships among your courses \
-                       or courses in a collection',
+                       text: 'Here you can analyze your courses or collections to find relationships among your courses or courses in a collection',
                        link: '/analyze'},
                {id: 3, title: "Search", image: require("./search.PNG"),
                        text: 'Search the CS Materials database for new assignments',

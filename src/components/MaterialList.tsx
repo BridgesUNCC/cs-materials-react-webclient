@@ -8,10 +8,8 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import Typography from "@material-ui/core/Typography";
 import {RouteComponentProps} from "react-router";
 import Button from "@material-ui/core/Button";
-import {Link} from "react-router-dom";
 import {MaterialListEntry} from "../common/types";
 import {Analyze} from "./analyze/Analyze";
-import { useLocation } from 'react-router-dom'
 
 
 
@@ -67,7 +65,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
         createEmptyEntity(path)
     );
 
-    let reload = path !== listInfo.path || search != listInfo.search;
+    let reload = path !== listInfo.path || search !== listInfo.search;
 
 
     if (!listInfo.fetched || reload) {

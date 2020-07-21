@@ -8,11 +8,8 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import Typography from "@material-ui/core/Typography";
 import {RouteComponentProps} from "react-router";
 import Button from "@material-ui/core/Button";
-import {Link} from "react-router-dom";
 import {MaterialListEntry} from "../common/types";
 import {Author} from "./author/Author";
-import { useLocation } from 'react-router-dom'
-
 
 
 const useStyles = makeStyles((theme: Theme) =>
