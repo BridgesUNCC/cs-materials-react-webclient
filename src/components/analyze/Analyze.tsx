@@ -12,6 +12,7 @@ import {ChevronRight, ChevronLeft} from "@material-ui/icons";
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListSubheader from '@material-ui/core/ListSubheader';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import PeopleIcon from '@material-ui/icons/People';
 import BarChartIcon from '@material-ui/icons/BarChart';
@@ -96,6 +97,9 @@ const useStyles = makeStyles((theme: Theme) =>
         fixedHeight: {
           height: 240,
         },
+        ListSubheader: {
+          marginRight: 50
+        }
     }),
 );
 
@@ -104,11 +108,13 @@ const drawerWidth = 300;
 
 interface Props {
  info: number[],
+ user_id: any,
 }
 
 export const Analyze: FunctionComponent<Props> = (
   {
     info,
+    user_id,
   }
 ) => {
     const classes = useStyles();
@@ -120,7 +126,7 @@ export const Analyze: FunctionComponent<Props> = (
       setOpen(false);
     };
 
-
+    console.log(info)
     return (
         <div className={classes.root}>
         <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
@@ -151,6 +157,7 @@ export const Analyze: FunctionComponent<Props> = (
           </div>
           <Divider />
           <List><div>
+          <ListSubheader inset className={classes.ListSubheader}>Analyzing</ListSubheader>
             <ListItem button component={Link} to='/materials'>
               <ListItemIcon>
                 <DashboardIcon />
@@ -182,7 +189,50 @@ export const Analyze: FunctionComponent<Props> = (
               <ListItemText primary="Harmonization View" />
             </ListItem>
           </div></List>
+          {(user_id !== null) ?
+            <Divider />
+            :
+            <div></div>
+          }
+          <List><div>
+          {(user_id !== null) ?
+            <div>
+            <ListSubheader inset className={classes.ListSubheader}>Authoring</ListSubheader>
+            <ListItem button component={Link} to='/material/create'>
+              <ListItemIcon>
+                <DashboardIcon />
+              </ListItemIcon>
+              <ListItemText primary="Create Materials" />
+            </ListItem>
+            <ListItem button component={Link} to='/materials_author'>
+              <ListItemIcon>
+                <AccountTreeIcon />
+              </ListItemIcon>
+              <ListItemText primary="Create Collections" />
+            </ListItem>
+            <ListItem button component={Link} to='/my_materials'>
+              <ListItemIcon>
+                <PeopleIcon />
+              </ListItemIcon>
+              <ListItemText primary="View My Materials" />
+            </ListItem>
+            </div>
+            :
+            <div>
+
+            </div>
+          }
+          </div></List>
           <Divider />
+          <List><div>
+          <ListSubheader inset className={classes.ListSubheader}>Searching</ListSubheader>
+          <ListItem button component={Link} to='/search'>
+            <ListItemIcon>
+              <DashboardIcon />
+            </ListItemIcon>
+            <ListItemText primary="Search" />
+          </ListItem>
+          </div></List>
 
         </Drawer>
         </div>

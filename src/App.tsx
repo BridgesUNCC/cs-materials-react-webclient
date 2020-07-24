@@ -444,25 +444,25 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/analyze" render={(route_props) => (
                         <Container maxWidth="lg">
-                            <Analyze info={[]} />
+                            <Analyze info={[]} user_id={appInfo.user_id}/>
                         </Container>
                     )}
                     />
                     <Route path="/matrix" render={(route_props) => (
                         <Container maxWidth="xl">
-                            <HarmonizationView {...route_props} api_url={appInfo.api_url} />
+                            <HarmonizationView {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} />
                         </Container>
                     )}
                     />
                     <Route path='/radial' render={(route_props) => (
                         <Container maxWidth="xl">
-                            <OntologyWrapper {...route_props} api_url={appInfo.api_url}/>
+                            <OntologyWrapper {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id}/>
                         </Container>
                     )}
                     />
                     <Route path="/materials" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialList {...route_props} api_url={appInfo.api_url}/>
+                            <MaterialList {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id}/>
                         </Container>
                     )}
                     />

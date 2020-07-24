@@ -16,6 +16,7 @@ class OntologyWrapper extends Component{
     async componentDidMount() {
         const api_url = this.props.api_url;
         const radialapi = this.props.api_url + "/data/ontology_trees_old";
+        const user_id = this.props.user_id
         let ids = "";
         let tree = "";
         if (this.props.location.search.split("ids=")[1])
@@ -55,7 +56,7 @@ class OntologyWrapper extends Component{
     render() {
         return (
             <div>
-            <Analyze info={[]}/>
+            <Analyze info={[]} user_id={this.props.user_id}/>
                 {this.state.loading ? (
                     <div>loading...</div>
                 ) : (

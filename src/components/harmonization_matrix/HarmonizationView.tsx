@@ -31,6 +31,7 @@ interface MatchParams {
 
 interface Props extends RouteComponentProps<MatchParams>{
     api_url: string;
+    user_id: any;
 }
 
 interface ViewInfo {
@@ -102,6 +103,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                                                                 location,
                                                                 match,
                                                                 api_url,
+                                                                user_id,
 
 }) => {
     const [viewInfo, setViewInfo] = React.useState(
@@ -266,7 +268,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
 
     return (
         <div>
-        <Analyze info={[]}/>
+        <Analyze info={[]} user_id={user_id}/>
             {
                 <Paper className={classes.paper}>
                     <TextField

@@ -50,6 +50,7 @@ interface MatchParams {
 interface ListProps extends RouteComponentProps<MatchParams> {
     api_url: string;
     user_materials?: number[];
+    user_id: any;
 }
 
 export const MaterialList: FunctionComponent<ListProps> = ({   history,
@@ -57,6 +58,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                                                                match,
                                                                api_url,
                                                                user_materials,
+                                                               user_id,
                                                            }) => {
     const classes = useStyles();
     let path = location.pathname;
@@ -145,7 +147,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     return (
         <div>
           {/*load selected material to analyze comp for visualze*/}
-          <Analyze info={listInfo.selected_materials}/>
+          <Analyze info={listInfo.selected_materials} user_id={user_id}/>
             <Paper className={classes.root}>
                 <Typography variant="h5" component="h3">
                     Results
