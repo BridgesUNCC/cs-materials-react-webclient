@@ -72,6 +72,7 @@ export interface MappingData {
 export interface AxisData {
     title: string;
     id: number;
+    new_title: string;
 }
 
 export interface HarmonizationData {
