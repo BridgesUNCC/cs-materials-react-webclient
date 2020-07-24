@@ -17,6 +17,8 @@ import DashboardIcon from '@material-ui/icons/Dashboard';
 import PeopleIcon from '@material-ui/icons/People';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
+import Typography from '@material-ui/core/Typography';
+
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

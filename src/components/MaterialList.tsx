@@ -142,17 +142,23 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
 
         setListInfo({...listInfo, selected_materials: selected});
     };
-
+    console.log(listInfo)
 
     return (
         <div>
           {/*load selected material to analyze comp for visualze*/}
           <Analyze info={listInfo.selected_materials} user_id={user_id}/>
+          {/*uses the listinfor search variable to determine if on collections or not, could prob be done a better way*/}
+          {(listInfo.search === "") ?
+            <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+                Select Materials
+            </Typography>
+            :
+            <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+                Select Collections
+            </Typography>
+          }
             <Paper className={classes.root}>
-                <Typography variant="h5" component="h3">
-                    Results
-                </Typography>
-
                 <Grid container direction="column">
                     <Grid item>
                         <Button className={classes.margin} variant="contained" color="primary"
