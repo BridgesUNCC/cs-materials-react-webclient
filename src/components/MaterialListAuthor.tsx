@@ -63,6 +63,7 @@ export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
 
 
     let reload = path !== listInfo.path;
+    console.log(listInfo.path)
 
     if (!listInfo.fetched || reload) {
 
@@ -141,9 +142,17 @@ export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
     return (
         <div>
           <Author />
+          {(path === '/my_materials')?
+            <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+                My Materials
+            </Typography>
+            :
+            <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+                Create Collection
+            </Typography>
+          }
             <Paper className={classes.root}>
                 <Typography variant="h5" component="h3">
-                    Results
                 </Typography>
                         <Button className={classes.margin} variant="contained" color="primary"
                                 onClick={() => {

@@ -23,11 +23,11 @@ import Typography from "@material-ui/core/Typography";
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
-            padding: theme.spacing(3, 2),
-            margin: theme.spacing(3, 2),
+          padding: theme.spacing(3, 2),
+          margin: theme.spacing(5),
         },
         margin: {
-            margin: theme.spacing(1),
+            margin: theme.spacing(5),
         },
         textField: {
             margin: theme.spacing(2),
@@ -142,7 +142,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         const url = api_url + "/data/meta_tags";
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
-      
+
         let material_type = parse_query_variable(location, "type");
 
         let mapped_ids = parse_query_variable(location, "ids");
@@ -432,12 +432,21 @@ export const MaterialForm: FunctionComponent<Props> = (
         )
 
     }
-
+    console.log(formInfo.data.material_type)
     // @TODO, flash error messages for empty title
     return (
-        <div className={classes.root}>
+        <div>
+        {(formInfo.data.material_type === "assignment")?
+          <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+              Material Form
+          </Typography>
+          :
+          <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+              Collection Form
+          </Typography>
+        }
         <Author />
-            <Paper>
+            <Paper className={classes.root}>
                 {formInfo.posting &&
                     <LinearProgress/>
                 }
