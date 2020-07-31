@@ -57,8 +57,6 @@ export const AppBarUserMenu: FunctionComponent<Props> = ({history, location, log
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
             >
-                <MenuItem onClick={() => toPath("/my_materials")}>My materials</MenuItem>
-                <MenuItem onClick={() => toPath("/material/create")}>Create material</MenuItem>
                 <MenuItem onClick={logout}>Logout</MenuItem>
             </Menu>
         </div>

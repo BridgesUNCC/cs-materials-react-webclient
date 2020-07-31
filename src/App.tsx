@@ -361,7 +361,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
             </Switch>
 
             <Container maxWidth="md" className={classes.heroContent}>
-
                 <Switch>
                     <Route exact path="/" render={() => (
                         <div>
@@ -438,13 +437,13 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/author" render={(route_props) => (
                         <Container maxWidth="lg">
-                            <Author />
+                            <Author info={[]} currentLoc={""}/>
                         </Container>
                     )}
                     />
                     <Route path="/analyze" render={(route_props) => (
                         <Container maxWidth="lg">
-                            <Analyze info={[]} user_id={appInfo.user_id}/>
+                            <Analyze info={[]} user_id={appInfo.user_id} currentLoc={""}/>
                         </Container>
                     )}
                     />

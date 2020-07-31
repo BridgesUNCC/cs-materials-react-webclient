@@ -141,7 +141,11 @@ export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
 
     return (
         <div>
-          <Author />
+          {(path === '/my_materials')?
+            <Author info={listInfo.selected_materials} currentLoc={"my_materials"}/>
+            :
+            <Author info={listInfo.selected_materials} currentLoc={"create_collection"}/>
+          }
           {(path === '/my_materials')?
             <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
                 My Materials

@@ -13,7 +13,7 @@ serviceWorker.unregister();
 
 const theme = createMuiTheme({
   palette: {
-    type: 'dark',
+    type: 'light',
   },
 });
 
@@ -29,5 +29,3 @@ ReactDOM.render(
         </MuiThemeProvider>
     ,
     document.getElementById('root'));
-
-

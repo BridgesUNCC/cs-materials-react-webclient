@@ -445,7 +445,11 @@ export const MaterialForm: FunctionComponent<Props> = (
               Collection Form
           </Typography>
         }
-        <Author />
+        {(formInfo.data.material_type === "assignment")?
+          <Author info={[]} currentLoc={"material_form"}/>
+          :
+          <Author info={[]} currentLoc={"collection_form"}/>
+        }
             <Paper className={classes.root}>
                 {formInfo.posting &&
                     <LinearProgress/>

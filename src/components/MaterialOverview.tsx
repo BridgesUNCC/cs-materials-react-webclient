@@ -249,7 +249,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
         <div>
             {
                 localStorage.getItem("access_token") &&
-                <Author/>
+                <Author info={[]} currentLoc={"material_overview"}/>
             }
             {
                 typeof localStorage.getItem("access_token") === "string" &&

@@ -18,6 +18,7 @@ import PeopleIcon from '@material-ui/icons/People';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import Typography from '@material-ui/core/Typography';
+import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -111,16 +112,20 @@ const drawerWidth = 300;
 interface Props {
  info: number[],
  user_id: any,
+ currentLoc: string,
 }
 
 export const Analyze: FunctionComponent<Props> = (
   {
     info,
     user_id,
+    currentLoc,
   }
 ) => {
+
     const classes = useStyles();
     var [open, setOpen] = React.useState(true);
+    var [selectedIndex, setIndex] = React.useState(0);
     const handleDrawerOpen = () => {
       setOpen(true);
     };
@@ -128,7 +133,25 @@ export const Analyze: FunctionComponent<Props> = (
       setOpen(false);
     };
 
-    console.log(info)
+
+    switch(currentLoc){
+      case "materials":
+        selectedIndex = 1;
+        break;
+      case "collection":
+        selectedIndex = 2;
+        break;
+      case "radial":
+        selectedIndex = 3;
+        break;
+      case "radial":
+        selectedIndex = 3;
+        break;
+      case "matrix":
+        selectedIndex = 5;
+        break;
+    }
+
     return (
         <div className={classes.root}>
         <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
@@ -160,31 +183,31 @@ export const Analyze: FunctionComponent<Props> = (
           <Divider />
           <List><div>
           <ListSubheader inset className={classes.ListSubheader}>Analyzing</ListSubheader>
-            <ListItem button component={Link} to='/materials'>
+            <ListItem button onClick={() => setIndex(1)} selected={selectedIndex === 1} component={Link} to='/materials'>
               <ListItemIcon>
-                <DashboardIcon />
+                <PlaylistAddIcon />
               </ListItemIcon>
               <ListItemText primary="Select Materials" />
             </ListItem>
-            <ListItem button component={Link} to='/materials?material_types=collection'>
+            <ListItem button onClick={() => setIndex(2)} selected={selectedIndex === 2} component={Link} to='/materials?material_types=collection'>
               <ListItemIcon>
                 <AccountTreeIcon />
               </ListItemIcon>
               <ListItemText primary="Select Collections" />
             </ListItem>
-            <ListItem button component={Link} to={'/radial?tree=acm&ids=' + info}>
+            <ListItem button onClick={() => setIndex(3)} selected={selectedIndex === 3} component={Link} to={'/radial?tree=acm&ids=' + info}>
               <ListItemIcon>
                 <PeopleIcon />
               </ListItemIcon>
               <ListItemText primary="Radial View ACM-CSC 2013" />
             </ListItem>
-            <ListItem button component={Link} to={'/radial?tree=pdc&ids=' + info}>
+            <ListItem button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=pdc&ids=' + info}>
               <ListItemIcon>
                 <PeopleIcon />
               </ListItemIcon>
               <ListItemText primary="Radial View PDC 2012" />
             </ListItem>
-            <ListItem button component={Link} to={'/matrix?ids='+ (info.length === 0 ? -1 : info)}>
+            <ListItem button onClick={() => setIndex(5)} selected={selectedIndex === 5} component={Link} to={'/matrix?ids='+ (info.length === 0 ? -1 : info)}>
               <ListItemIcon>
                 <BarChartIcon />
               </ListItemIcon>

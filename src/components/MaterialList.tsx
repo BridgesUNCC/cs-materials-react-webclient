@@ -146,9 +146,13 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
 
     return (
         <div>
-          {/*load selected material to analyze comp for visualze*/}
-          <Analyze info={listInfo.selected_materials} user_id={user_id}/>
-          {/*uses the listinfor search variable to determine if on collections or not, could prob be done a better way*/}
+        {/*load selected material to analyze comp for visualze*/}
+        {(listInfo.search === "")?
+          <Analyze info={listInfo.selected_materials} user_id={user_id} currentLoc="materials"/>
+          :
+          <Analyze info={listInfo.selected_materials} user_id={user_id} currentLoc="collection"/>
+        }
+        {/*uses the listinfor search variable to determine if on collections or not, could prob be done a better way*/}
           {(listInfo.search === "") ?
             <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
                 Select Materials

@@ -30,6 +30,8 @@ import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import PeopleIcon from '@material-ui/icons/People';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
+import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
+
 
 
 const useStyles = makeStyles((theme) => ({
@@ -110,16 +112,30 @@ const useStyles = makeStyles((theme) => ({
   fixedHeight: {
     height: 840,
   },
+  ListSubheader: {
+    marginRight: 50
+  }
 }));
 
-const drawerWidth = 240;
+const drawerWidth = 300;
+
+interface Props {
+ info: number[],
+ currentLoc: string,
+}
 
 
-export const Author: FunctionComponent = (
+export const Author: FunctionComponent<Props> = (
+  {
+    info,
+    currentLoc
+  }
 ) => {
   const classes = useStyles();
 
   var [open, setOpen] = React.useState(true);
+  var [selectedIndex, setIndex] = React.useState(0);
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -127,6 +143,21 @@ export const Author: FunctionComponent = (
     setOpen(false);
   };
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+
+  switch(currentLoc){
+    case "material_form":
+      selectedIndex = 1;
+      break;
+    case "collection_form":
+      selectedIndex = 2;
+      break;
+    case "my_materials":
+      selectedIndex = 3;
+      break;
+    case "create_collection":
+      selectedIndex = 4;
+      break;
+  }
 
   return (
       <div className={classes.root}>
@@ -153,19 +184,19 @@ export const Author: FunctionComponent = (
         <Divider />
         <List><div>
         <ListSubheader inset>Authoring</ListSubheader>
-          <ListItem button component={Link} to='/material/create'>
+          <ListItem button onClick={() => setIndex(1)} selected={selectedIndex === 1} component={Link} to='/material/create'>
             <ListItemIcon>
               <DashboardIcon />
             </ListItemIcon>
             <ListItemText primary="Create Materials" />
           </ListItem>
-          <ListItem button component={Link} to='/materials_author'>
+          <ListItem button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to='/materials_author'>
             <ListItemIcon>
               <AccountTreeIcon />
             </ListItemIcon>
             <ListItemText primary="Create Collections" />
           </ListItem>
-          <ListItem button component={Link} to='/my_materials'>
+          <ListItem button onClick={() => setIndex(3)} selected={selectedIndex === 3} component={Link} to='/my_materials'>
             <ListItemIcon>
               <PeopleIcon />
             </ListItemIcon>
@@ -174,10 +205,10 @@ export const Author: FunctionComponent = (
         </div></List>
         <Divider />
         <List><div>
-        <ListSubheader inset>Analyzing</ListSubheader>
+        <ListSubheader inset className={classes.ListSubheader}>Analyzing</ListSubheader>
           <ListItem button component={Link} to='/materials'>
             <ListItemIcon>
-              <DashboardIcon />
+              <PlaylistAddIcon />
             </ListItemIcon>
             <ListItemText primary="Select Materials" />
           </ListItem>
@@ -186,6 +217,24 @@ export const Author: FunctionComponent = (
               <AccountTreeIcon />
             </ListItemIcon>
             <ListItemText primary="Select Collections" />
+          </ListItem>
+          <ListItem button component={Link} to={'/radial?tree=acm&ids=' + info}>
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Radial View ACM-CSC 2013" />
+          </ListItem>
+          <ListItem button component={Link} to={'/radial?tree=pdc&ids=' + info}>
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Radial View PDC 2012" />
+          </ListItem>
+          <ListItem button component={Link} to={'/matrix?ids='+ (info.length === 0 ? -1 : info)}>
+            <ListItemIcon>
+              <BarChartIcon />
+            </ListItemIcon>
+            <ListItemText primary="Harmonization View" />
           </ListItem>
         </div></List>
         <Divider />

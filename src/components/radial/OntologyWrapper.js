@@ -36,14 +36,26 @@ class OntologyWrapper extends Component{
         let assignmentdata;
         let assignmentresponse;
 
+        const erik2214 = [121,123,124,131,132,135,136,137,139,140,141,142,143,144,145,146,148,157,158,159,160,161,162,163,164,165];
+        const erik2214_lecture = [123, 124,131,132,135,136,137,139,140,141,142,143,145,146,148]
+        const erik2214_assessment = [121, 144, 157, 158, 162, 163, 165]
+
+        const kr2214 = [21,118,119,120,122,125,126,127,128,129,130,133,154,155,156,171,172,173,174]
+
+        const erik3145 = [66,67,87,99, 100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116]
+        const erik3145_lecture = [66,67,100,101,102,103,104,105,112,113,114,115]
+        const erik3145_assignment = [99, 106, 107, 108, 109, 110, 111, 116]
+
+        const jamie = [134, 138, 147,149,150,151,152,153,166,167,168,169,170];
+
         //@TODO FIXME ALL OF THIS
         if (false) {
             // comparison view is broken
             let assignmentresponse2;
             let assignmentdata2;
-            assignmentresponse = await fetch(api_url + "/data/ontology_data_old?ids=" + ids[0]);
+            assignmentresponse = await fetch(api_url + "/data/ontology_data_old?ids=" + erik2214.toString());
             assignmentdata = await assignmentresponse.json();
-            assignmentresponse2 =  await fetch(api_url + "/data/ontology_data_old?ids=" + ids[1]);
+            assignmentresponse2 =  await fetch(api_url + "/data/ontology_data_old?ids=" + jamie.toString());
             assignmentdata2 = await assignmentresponse2.json();
             this.setState({data: [radialdata, assignmentdata, assignmentdata2], loading: false})
         } else {
@@ -56,7 +68,7 @@ class OntologyWrapper extends Component{
     render() {
         return (
             <div>
-            <Analyze info={[]} user_id={this.props.user_id}/>
+            <Analyze info={[]} user_id={this.props.user_id} currentLoc="radial"/>
                 {this.state.loading ? (
                     <div>loading...</div>
                 ) : (

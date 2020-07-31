@@ -19,6 +19,7 @@ class Radial extends Component {
     console.log(Object.values(this.props.data[0]));
 
     let data = Object.values(this.props.data[0]);
+    let data2 = Object.values(this.props.data[0]);
     let assignments = this.props.data[1];
     let assignmentsArray = assignments.assignments;
     let view = this.props.view || this.props.data.length === 3 ? "compare" : "first";
@@ -62,7 +63,7 @@ class Radial extends Component {
     const vHeight = 1000;
     let maxHits = 0;
 
-    function parseClassification(assignmentArray){
+    function parseClassification(assignmentArray, whichTree){
       let classificationSet = [];
       for(let i = 0; i < assignmentArray.length; i++){
         let assignmentName = assignmentArray[i].fields.title;
@@ -70,7 +71,7 @@ class Radial extends Component {
         let classificationAuthor = assignmentArray[i].fields.authors.toString();
         for (let j = 0; j < classificationArray.length; j++){
           let classificationString = classificationArray[j];
-          parseTree(classificationString, classificationSet, classificationAuthor, assignmentName)
+          parseTree(classificationString, classificationSet, classificationAuthor, assignmentName, whichTree)
         }
       }
       return classificationSet
@@ -78,7 +79,7 @@ class Radial extends Component {
 
     let treeRoot = null;
     //find classification in the tree
-    function parseTree(tag, set, author, name){
+    function parseTree(tag, set, author, name, whichTree){
       for(let i = 0; i < data.length; i++){
         if(!data[i].parent){
           treeRoot = i;
@@ -101,9 +102,26 @@ class Radial extends Component {
           set.push(tag);
           data[i].hits += 1;
           maxHits = (data[i].hits > maxHits) ? data[i].hits : maxHits;
+          if(whichTree === "1"){
+            if(!data[i].hasOwnProperty("firstTreeHits")){
+              data[i].firstTreeHits = 0;
+            }
+            data[i].firstTreeHits += 1;
+          }else{
+            if(!data[i].hasOwnProperty("secondTreeHits")){
+              data[i].secondTreeHits = 0;
+            }
+            data[i].secondTreeHits += 1;
+          }
         }
       }
       return set
+    }
+
+    function clearDataHits(){
+      for(let i = 0; i < data.length; i++){
+        data[i].hits = 0;
+      }
     }
 
 
@@ -117,8 +135,8 @@ class Radial extends Component {
         mark.push(tempProp)
       }
       classificationTree.push(data[treeRoot]);
-      classificationTree[0].color = "red";
-      classificationTree[0].size = 30;
+      classificationTree[0].color = "red"; //root color
+      classificationTree[0].size = 30; //root size
       let tempProp = {};
       tempProp["id"] = data[treeRoot].id;
       tempProp["visited"] = true;
@@ -309,6 +327,7 @@ class Radial extends Component {
       let maxHist2 = 0;
       let treeRoot = "";
       mark = [];
+      console.log(tree1)
       for(let i = 0; i < tree1.length; i++){
         if(tree1[i].hits > 0){
           findInTree(tree1[i].id).cnt1 = tree1[i].hits;
@@ -338,15 +357,26 @@ class Radial extends Component {
         if(data[i].hits > 0 && !mark[findMarked(data[i].id)].visited){
           compareClassificationsHelper(mark, data[i].id, completeTree);
         }
-        if(data[i].cnt1 || data[i].cnt2){
-          if(data[i].cnt1 && data[i].cnt2){
-            completeTree[findInClassTree(data[i].id, completeTree)].color = "grey"
+        if(data[i].firstTreeHits || data[i].secondTreeHits){
+          if(data[i].firstTreeHits && data[i].secondTreeHits){
+            // console.log(data[i])
+            let total = data[i].firstTreeHits + data[i].secondTreeHits
+            let redColor = data[i].firstTreeHits/total;
+            let blueColor = data[i].secondTreeHits/total;
+            console.log(blueColor, redColor)
+            // if(redColor > blueColor){
+            //   completeTree[findInClassTree(data[i].id, completeTree)].color = redColor
+            // }else{
+            //   completeTree[findInClassTree(data[i].id, completeTree)].color = blueColor
+            //   console.log("here")
+            // }
+            completeTree[findInClassTree(data[i].id, completeTree)].color = blueColor
           }
-          if(data[i].cnt1 && !data[i].cnt2){
-            completeTree[findInClassTree(data[i].id, completeTree)].color = "blue"
+          if(data[i].firstTreeHits && !data[i].secondTreeHits){
+            completeTree[findInClassTree(data[i].id, completeTree)].color = [200, 0, 0]
           }
-          if(!data[i].cnt1 && data[i].cnt2){
-            completeTree[findInClassTree(data[i].id, completeTree)].color = "brown"
+          if(!data[i].firstTreeHits && data[i].secondTreeHits){
+            completeTree[findInClassTree(data[i].id, completeTree)].color = [0, 0, 200]
           }
         }
       }
@@ -355,7 +385,7 @@ class Radial extends Component {
     }
 
     if (view === "compare"){
-      let firstClassificationSet = parseClassification(assignmentsArray);
+      let firstClassificationSet = parseClassification(assignmentsArray, "1");
       let firstClassificationTree = buildClassificationTree(firstClassificationSet);
       mark = [];
       if (this.props.data[2]){
@@ -364,7 +394,7 @@ class Radial extends Component {
         data = Object.values(this.props.data[0]);
         let secondAssignments = this.props.data[2];
         let secondAssignmentsArray = secondAssignments.assignments;
-        secondClassificationSet = parseClassification(secondAssignmentsArray);
+        secondClassificationSet = parseClassification(secondAssignmentsArray, "2");
         secondClassificationTree = buildClassificationTree(secondClassificationSet);
       }
       // let compareACMTree = Object.values(this.props.data[0]);
@@ -373,7 +403,7 @@ class Radial extends Component {
       layoutRadialLayer(comparedTree);
       var tree = comparedTree;
     } else if (view === "first"){
-      let firstClassificationSet = parseClassification(assignmentsArray);
+      let firstClassificationSet = parseClassification(assignmentsArray, "1");
       let firstClassificationTree = buildClassificationTree(firstClassificationSet);
       let firstFlatClassificationTree = addChildren(firstClassificationTree);
       let firstUnflattenedClassificationTree = unflatten(firstFlatClassificationTree);
@@ -387,7 +417,7 @@ class Radial extends Component {
         data = Object.values(this.props.data[0]);
         let secondAssignments = this.props.data[2];
         let secondAssignmentsArray = secondAssignments.assignments;
-        secondClassificationSet = parseClassification(secondAssignmentsArray);
+        secondClassificationSet = parseClassification(secondAssignmentsArray, "2");
         secondClassificationTree = buildClassificationTree(secondClassificationSet);
       }
       let secondFlatClassificationTree = addChildren(secondClassificationTree);
@@ -435,9 +465,18 @@ class Radial extends Component {
     g.selectAll('circle').data(vNodes).enter().append('circle')
         .attr('r', function (d) {return d.data.size - 5})
         .attr("transform", function (d) {return "translate(" + d.data.locationX + "," + d.data.locationY + ")"; })
-        .style("fill-opacity", .5) // set the fill opacity
+        .style("fill-opacity", .75) // set the fill opacity
         .style("stroke", "black")
-        .style("fill", function (d) {return d.data.color})
+        .style("fill", function (d) {
+          if(!d.data.firstTreeHits && !d.data.secondTreeHits || view === "first"){
+            return d.data.color
+          }else if(!d.data.firstTreeHits || !d.data.secondTreeHits){
+            return d3.rgb(d.data.color[0], d.data.color[1], d.data.color[2])
+          }else{
+            let inter = d3.interpolate("red", "blue")
+            return d3.rgb(inter(d.data.color))
+          }
+        })
         .on("mouseover", function(d){
           let currentNode = d.data;
           let breadcrumbs = [d.data.id];
