@@ -3,6 +3,7 @@ import './App.css';
 import {getJSONData, parseJwt} from './common/util';
 import {LoginDialog} from "./components/user/LoginDialog";
 import {MaterialList} from "./components/MaterialList";
+import {Comparison} from "./components/Comparison";
 import {MaterialListAuthor} from "./components/MaterialListAuthor";
 import {AppBar, createStyles, Grid, Theme} from "@material-ui/core";
 import {AppBarUserMenu} from "./components/user/AppBarUserMenu";
@@ -360,7 +361,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 </Route>
             </Switch>
 
-            <Container maxWidth="md" className={classes.heroContent}>
+            <Container maxWidth="lg" className={classes.heroContent}>
                 <Switch>
                     <Route exact path="/" render={() => (
                         <div>
@@ -443,7 +444,13 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/analyze" render={(route_props) => (
                         <Container maxWidth="lg">
-                            <Analyze info={[]} user_id={appInfo.user_id} currentLoc={""}/>
+                            <Analyze info={[]} user_id={appInfo.user_id} currentLoc={""} from={"nav"}/>
+                        </Container>
+                    )}
+                    />
+                    <Route path="/comparison" render={(route_props) => (
+                        <Container maxWidth="lg">
+                            <Comparison {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id}/>
                         </Container>
                     )}
                     />
@@ -461,7 +468,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/materials" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialList {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id}/>
+                            <MaterialList {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} from={"nav"}/>
                         </Container>
                     )}
                     />

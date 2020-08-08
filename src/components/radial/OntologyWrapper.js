@@ -68,7 +68,7 @@ class OntologyWrapper extends Component{
     render() {
         return (
             <div>
-            <Analyze info={[]} user_id={this.props.user_id} currentLoc="radial"/>
+            <Analyze info={[]} user_id={this.props.user_id} currentLoc="radial" from="radial"/>
                 {this.state.loading ? (
                     <div>loading...</div>
                 ) : (

@@ -1,15 +1,21 @@
 import React, {FunctionComponent} from "react";
-import {getJSONData, parse_query_variable} from "../common/util";
+import {getJSONData, parse_query_variable} from "../../common/util";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import List from "@material-ui/core/List";
-import {ListItemLink} from "./ListItemLink";
+import {ListItemLink} from "../ListItemLink";
 import {Checkbox, createStyles, Divider, Grid, Paper, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import Typography from "@material-ui/core/Typography";
 import {RouteComponentProps} from "react-router";
 import Button from "@material-ui/core/Button";
-import {MaterialListEntry} from "../common/types";
-import {Analyze} from "./analyze/Analyze";
+import {MaterialListEntry} from "../../common/types";
+import {Analyze} from "../analyze/Analyze";
+import AppBar from '@material-ui/core/AppBar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Box from '@material-ui/core/Box';
+import {Link} from "react-router-dom";
+
 
 
 
@@ -24,8 +30,6 @@ const useStyles = makeStyles((theme: Theme) =>
         },
     }),
 );
-
-
 
 interface ListEntity {
     materials: MaterialListEntry[] | null;
@@ -56,7 +60,27 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     from: string;
 }
 
-export const MaterialList: FunctionComponent<ListProps> = ({   history,
+function TabPanel(props: any) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`wrapped-tabpanel-${index}`}
+      aria-labelledby={`wrapped-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box p={3}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
+}
+
+export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
                                                                location,
                                                                match,
                                                                api_url,
@@ -67,7 +91,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     const classes = useStyles();
     let path = location.pathname;
     let search = location.search;
-    console.log(history)
+    console.log(location)
     const [listInfo, setListInfo] = React.useState<ListEntity>(
         createEmptyEntity(path)
     );
@@ -101,6 +125,35 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                 }
             }
         })
+    }
+
+    //when a tab is clicked that tabs value is passed to this function
+    //the value is assigned to the location search variable and the listinfo's fetched variable is set to false
+    //that way, it is forced to reload with the new search filter
+    const handleChange=(event:any, newValue:string) => {
+      location.search = newValue
+      setListInfo({...listInfo, fetched: false})
+    }
+
+    if(location.pathname !== "/comparison"){
+      if (listInfo.search === "") {
+        var title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+            Select Materials
+        </Typography>
+      }
+      else{
+        var title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+            Select Collections
+        </Typography>
+      }
+    }else{
+      var title = <div></div>
+    }
+
+    if(listInfo.search === ""){
+      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} currentLoc="compare" from="listTwo"/>
+    }else{
+      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} currentLoc="compare" from="listTwo"/>
     }
 
     // @Speed @TODO, smart cull entries so rendering doesn't take too long, maybe have a callback that renders more as
@@ -148,24 +201,30 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
         setListInfo({...listInfo, selected_materials: selected});
     };
 
+    console.log(listInfo.selected_materials)
+
     return (
         <div>
+        <AppBar position="static">
+        <Tabs value={"hello"} onChange={handleChange} aria-label="wrapped label tabs example">
+          <Tab value="" label="All Materials"/>
+          <Tab value="?material_types=collection" label="Collections" />
+          <Tab value="three" label="My Materials" />
+        </Tabs>
+      </AppBar>
+      <TabPanel value={"hello"} index="one">
+        Item One
+      </TabPanel>
+      <TabPanel value={"hello"} index="two">
+        Item Two
+      </TabPanel>
+      <TabPanel value={"hello"} index="three">
+        Item Three
+      </TabPanel>
         {/*load selected material to analyze comp for visualze*/}
-        {(listInfo.search === "")?
-          <Analyze info={listInfo.selected_materials} user_id={user_id} currentLoc="materials" from="materials"/>
-          :
-          <Analyze info={listInfo.selected_materials} user_id={user_id} currentLoc="collection" from="collection"/>
-        }
+        {analyze}
         {/*uses the listinfor search variable to determine if on collections or not, could prob be done a better way*/}
-          {(listInfo.search === "") ?
-            <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-                Select Materials
-            </Typography>
-            :
-            <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-                Select Collections
-            </Typography>
-          }
+          {title}
             <Paper className={classes.root}>
                 <Grid container direction="column">
                     <Grid item>
