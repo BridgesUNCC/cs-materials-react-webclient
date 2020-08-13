@@ -175,7 +175,7 @@ export const Analyze: FunctionComponent<Props> = (
         </ListItemIcon>
         <ListItemText primary="Radial View ACM-CSC 2013" />
       </ListItem>
-      var radialpdc = <ListItem button onClick={() => setIndex(5)} selected={selectedIndex === 5} component={Link} to={'/radial?tree=pdc&ids=' + compLists}>
+      var radialpdc = <ListItem button onClick={() => setIndex(5)} selected={selectedIndex === 5} component={Link} to={'/radial?tree=pdc&listoneids=' + compListOne + '&listtwoids=' + compListTwo}>
         <ListItemIcon>
           <PeopleIcon />
         </ListItemIcon>
