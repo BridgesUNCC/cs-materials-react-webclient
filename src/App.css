@@ -105,3 +105,10 @@
   font-size: 16px;
   line-height: 20px;
 }
+
+#RadialContainer{
+  position: absolute;
+  left: 0%;
+  margin-left: 0;
+  padding-left: 0px;
+}

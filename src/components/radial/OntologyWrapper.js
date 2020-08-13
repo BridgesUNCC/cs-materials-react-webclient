@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import Radial from './Radial';
 import {Analyze} from "../analyze/Analyze";
+import {AppBar, createStyles, Grid, Theme} from "@material-ui/core";
+
 
 
 class OntologyWrapper extends Component{
