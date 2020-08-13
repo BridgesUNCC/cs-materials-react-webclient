@@ -17,19 +17,32 @@ class OntologyWrapper extends Component{
         const api_url = this.props.api_url;
         const radialapi = this.props.api_url + "/data/ontology_trees_old";
         const user_id = this.props.user_id
-        let ids = "";
-        let tree = "";
-        if (this.props.location.search.split("ids=")[1])
-            ids = this.props.location.search.split("ids=")[1].split("&")[0];
+
+        let ids    = "";
+        let tree   = "";
+        let oneids = "";
+        let twoids = "";
+        let compare = false;
+
+        if(this.props.location.search.includes('listoneids')){
+          compare = true;
+          if (this.props.location.search.split("listoneids=")[1])
+            oneids = this.props.location.search.split("listoneids=")[1].split("&")[0];
+          if (this.props.location.search.split("listtwoids=")[1])
+            twoids = this.props.location.search.split("listtwoids=")[1].split("&")[0];
+        }else{
+          if (this.props.location.search.split("ids=")[1])
+              ids = this.props.location.search.split("ids=")[1].split("&")[0];
+        }
+
         if (this.props.location.search.split("tree=")[1])
             tree = this.props.location.search.split("tree=")[1].split("&")[0];
 
-        if (tree !== "acm" && tree !== "pdc") {
+        if (tree !== "acm" && tree !== "pdc")
             tree = "acm";
-        }
 
         const radialresponse = await fetch(radialapi);
-        let radialdata = await radialresponse.json();
+        let radialdata       = await radialresponse.json();
 
         radialdata = radialdata.data[tree];
 
@@ -49,13 +62,13 @@ class OntologyWrapper extends Component{
         const jamie = [134, 138, 147,149,150,151,152,153,166,167,168,169,170];
 
         //@TODO FIXME ALL OF THIS
-        if (false) {
+        if (compare) {
             // comparison view is broken
             let assignmentresponse2;
             let assignmentdata2;
-            assignmentresponse = await fetch(api_url + "/data/ontology_data_old?ids=" + erik2214.toString());
+            assignmentresponse = await fetch(api_url + "/data/ontology_data_old?ids=" + oneids.toString());
             assignmentdata = await assignmentresponse.json();
-            assignmentresponse2 =  await fetch(api_url + "/data/ontology_data_old?ids=" + jamie.toString());
+            assignmentresponse2 =  await fetch(api_url + "/data/ontology_data_old?ids=" + twoids.toString());
             assignmentdata2 = await assignmentresponse2.json();
             this.setState({data: [radialdata, assignmentdata, assignmentdata2], loading: false})
         } else {

@@ -169,7 +169,7 @@ export const Analyze: FunctionComponent<Props> = (
 
 
     if(currentLoc === "compare"){
-      var radialacm = <ListItem button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=acm&ids=' + compLists}>
+      var radialacm = <ListItem button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=acm&listoneids=' + compListOne + '&listtwoids=' + compListTwo}>
         <ListItemIcon>
           <PeopleIcon />
         </ListItemIcon>
