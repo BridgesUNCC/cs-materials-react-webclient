@@ -68,6 +68,7 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     api_url: string;
     user_materials?: number[];
     user_id: any;
+    user_data: any;
 }
 
 
@@ -77,6 +78,7 @@ export const Comparison: FunctionComponent<ListProps> = ({   history,
                                                                api_url,
                                                                user_materials,
                                                                user_id,
+                                                               user_data,
                                                            }) => {
     const classes = useStyles();
 
@@ -84,10 +86,10 @@ export const Comparison: FunctionComponent<ListProps> = ({   history,
     return (
       <Grid container spacing={2}>
       <Grid item xs={12} md={6}>
-        <MaterialListOne history={history} location={location} match={match} api_url={api_url} user_id={user_id} from={"listOne"}/>
+        <MaterialListOne history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listOne"}/>
       </Grid>
       <Grid item xs={12} md={6}>
-        <MaterialListTwo history={history} location={location} match={match} api_url={api_url} user_id={user_id} from={"listTwo"}/>
+        <MaterialListTwo history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listTwo"}/>
       </Grid>
     </Grid>
     )

@@ -57,6 +57,7 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     api_url: string;
     user_materials?: number[];
     user_id: any;
+    user_data: any;
     from: string;
 }
 
@@ -86,15 +87,20 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
                                                                api_url,
                                                                user_materials,
                                                                user_id,
+                                                               user_data,
                                                                from,
                                                            }) => {
     const classes = useStyles();
     let path = location.pathname;
     let search = location.search;
+    if(user_data)
+      user_materials = user_data.owned_materials
 
     const [listInfo, setListInfo] = React.useState<ListEntity>(
         createEmptyEntity(path)
     );
+    const [tabState, setTabState] = React.useState("")
+
     let reload = path !== listInfo.path || search !== listInfo.search;
 
     //when a tab is clicked that tabs value is passed to this function
@@ -102,6 +108,10 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
     //that way, it is forced to reload with the new search filter
     const handleChange=(event:any, newValue:string) => {
       location.search = newValue
+      setTabState(newValue)
+      if(user_data && newValue === "/my_materials"){
+        location.search = ""
+      }
       setListInfo({...listInfo, fetched: false})
     }
 
@@ -121,20 +131,22 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
     }
 
     if(listInfo.search === ""){
-      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} currentLoc="compare" from="listOne"/>
+      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={user_data} currentLoc="compare" from="listOne"/>
     }else{
-      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} currentLoc="compare" from="listOne"/>
+      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={user_data} currentLoc="compare" from="listOne"/>
     }
 
 
     if (!listInfo.fetched || reload) {
-
-        let ids = user_materials?.toString() || "";
+        let ids
+        (tabState === "/my_materials") ? ids = user_materials?.toString() : ids = ""
+        // let ids = user_materials?.toString() || "";
         ids += parse_query_variable(location, "ids");
         let tags = parse_query_variable(location, "tags");
         let sim_mats = parse_query_variable(location, "sim_mats");
         let keyword = parse_query_variable(location, "keyword");
         let material_types = parse_query_variable(location, "material_types");
+
 
         const url = api_url + "/data/list/materials?ids=" + ids + "&tags=" + tags + "&sim_mats=" + sim_mats
             + "&keyword=" + keyword + "&material_types=" + material_types;
@@ -209,7 +221,7 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
           <Tabs value={"hello"} onChange={handleChange} aria-label="wrapped label tabs example">
             <Tab value="" label="All Materials"/>
             <Tab value="?material_types=collection" label="Collections" />
-            <Tab value="three" label="My Materials" />
+            <Tab value="/my_materials" label="My Materials" />
           </Tabs>
         </AppBar>
         <TabPanel value={"hello"} index="one">

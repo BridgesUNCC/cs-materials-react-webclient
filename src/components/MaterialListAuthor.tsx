@@ -63,10 +63,9 @@ export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
 
 
     let reload = path !== listInfo.path;
-    console.log(listInfo.path)
+    console.log(location)
 
     if (!listInfo.fetched || reload) {
-
         let ids = user_materials?.toString() || "";
         ids += parse_query_variable(location, "ids");
         let tags = parse_query_variable(location, "tags");

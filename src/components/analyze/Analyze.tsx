@@ -116,6 +116,7 @@ const drawerWidth = 300;
 interface Props {
  info: number[],
  user_id: any,
+ user_data: any,
  currentLoc: string,
  from: string,
 }
@@ -124,6 +125,7 @@ export const Analyze: FunctionComponent<Props> = (
   {
     info,
     user_id,
+    user_data,
     currentLoc,
     from,
   }

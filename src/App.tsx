@@ -444,13 +444,13 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/analyze" render={(route_props) => (
                         <Container maxWidth="lg">
-                            <Analyze info={[]} user_id={appInfo.user_id} currentLoc={""} from={"nav"}/>
+                            <Analyze info={[]} user_id={appInfo.user_id} user_data={appInfo.user_data} currentLoc={""} from={"nav"}/>
                         </Container>
                     )}
                     />
                     <Route path="/comparison" render={(route_props) => (
                         <Container maxWidth="lg">
-                            <Comparison {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id}/>
+                            <Comparison {...route_props} api_url={appInfo.api_url} user_data={appInfo.user_data} user_id={appInfo.user_id}/>
                         </Container>
                     )}
                     />

@@ -57,6 +57,7 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     api_url: string;
     user_materials?: number[];
     user_id: any;
+    user_data: any;
     from: string;
 }
 
@@ -86,6 +87,7 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
                                                                api_url,
                                                                user_materials,
                                                                user_id,
+                                                               user_data,
                                                                from,
                                                            }) => {
     const classes = useStyles();
@@ -95,12 +97,18 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
     const [listInfo, setListInfo] = React.useState<ListEntity>(
         createEmptyEntity(path)
     );
+    const [tabState, setTabState] = React.useState("")
+
     let reload = path !== listInfo.path || search !== listInfo.search;
+
+    if(user_data)
+      user_materials = user_data.owned_materials
 
 
     if (!listInfo.fetched || reload) {
 
-        let ids = user_materials?.toString() || "";
+        let ids
+        (tabState === "/my_materials") ? ids = user_materials?.toString() : ids = ""
         ids += parse_query_variable(location, "ids");
         let tags = parse_query_variable(location, "tags");
         let sim_mats = parse_query_variable(location, "sim_mats");
@@ -132,6 +140,10 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
     //that way, it is forced to reload with the new search filter
     const handleChange=(event:any, newValue:string) => {
       location.search = newValue
+      setTabState(newValue)
+      if(user_data && newValue === "/my_materials"){
+        location.search = ""
+      }
       setListInfo({...listInfo, fetched: false})
     }
 
@@ -151,9 +163,9 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
     }
 
     if(listInfo.search === ""){
-      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} currentLoc="compare" from="listTwo"/>
+      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={{user_data}} currentLoc="compare" from="listTwo"/>
     }else{
-      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} currentLoc="compare" from="listTwo"/>
+      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={{user_data}} currentLoc="compare" from="listTwo"/>
     }
 
     // @Speed @TODO, smart cull entries so rendering doesn't take too long, maybe have a callback that renders more as
@@ -209,7 +221,7 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
         <Tabs value={"hello"} onChange={handleChange} aria-label="wrapped label tabs example">
           <Tab value="" label="All Materials"/>
           <Tab value="?material_types=collection" label="Collections" />
-          <Tab value="three" label="My Materials" />
+          <Tab value="/my_materials" label="My Materials" />
         </Tabs>
       </AppBar>
       <TabPanel value={"hello"} index="one">
