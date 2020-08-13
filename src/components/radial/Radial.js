@@ -529,7 +529,7 @@ class Radial extends Component {
         .on("zoom", zoomed));
 
     function zoomed() {
-      d3.select("g").attr("transform", d3.event.transform);
+      d3.select("g").attr("transform", d3.event.transform.translate(vWidth / 2, vHeight / 2).scale(1));
     }
 
     function radialPoint(x, y) {
