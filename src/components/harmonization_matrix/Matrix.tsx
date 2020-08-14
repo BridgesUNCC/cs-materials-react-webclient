@@ -23,7 +23,7 @@ export const Matrix: FunctionComponent<Props> = ({
         });
         d3.select("#tooltipMatrix").select('#value').append('p').append('tspan').text("Tag: " + data.tag_axis[d.tag_index].title);
         d3.select("#tooltipMatrix").select('#value').append('p').append('tspan').text("Material: " + data.material_axis[d.mat_index].title)
-        console.log(i)
+        //console.log(i)
         d3.select("#tooltipMatrix").classed("hidden", false);
         // d3.selectAll("text").style("font-size", function (p: any) {
         //       return p === data.material_axis[d.mat_index].title ? 30 : 10
@@ -109,7 +109,7 @@ export const Matrix: FunctionComponent<Props> = ({
         for(let i = 0; i < data.tag_axis.length; i++){
           // data.tag_axis[i].new_title = ""
           data.tag_axis[i].new_title = data.tag_axis[i].title.substring(data.tag_axis[i].title.lastIndexOf(">") + 1);
-          console.log(data.tag_axis[i].new_title)
+          //console.log(data.tag_axis[i].new_title)
         }
 
         let tag_range = data.tag_axis.map((ele, index) => index * 25 + 12.5);
