@@ -16,6 +16,7 @@ import PeopleIcon from '@material-ui/icons/People';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
+import {ChevronLeft, ChevronRight} from "@material-ui/icons";
 
 
 
@@ -163,7 +164,12 @@ export const Author: FunctionComponent<Props> = (
               setOpen(true);
             }
           }}>
-            <ChevronLeftIcon />
+            {
+              open ?
+                  <ChevronLeft/>
+                  :
+                  <ChevronRight/>
+            }
           </IconButton>
         </div>
         <Divider />
