@@ -17,7 +17,6 @@ import DashboardIcon from '@material-ui/icons/Dashboard';
 import PeopleIcon from '@material-ui/icons/People';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
-import Typography from '@material-ui/core/Typography';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 
 
@@ -141,7 +140,7 @@ export const Analyze: FunctionComponent<Props> = (
       setOpen(false);
     };
 
-    switch(currentLoc){
+    switch(currentLoc) {
       case "materials":
         selectedIndex = 1;
         break;
@@ -170,32 +169,34 @@ export const Analyze: FunctionComponent<Props> = (
     compLists = compListOne.concat(compListTwo)
 
 
-    if(currentLoc === "compare"){
-      var radialacm = <ListItem button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=acm&listoneids=' + compListOne + '&listtwoids=' + compListTwo}>
-        <ListItemIcon>
-          <PeopleIcon />
-        </ListItemIcon>
-        <ListItemText primary="Radial View ACM-CSC 2013" />
-      </ListItem>
-      var radialpdc = <ListItem button onClick={() => setIndex(5)} selected={selectedIndex === 5} component={Link} to={'/radial?tree=pdc&listoneids=' + compListOne + '&listtwoids=' + compListTwo}>
-        <ListItemIcon>
-          <PeopleIcon />
-        </ListItemIcon>
-        <ListItemText primary="Radial View PDC 2012" />
-      </ListItem>
-    }else{
-      var radialacm = <ListItem button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=acm&ids=' + info}>
-        <ListItemIcon>
-          <PeopleIcon />
-        </ListItemIcon>
-        <ListItemText primary="Radial View ACM-CSC 2013" />
-      </ListItem>
-      var radialpdc = <ListItem button onClick={() => setIndex(5)} selected={selectedIndex === 5} component={Link} to={'/radial?tree=pdc&ids=' + info}>
-        <ListItemIcon>
-          <PeopleIcon />
-        </ListItemIcon>
-        <ListItemText primary="Radial View PDC 2012" />
-      </ListItem>
+    let radialacm;
+    let radialpdc;
+    if (currentLoc === "compare") {
+        radialacm = <ListItem button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=acm&listoneids=' + compListOne + '&listtwoids=' + compListTwo}>
+            <ListItemIcon>
+                <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Radial View ACM-CSC 2013" />
+        </ListItem>
+        radialpdc = <ListItem button onClick={() => setIndex(5)} selected={selectedIndex === 5} component={Link} to={'/radial?tree=pdc&listoneids=' + compListOne + '&listtwoids=' + compListTwo}>
+            <ListItemIcon>
+                <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Radial View PDC 2012" />
+        </ListItem>
+    } else {
+        radialacm = <ListItem button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=acm&ids=' + info}>
+            <ListItemIcon>
+                <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Radial View ACM-CSC 2013" />
+        </ListItem>
+        radialpdc = <ListItem button onClick={() => setIndex(5)} selected={selectedIndex === 5} component={Link} to={'/radial?tree=pdc&ids=' + info}>
+            <ListItemIcon>
+                <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Radial View PDC 2012" />
+        </ListItem>
     }
 
     return (

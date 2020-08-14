@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import Radial from './Radial';
 import {Analyze} from "../analyze/Analyze";
-import {AppBar, createStyles, Grid, Theme} from "@material-ui/core";
 
 
 
@@ -18,7 +17,6 @@ class OntologyWrapper extends Component{
     async componentDidMount() {
         const api_url = this.props.api_url;
         const radialapi = this.props.api_url + "/data/ontology_trees_old";
-        const user_id = this.props.user_id
 
         let ids    = "";
         let tree   = "";
@@ -50,18 +48,6 @@ class OntologyWrapper extends Component{
 
         let assignmentdata;
         let assignmentresponse;
-
-        const erik2214 = [121,123,124,131,132,135,136,137,139,140,141,142,143,144,145,146,148,157,158,159,160,161,162,163,164,165];
-        const erik2214_lecture = [123, 124,131,132,135,136,137,139,140,141,142,143,145,146,148]
-        const erik2214_assessment = [121, 144, 157, 158, 162, 163, 165]
-
-        const kr2214 = [21,118,119,120,122,125,126,127,128,129,130,133,154,155,156,171,172,173,174]
-
-        const erik3145 = [66,67,87,99, 100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116]
-        const erik3145_lecture = [66,67,100,101,102,103,104,105,112,113,114,115]
-        const erik3145_assignment = [99, 106, 107, 108, 109, 110, 111, 116]
-
-        const jamie = [134, 138, 147,149,150,151,152,153,166,167,168,169,170];
 
         //@TODO FIXME ALL OF THIS
         if (compare) {

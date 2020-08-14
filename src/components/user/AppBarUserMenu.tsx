@@ -35,15 +35,6 @@ export const AppBarUserMenu: FunctionComponent<Props> = ({history, location, log
         setAnchorEl(null);
     };
 
-    const toPath = (path: string) => {
-        history.push(
-            {
-                pathname: path,
-            }
-        );
-        handleClose();
-    };
-
     return (
         <div>
             <Button onClick={handleClick} className={classes.margin}>
