@@ -61,7 +61,7 @@ class Radial extends Component {
 
     const vWidth = 2000;
     const vHeight = 1000;
-    let maxHits = 0;
+    let maxHits = 15;
 
     function parseClassification(assignmentArray, whichTree){
       let classificationSet = [];
@@ -125,6 +125,26 @@ class Radial extends Component {
     }
 
 
+    function scaleIntermediary(tree, root){
+      console.log(root)
+      if(root.children <= 0){
+        return root.hits
+      }else{
+        for(let i = 0; i < root.children.length; i++){
+          if(!root.hasOwnProperty('childhits')){
+            root.childhits = 0;
+          }
+          root.childhits += scaleIntermediary(tree, root.children[i])
+        }
+      }
+      root.size = (root.childhits/50)*10+10
+      if(root.id === tree[0].id){
+        root.size = 30;
+      }
+      return root.childhits
+    }
+
+
     let mark = [];
     function buildClassificationTree(classSet){
       let classificationTree = [];
@@ -153,6 +173,7 @@ class Radial extends Component {
           vd_node = findInTree(node);
           classificationTree[findInClassTree(node, classificationTree)].color = (vd_node.hits) ? "orange" : "blue";
           classificationTree[findInClassTree(node, classificationTree)].size = (vd_node.hits/maxHits) * 10 + 10;
+          (classificationTree[findInClassTree(node, classificationTree)].childhits) ? classificationTree[findInClassTree(node, classificationTree)].size = (vd_node.childhits/maxHits) * 10 + 10 : classificationTree[findInClassTree(node, classificationTree)].size = (vd_node.hits/maxHits) * 10 + 10
           if(findMarked(vd_node.parent) === -1){
             let tempProp = {};
             let foundnode = findInTree(vd_node.parent);
@@ -160,6 +181,7 @@ class Radial extends Component {
             tempProp["visited"] = false;
             mark.push(tempProp)
           }
+          //change label here
           //change label here
           if(!mark[findMarked(vd_node.parent)].visited){
             let vd_parent = findInTree(vd_node.parent);
@@ -407,6 +429,7 @@ class Radial extends Component {
       let firstClassificationTree = buildClassificationTree(firstClassificationSet);
       let firstFlatClassificationTree = addChildren(firstClassificationTree);
       let firstUnflattenedClassificationTree = unflatten(firstFlatClassificationTree);
+      scaleIntermediary(firstUnflattenedClassificationTree, firstUnflattenedClassificationTree[0])
       layoutRadialLayer(firstUnflattenedClassificationTree);
       var tree = firstUnflattenedClassificationTree
     } else if (view === "second"){
