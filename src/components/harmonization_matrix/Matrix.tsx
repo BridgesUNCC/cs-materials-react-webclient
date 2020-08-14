@@ -108,13 +108,13 @@ export const Matrix: FunctionComponent<Props> = ({
 
         for(let i = 0; i < data.tag_axis.length; i++){
           // data.tag_axis[i].new_title = ""
-          data.tag_axis[i].new_title = data.tag_axis[i].title.substring(data.tag_axis[i].title.lastIndexOf(">", data.tag_axis[i].title.lastIndexOf(">") - 1) + 1);
+          data.tag_axis[i].new_title = data.tag_axis[i].title.substring(data.tag_axis[i].title.lastIndexOf(">") + 1);
           console.log(data.tag_axis[i].new_title)
         }
 
         let tag_range = data.tag_axis.map((ele, index) => index * 25 + 12.5);
-
-        let tag_scale = d3.scaleOrdinal().domain(data.tag_axis.map(e => e.new_title)).range(tag_range);
+        console.log(data.tag_axis)
+        let tag_scale = d3.scaleOrdinal().domain(data.tag_axis.map(e => e.id.toString() + "> " + e.new_title)).range(tag_range);
 
         //@ts-ignore
         let top_axis = d3.axisTop(name_scale);
