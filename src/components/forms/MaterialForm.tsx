@@ -519,7 +519,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                         <Grid item>
                         <TextField
                             label={"Description"}
-                            value={formInfo.data.description === null ? "" : formInfo.data.upstream_url}
+                            value={formInfo.data.description === null ? "" : formInfo.data.description}
                             className={classes.textArea}
                             multiline={true}
                             onChange={onTextFieldChange("description")}

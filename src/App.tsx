@@ -206,6 +206,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
                 let flags = appInfo.snackbar_flags;
                 flags = {...flags, ok, expired, server_fail, invalid, request_confirm};
+                console.log(resp);
 
                 setAppInfo({
                     ...appInfo, user_id: id_to_set, user_data: resp,
@@ -532,7 +533,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     <Route path="/material/:id" render={(route_props) => (
                         <Container maxWidth="lg">
                             <MaterialOverview {...route_props} api_url={appInfo.api_url}
-                                              force_fetch_data={false}/>
+                                              force_fetch_data={false} is_admin={appInfo.user_data?.role === "admin"}/>
                         </Container>
                     )}
                     />

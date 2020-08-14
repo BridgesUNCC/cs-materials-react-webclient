@@ -38,7 +38,7 @@ interface ListEntity {
 const createEmptyEntity = (path: string): ListEntity => {
     return {
         materials: null,
-        selected_materials: [],
+        selected_materials: localStorage.getItem("checked_materials")?.split(",").map(e => Number(e)) || [],
         fetched: false,
         search: "N/A",
         path
@@ -145,7 +145,24 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
             selected = selected.filter(e => e !== id);
         }
 
+        localStorage.setItem("checked_materials", selected.toString());
+
         setListInfo({...listInfo, selected_materials: selected});
+    };
+
+    const handleSelectAll = () => {
+        let selected_materials = [...new Set(listInfo.selected_materials.concat(listInfo.materials?.map(e => e.id)
+            || []))]
+        localStorage.setItem("checked_materials", selected_materials.toString());
+
+        setListInfo({... listInfo, selected_materials})
+    };
+
+    const handleSelectNone = () => {
+        let selected_materials: number[] = []
+        localStorage.setItem("checked_materials", selected_materials.toString());
+
+        setListInfo({... listInfo, selected_materials})
     };
 
     return (
@@ -172,13 +189,13 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                         <Button className={classes.margin} variant="contained" color="primary"
                                 onClick={() => {
                                     if (listInfo.materials !== null)
-                                        setListInfo({...listInfo, selected_materials:listInfo.materials.map(e => e.id)})}
-                                }
+                                        handleSelectAll();
+                                }}
                         >
                             Select All
                         </Button>
                         <Button className={classes.margin} variant="contained" color="primary"
-                                onClick={() => {setListInfo({...listInfo, selected_materials:[]})}}
+                                onClick={() => {handleSelectNone();}}
                         >
                             Select None
                         </Button>
