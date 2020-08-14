@@ -40,6 +40,7 @@ interface MatchParams {
 interface Props extends RouteComponentProps<MatchParams> {
     api_url: string;
     force_fetch_data: boolean;
+    is_admin: boolean,
 }
 
 
@@ -91,6 +92,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
         match,
         api_url,
         force_fetch_data,
+        is_admin,
     }
 ) => {
 
@@ -272,6 +274,13 @@ export const MaterialOverview: FunctionComponent<Props> = (
                             <Link to={overviewInfo.data.id + "/edit"}>
                                 <Button className={classes.margin} variant="contained" color="primary">
                                     edit
+                                </Button>
+                            </Link>
+                            }
+                            {is_admin &&
+                            <Link to={overviewInfo.data.id + "/edit"}>
+                                <Button className={classes.margin} variant="contained" color="secondary">
+                                    edit as admin
                                 </Button>
                             </Link>
                             }
