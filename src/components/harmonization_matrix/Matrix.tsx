@@ -104,7 +104,7 @@ export const Matrix: FunctionComponent<Props> = ({
 
         // draw axi
         let mat_range = data.material_axis.map((ele, index) => index * 25 + 12.5);
-        let name_scale = d3.scaleOrdinal().domain(data.material_axis.map(e => e.id.toString() + " " + e.title)).range(mat_range);
+        let name_scale = d3.scaleOrdinal().domain(data.material_axis.map(e => e.id.toString() + "> " + e.title)).range(mat_range);
 
         for(let i = 0; i < data.tag_axis.length; i++){
           // data.tag_axis[i].new_title = ""
