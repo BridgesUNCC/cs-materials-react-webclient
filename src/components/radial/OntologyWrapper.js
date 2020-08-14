@@ -19,7 +19,7 @@ class OntologyWrapper extends Component{
         const radialapi = this.props.api_url + "/data/ontology_trees_old";
 
         let ids    = "";
-        let tree   = "";
+        var tree   = "";
         let oneids = "";
         let twoids = "";
         let compare = false;
@@ -69,7 +69,11 @@ class OntologyWrapper extends Component{
     render() {
         return (
             <div>
+            {(this.props.location.search.split("tree=")[1].split("&")[0] === "acm")?
             <Analyze info={[]} user_id={this.props.user_id} currentLoc="radial" from="radial"/>
+            :
+            <Analyze info={[]} user_id={this.props.user_id} currentLoc="radialpdc" from="radial"/>
+            }
                 {this.state.loading ? (
                     <div>loading...</div>
                 ) : (

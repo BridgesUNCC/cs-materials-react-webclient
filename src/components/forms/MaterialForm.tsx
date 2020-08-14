@@ -432,8 +432,9 @@ export const MaterialForm: FunctionComponent<Props> = (
         )
 
     }
-    console.log(formInfo.data.material_type)
+
     // @TODO, flash error messages for empty title
+    // @TODO, styling
     return (
         <div>
         {(formInfo.data.material_type !== "collection")?

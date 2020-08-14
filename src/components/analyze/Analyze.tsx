@@ -153,7 +153,7 @@ export const Analyze: FunctionComponent<Props> = (
       case "radial":
         selectedIndex = 4;
         break;
-      case "radial":
+      case "radialpdc":
         selectedIndex = 5;
         break;
       case "matrix":
