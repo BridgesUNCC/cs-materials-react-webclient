@@ -76,10 +76,10 @@ const cards = [{id: 1, title: "Author", image: require("./author.PNG"),
                        text: 'Enter your own course information to analyze and compare against ACM and PDC guidelines',
                        link: '/author'},
                {id: 2, title: "Analyze", image: require("./analyze.PNG"),
-                       text: 'Here you can analyze your courses or collections to find relationships among your courses or courses in a collection',
+                       text: 'Here you can analyze your courses and collections by viewing topic alignment or comparing to other materials',
                        link: '/analyze'},
                {id: 3, title: "Search", image: require("./search.PNG"),
-                       text: 'Search the CS Materials database for new assignments',
+                       text: 'Search the CS Materials database for new and related assignments',
                        link: '/search'}];
 
 
@@ -369,7 +369,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 CS Materials
                             </Typography>
                             <Typography variant="h5" align="center" color="textSecondary" paragraph>
-                                Put something about cs materials here. maybe a short description
+                                Create, Analyze and Search for computer science materials that are classified against the ACM and PDC guidelines.
                             </Typography>
                             <div className={classes.heroButtons}>
                                 <Grid container spacing={2} justify="center">
