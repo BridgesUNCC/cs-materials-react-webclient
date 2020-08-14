@@ -106,20 +106,28 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
+var compListOne: number[] = []
+var compListTwo: number[] = []
+var compLists: number[] = []
+
 
 const drawerWidth = 300;
 
 interface Props {
  info: number[],
  user_id: any,
+ user_data: any,
  currentLoc: string,
+ from: string,
 }
 
 export const Analyze: FunctionComponent<Props> = (
   {
     info,
     user_id,
+    user_data,
     currentLoc,
+    from,
   }
 ) => {
 
@@ -133,7 +141,6 @@ export const Analyze: FunctionComponent<Props> = (
       setOpen(false);
     };
 
-
     switch(currentLoc){
       case "materials":
         selectedIndex = 1;
@@ -141,15 +148,54 @@ export const Analyze: FunctionComponent<Props> = (
       case "collection":
         selectedIndex = 2;
         break;
-      case "radial":
+      case "compare":
         selectedIndex = 3;
         break;
       case "radial":
-        selectedIndex = 3;
+        selectedIndex = 4;
         break;
-      case "matrix":
+      case "radial":
         selectedIndex = 5;
         break;
+      case "matrix":
+        selectedIndex = 6;
+        break;
+    }
+
+    if(from === "listOne"){
+      compListOne = info
+    }else if(from === "listTwo"){
+      compListTwo = info
+    }
+    compLists = compListOne.concat(compListTwo)
+
+
+    if(currentLoc === "compare"){
+      var radialacm = <ListItem button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=acm&listoneids=' + compListOne + '&listtwoids=' + compListTwo}>
+        <ListItemIcon>
+          <PeopleIcon />
+        </ListItemIcon>
+        <ListItemText primary="Radial View ACM-CSC 2013" />
+      </ListItem>
+      var radialpdc = <ListItem button onClick={() => setIndex(5)} selected={selectedIndex === 5} component={Link} to={'/radial?tree=pdc&listoneids=' + compListOne + '&listtwoids=' + compListTwo}>
+        <ListItemIcon>
+          <PeopleIcon />
+        </ListItemIcon>
+        <ListItemText primary="Radial View PDC 2012" />
+      </ListItem>
+    }else{
+      var radialacm = <ListItem button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=acm&ids=' + info}>
+        <ListItemIcon>
+          <PeopleIcon />
+        </ListItemIcon>
+        <ListItemText primary="Radial View ACM-CSC 2013" />
+      </ListItem>
+      var radialpdc = <ListItem button onClick={() => setIndex(5)} selected={selectedIndex === 5} component={Link} to={'/radial?tree=pdc&ids=' + info}>
+        <ListItemIcon>
+          <PeopleIcon />
+        </ListItemIcon>
+        <ListItemText primary="Radial View PDC 2012" />
+      </ListItem>
     }
 
     return (
@@ -195,19 +241,15 @@ export const Analyze: FunctionComponent<Props> = (
               </ListItemIcon>
               <ListItemText primary="Select Collections" />
             </ListItem>
-            <ListItem button onClick={() => setIndex(3)} selected={selectedIndex === 3} component={Link} to={'/radial?tree=acm&ids=' + info}>
+            <ListItem button onClick={() => setIndex(3)} selected={selectedIndex === 3} component={Link} to='/comparison'>
               <ListItemIcon>
-                <PeopleIcon />
+                <AccountTreeIcon />
               </ListItemIcon>
-              <ListItemText primary="Radial View ACM-CSC 2013" />
+              <ListItemText primary="Select Comparison" />
             </ListItem>
-            <ListItem button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=pdc&ids=' + info}>
-              <ListItemIcon>
-                <PeopleIcon />
-              </ListItemIcon>
-              <ListItemText primary="Radial View PDC 2012" />
-            </ListItem>
-            <ListItem button onClick={() => setIndex(5)} selected={selectedIndex === 5} component={Link} to={'/matrix?ids='+ (info.length === 0 ? -1 : info)}>
+            {radialacm}
+            {radialpdc}
+            <ListItem button onClick={() => setIndex(6)} selected={selectedIndex === 6} component={Link} to={'/matrix?ids='+ (info.length === 0 ? -1 : info)}>
               <ListItemIcon>
                 <BarChartIcon />
               </ListItemIcon>
