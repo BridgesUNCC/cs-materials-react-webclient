@@ -436,7 +436,7 @@ export const MaterialForm: FunctionComponent<Props> = (
     // @TODO, flash error messages for empty title
     return (
         <div>
-        {(formInfo.data.material_type === "assignment")?
+        {(formInfo.data.material_type !== "collection")?
           <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
               Material Form
           </Typography>
@@ -445,7 +445,7 @@ export const MaterialForm: FunctionComponent<Props> = (
               Collection Form
           </Typography>
         }
-        {(formInfo.data.material_type === "assignment")?
+        {(formInfo.data.material_type !== "collection")?
           <Author info={[]} currentLoc={"material_form"}/>
           :
           <Author info={[]} currentLoc={"collection_form"}/>
