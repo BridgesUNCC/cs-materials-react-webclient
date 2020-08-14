@@ -130,11 +130,9 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
       var title = <div></div>
     }
 
-    if(listInfo.search === ""){
+
       var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={user_data} currentLoc="compare" from="listOne"/>
-    }else{
-      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={user_data} currentLoc="compare" from="listOne"/>
-    }
+
 
 
     if (!listInfo.fetched || reload) {
