@@ -381,24 +381,16 @@ class Radial extends Component {
         }
         if(data[i].firstTreeHits || data[i].secondTreeHits){
           if(data[i].firstTreeHits && data[i].secondTreeHits){
-            // console.log(data[i])
             let total = data[i].firstTreeHits + data[i].secondTreeHits
             let redColor = data[i].firstTreeHits/total;
             let blueColor = data[i].secondTreeHits/total;
-            console.log(blueColor, redColor)
-            // if(redColor > blueColor){
-            //   completeTree[findInClassTree(data[i].id, completeTree)].color = redColor
-            // }else{
-            //   completeTree[findInClassTree(data[i].id, completeTree)].color = blueColor
-            //   console.log("here")
-            // }
             completeTree[findInClassTree(data[i].id, completeTree)].color = blueColor
           }
           if(data[i].firstTreeHits && !data[i].secondTreeHits){
-            completeTree[findInClassTree(data[i].id, completeTree)].color = [200, 0, 0]
+            completeTree[findInClassTree(data[i].id, completeTree)].color = [128,0,128]//purple
           }
           if(!data[i].firstTreeHits && data[i].secondTreeHits){
-            completeTree[findInClassTree(data[i].id, completeTree)].color = [0, 0, 200]
+            completeTree[findInClassTree(data[i].id, completeTree)].color = [255,165,0]//orange
           }
         }
       }
@@ -485,6 +477,9 @@ class Radial extends Component {
           return d.target.data.locationY;
         });
 
+    var color_sequential = d3.scaleSequential(d3.interpolatePuOr).domain([0,1])
+    console.log(color_sequential)
+
     g.selectAll('circle').data(vNodes).enter().append('circle')
         .attr('r', function (d) {return d.data.size - 5})
         .attr("transform", function (d) {return "translate(" + d.data.locationX + "," + d.data.locationY + ")"; })
@@ -496,8 +491,9 @@ class Radial extends Component {
           }else if(!d.data.firstTreeHits || !d.data.secondTreeHits){
             return d3.rgb(d.data.color[0], d.data.color[1], d.data.color[2])
           }else{
-            let inter = d3.interpolate("red", "blue")
-            return d3.rgb(inter(d.data.color))
+            let inter = d3.interpolate("purple", "orange")
+            console.log(d.data.color)
+            return color_sequential(d.data.color)
           }
         })
         .on("mouseover", function(d){
