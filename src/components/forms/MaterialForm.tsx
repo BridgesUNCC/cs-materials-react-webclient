@@ -16,7 +16,7 @@ import {Author} from "../author/Author";
 
 
 import {TreeDialog} from "./TreeDialog";
-import {MaterialTypesArray, TagData, MaterialData, MaterialVisibilityArray} from "../../common/types";
+import {MaterialTypesArray, TagData, MaterialData, MaterialVisibilityArray, OntologyData} from "../../common/types";
 import {ListItemLink} from "../ListItemLink";
 import Typography from "@material-ui/core/Typography";
 
@@ -209,7 +209,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                     //@HACK somehow this logic  gets hit twice after a refresh, this clears some annoying behavior
                     Object.values(tag_map).forEach(val => val.length = 0);
 
-                    // Push values to be displayed as being tags on this material
+                    // Push values to be displayed as being selected_tags on this material
                     data.tags.forEach((tag: TagData) => {
                         if (tag_map[tag.type]) {
                             tag_map[tag.type].push(tag);
@@ -327,12 +327,12 @@ export const MaterialForm: FunctionComponent<Props> = (
         setFormInfo({...formInfo, show_acm: false, show_pdc: false});
     };
 
-    const onTreeCheckBoxClick = (event: React.ChangeEvent<HTMLInputElement>, id: number) => {
+    const onTreeCheckBoxClick = (event: React.ChangeEvent<HTMLInputElement>, node: OntologyData) => {
         let selected = formInfo.temp_tags.ontology;
         if (event.target.checked)
-            selected.push({id, title: "", type: "", bloom: ""});
+            selected.push({id: node.id, title: "", type: "", bloom: ""});
         else {
-            selected = selected.filter(e => e.id !== id);
+            selected = selected.filter(e => e.id !== node.id);
         }
 
         let tags = formInfo.temp_tags;

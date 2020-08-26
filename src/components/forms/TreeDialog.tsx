@@ -1,7 +1,7 @@
 import React, {FunctionComponent,} from "react";
 import Dialog from '@material-ui/core/Dialog';
 import {OntologyTree} from './OntologyTree'
-import {TagData} from "../../common/types";
+import {OntologyData, TagData} from "../../common/types";
 import {AppBar, createStyles, fade, IconButton, Theme, Toolbar, Typography} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import {DelayedSearch} from "./DelayedInput";
@@ -75,7 +75,7 @@ interface Props {
     api_url: string;
     tree_name: string;
     selected_tags: TagData[];
-    onCheck: (event: React.ChangeEvent<HTMLInputElement>, id: number) => void;
+    onCheck: (event: React.ChangeEvent<HTMLInputElement>, id: OntologyData) => void;
 }
 
 interface State {

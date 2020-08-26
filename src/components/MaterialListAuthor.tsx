@@ -73,7 +73,7 @@ export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
         let keyword = parse_query_variable(location, "keyword");
         let material_types = parse_query_variable(location, "material_types");
 
-        const url = api_url + "/data/list/materials?ids=" + ids + "&tags=" + tags + "&sim_mats=" + sim_mats
+        const url = api_url + "/data/list/materials?ids=" + ids + "&selected_tags=" + tags + "&sim_mats=" + sim_mats
             + "&keyword=" + keyword + "&material_types=" + material_types;
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
