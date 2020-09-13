@@ -12,8 +12,8 @@ import {ListItemLink} from "./ListItemLink";
 import {DeleteDialog} from "./forms/DeleteDialog";
 import {MaterialTypesArray} from "../common/types";
 import {Author} from "./author/Author";
-
-
+import EditIcon from '@material-ui/icons/Edit';
+import GetAppIcon from '@material-ui/icons/GetApp';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -28,6 +28,9 @@ const useStyles = makeStyles((theme: Theme) =>
         content: {
             margin: theme.spacing(2, 1),
             textAlign: 'left',
+        },
+        link: {
+            color: 'cyan',
         }
     }),
 );
@@ -67,8 +70,14 @@ interface TagData {
     type: string;
 }
 
+export interface FileLink {
+    name: string;
+    url: string;
+}
+
 interface OverviewEntity {
     data:  MaterialData | null;
+    files: FileLink[];
     fetched: boolean;
     can_edit: boolean;
     can_delete: boolean;
@@ -78,6 +87,7 @@ interface OverviewEntity {
 const createEmptyEntity = (): OverviewEntity => {
     return {
         data: null,
+        files: [],
         fetched: false,
         can_edit: false,
         can_delete: false,
@@ -107,17 +117,17 @@ export const MaterialOverview: FunctionComponent<Props> = (
     }
 
     if (!overviewInfo.fetched || force_fetch_data) {
-        setOverviewInfo({...overviewInfo, fetched: true});
-
         const url = api_url + "/data/material/meta?id=" + match.params.id;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
-        getJSONData(url, auth).then(resp => {
+        let promises: Promise<OverviewEntity>[] = [];
+        let promise;
+        promise = getJSONData(url, auth).then(resp => {
             console.log(resp);
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
-            }
-              else {
+                return overviewInfo
+            } else {
                 if (resp['status'] === "OK") {
                     let can_edit = resp['access'] === "owner" || resp['access'] === "write";
 
@@ -125,10 +135,51 @@ export const MaterialOverview: FunctionComponent<Props> = (
 
                     const data = resp['data'];
                     console.log(resp);
-                    setOverviewInfo({...overviewInfo, fetched: true, data, can_edit, can_delete})
+                    return {...overviewInfo, fetched: true, data, can_edit, can_delete}
                 } else {
-                    setOverviewInfo({...overviewInfo, fetched: true, not_found: true})
+                    return  {...overviewInfo, fetched: true, not_found: true};
                 }
+            }
+        })
+        promises.push(promise);
+
+        const files_url = api_url + "/data/list_files/material?id=" + match.params.id;
+        promise = getJSONData(files_url, auth).then((resp => {
+            if (resp === undefined) {
+                console.log("API SERVER FAIL")
+                return {...overviewInfo, fetched: false}
+            } else {
+                if (resp.status === "OK") {
+                    let inner_promises: Promise<FileLink>[] = [];
+                    resp.data.forEach((file_name: string) => {
+                        const file_get = api_url + "/data/get_file/material?id=" + match.params.id + "&file_key=" + file_name;
+                        let inner_promise: Promise<FileLink> = getJSONData(file_get, auth).then((resp) => {
+                            if (resp === undefined) {
+                                console.log("API SERVER FAIL")
+                            } else {
+                                if (resp.status === "OK") {
+                                    return {name: file_name, url: resp.url}
+                                }
+                            }
+                            return {name: "", url: ""}
+                        })
+                        inner_promises.push(inner_promise);
+                    })
+                    return Promise.all(inner_promises).then((files) => {
+                        return {...overviewInfo, files, fetched: false}
+                    })
+                } else {
+                    return {...overviewInfo, fetched: false}
+                }
+            }
+        }));
+        promises.push(promise)
+
+        Promise.all(promises).then((values) => {
+            let real_data = values.find(e => e.fetched)
+            let file_data = values.find(e => !e.fetched) || overviewInfo
+            if (real_data) {
+                setOverviewInfo({...real_data, files: file_data.files});
             }
         })
     }
@@ -272,7 +323,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         <div>
                             {overviewInfo.can_edit &&
                             <Link to={overviewInfo.data.id + "/edit"}>
-                                <Button className={classes.margin} variant="contained" color="primary">
+                                <Button className={classes.margin} variant="contained" color="primary" startIcon={<EditIcon/>}>
                                     edit
                                 </Button>
                             </Link>
@@ -294,9 +345,9 @@ export const MaterialOverview: FunctionComponent<Props> = (
                             <Typography variant={"h5"}>
                                 Upstream URL
                             </Typography>
-                            <Typography variant="body2" component="p" className={classes.content} >
+                            <a target={"_blank"} href={overviewInfo.data.upstream_url} className={classes.link}>
                                 {overviewInfo.data.upstream_url}
-                            </Typography>
+                            </a>
                             <Divider/>
                             <Typography variant={"h5"}>
                                 Description
@@ -308,6 +359,32 @@ export const MaterialOverview: FunctionComponent<Props> = (
                             {output}
 
                             <Divider/>
+
+                            {
+                                overviewInfo.files.length !== 0 ?
+                                    <div>
+                                        <Typography variant="h5">
+                                            Files
+                                        </Typography>
+                                        {overviewInfo.files.map(file => {
+                                            return <Button className={classes.margin}
+                                                           variant="contained"
+                                                           startIcon={<GetAppIcon/>}
+                                                           target={"_blank"}
+                                                           href={file.url}
+                                                           key={file.name}
+                                                           download={true}
+                                            >
+                                                {file.name}
+                                            </Button>
+                                        })}
+
+                                        <Divider/>
+                                    </div>
+                                    :
+                                    <div/>
+                            }
+
                             {overviewInfo.can_delete &&
                             <DeleteDialog id={overviewInfo.data.id} name={overviewInfo.data.title} api_url={api_url}
                                           history={history} location={location} match={match}/>

@@ -19,6 +19,8 @@ import {TreeDialog} from "./TreeDialog";
 import {MaterialTypesArray, TagData, MaterialData, MaterialVisibilityArray, OntologyData} from "../../common/types";
 import {ListItemLink} from "../ListItemLink";
 import Typography from "@material-ui/core/Typography";
+import {FileLink} from "../MaterialOverview";
+import GetAppIcon from "@material-ui/icons/GetApp";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -88,6 +90,7 @@ interface FormEntity {
     data:  MaterialData;
     temp_tags: MetaTags;
     meta_tags: MetaTags;
+    files: FileLink[];
     tags_fetched: boolean;
     fetched: boolean;
     posting: boolean;
@@ -102,6 +105,7 @@ const createEmptyEntity = (location: any): FormEntity => {
         data: createEmptyData(),
         temp_tags: createEmptyTags(),
         meta_tags: createEmptyTags(),
+        files: [],
         tags_fetched: false,
         fetched: false,
         posting: false,
@@ -184,6 +188,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                }
            }
         });
+
+
     }
 
     let has_source = false;
@@ -194,14 +200,52 @@ export const MaterialForm: FunctionComponent<Props> = (
         }
     }
 
+    const fetchFileList = (): Promise<FormEntity> => {
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+        const files_url = api_url + "/data/list_files/material?id=" + match.params.id;
+        return getJSONData(files_url, auth).then((resp => {
+            if (resp === undefined) {
+                console.log("API SERVER FAIL")
+                return {...formInfo, fetched: false}
+            } else {
+                if (resp.status === "OK") {
+                    let inner_promises: Promise<FileLink>[] = [];
+                    resp.data.forEach((file_name: string) => {
+                        const file_get = api_url + "/data/get_file/material?id=" + match.params.id + "&file_key=" + file_name;
+                        let inner_promise: Promise<FileLink> = getJSONData(file_get, auth).then((resp) => {
+                            if (resp === undefined) {
+                                console.log("API SERVER FAIL")
+                            } else {
+                                if (resp.status === "OK") {
+                                    return {name: file_name, url: resp.url}
+                                }
+                            }
+                            return {name: "", url: ""}
+                        })
+                        inner_promises.push(inner_promise);
+                    })
+                    return Promise.all(inner_promises).then((files) => {
+                        return {...formInfo, files, fetched: false}
+                    })
+                } else {
+                    return {...formInfo, fetched: false}
+                }
+            }
+        }));
+    }
+
     if (formInfo.tags_fetched && !formInfo.fetched && (!formInfo.new || has_source)) {
         const q_id = has_source ? id : match.params.id;
         const url = api_url + "/data/material/meta?id=" + q_id;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
-        getJSONData(url, auth).then(resp => {
+        let promises: Promise<FormEntity>[] = [];
+        let promise;
+
+        promise = getJSONData(url, auth).then(resp => {
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
+                return {...formInfo, fetched: true}
             } else {
                 if (resp['status'] === "OK") {
                     const data = resp['data'];
@@ -221,10 +265,25 @@ export const MaterialForm: FunctionComponent<Props> = (
                         data.title += " Copy"
                     }
 
-                    setFormInfo({...formInfo, fetched: true, data})
+                    return {...formInfo, fetched: true, data}
+                } else {
+                    return {...formInfo, fetched: true}
                 }
             }
         })
+        promises.push(promise);
+
+        promise = fetchFileList();
+        promises.push(promise)
+
+        Promise.all(promises).then((values) => {
+            let real_data = values.find(e => e.fetched)
+            let file_data = values.find(e => !e.fetched) || formInfo
+            if (real_data) {
+                setFormInfo({...real_data, files: file_data.files});
+            }
+        })
+
     } else if (!formInfo.fetched && !has_source) {
         setFormInfo({...formInfo, fetched: true})
     }
@@ -339,6 +398,55 @@ export const MaterialForm: FunctionComponent<Props> = (
         tags.ontology = selected;
         setFormInfo({...formInfo, temp_tags: tags});
     };
+
+  ;
+
+    const getPresignedUrl = (name: string): Promise<string> => {
+        const url = api_url + "/data/put_file/material?id=" + match.params.id + "&file_key=" + name;
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+
+        return getJSONData(url, auth).then(resp => {
+            console.log(resp)
+            if (resp === undefined) {
+                console.log("API SERVER FAIL");
+                return "API ERROR";
+            } else {
+                if (resp.status === "OK") {
+                    return resp.data;
+                } else {
+                    return "INVALID"
+                }
+            }
+        });
+    }
+
+    const onFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        console.log(event.currentTarget.files);
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+
+        let file: File;
+        if (event.currentTarget.files) {
+            for (file of event.currentTarget.files) {
+                getPresignedUrl(file.name).then(async data => {
+                    /*
+                    const file_data = {
+                        ...data.fields,
+                        'Content-Type': file.type,
+                        'file': file,
+                    };
+                    */
+                    // Default options are marked with *
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('PUT', data);
+                    xhr.setRequestHeader('Content-Type', file.type);
+                    xhr.setRequestHeader('x-amz-acl', 'public-read');
+                    xhr.send(file);
+                });
+            }
+        }
+
+        fetchFileList().then(value => setFormInfo({...formInfo, files: value.files}));
+    }
 
 
     let tags_fields;
@@ -529,6 +637,48 @@ export const MaterialForm: FunctionComponent<Props> = (
 
                         {tags_fields}
 
+                        <Grid  item>
+                            <Button
+                                variant="contained"
+                                component="label"
+                            >
+                                Upload File
+                                <input
+                                    type="file"
+                                    style={{ display: "none" }}
+                                    onChange={onFileUpload}
+                                />
+                            </Button>
+                        </Grid>
+
+
+                        <Grid item>
+                            {
+                                formInfo.files.length !== 0 ?
+                                    <div>
+                                        <Divider/>
+                                        <Typography variant="h5">
+                                            Files
+                                        </Typography>
+                                        {formInfo.files.map(file => {
+                                            return <Button className={classes.margin}
+                                                           variant="contained"
+                                                           startIcon={<GetAppIcon/>}
+                                                           target={"_blank"}
+                                                           href={file.url}
+                                                           key={file.name}
+                                                           download={true}
+                                            >
+                                                {file.name}
+                                            </Button>
+                                        })}
+
+                                        <Divider/>
+                                    </div>
+                                    :
+                                    <div/>
+                            }
+                        </Grid>
 
                         <Grid item>
                             <Button  className={classes.margin}
@@ -574,6 +724,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 Submit
                             </Button>
                         </Grid>
+
                     </Grid>
                     }
             </Paper>
@@ -588,6 +739,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                         selected_tags={formInfo.temp_tags.ontology}
                         onCheck={onTreeCheckBoxClick}
             />
+
+
 
             <Snackbar open={formInfo.fail}>
                 <SnackbarContentWrapper

@@ -11,6 +11,7 @@ import {createStyles, TextField, Theme} from "@material-ui/core";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Grid from "@material-ui/core/Grid";
 import {postJSONData} from "../../common/util";
+import DeleteIcon from '@material-ui/icons/Delete';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -118,7 +119,7 @@ export const DeleteDialog: FunctionComponent<DeleteProps> = ({
 
     return (
         <div>
-            <Button className={classes.margin} variant={"contained"} color={"secondary"} onClick={handleOpenClose}>
+            <Button className={classes.margin} variant={"contained"} color={"secondary"} startIcon={<DeleteIcon/>} onClick={handleOpenClose}>
                 Delete
             </Button>
             <Dialog open={deleteInfo.open} onClose={handleOpenClose}
