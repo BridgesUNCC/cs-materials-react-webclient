@@ -387,7 +387,12 @@ export const MaterialOverview: FunctionComponent<Props> = (
 
                             {overviewInfo.can_delete &&
                             <DeleteDialog id={overviewInfo.data.id} name={overviewInfo.data.title} api_url={api_url}
-                                          history={history} location={location} match={match}/>
+                                          on_success={() => {
+                                              history.push({
+                                                  pathname: "/my_materials",
+                                              });}}
+                                          endpoint={"/data/delete/material?id=" + overviewInfo.data.id}
+                            />
                             }
 
                         </div>

@@ -1,7 +1,4 @@
 import React, {FunctionComponent} from "react";
-import {
-    RouteComponentProps,
-} from "react-router-dom";
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -32,10 +29,12 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-interface DeleteProps extends RouteComponentProps {
+interface DeleteProps {
     id: number;
     name: string;
     api_url: string;
+    on_success: () => void;
+    endpoint: string;
 }
 
 interface DeleteEntity {
@@ -58,18 +57,18 @@ const createInitialEntity = (): DeleteEntity => {
 };
 
 export const DeleteDialog: FunctionComponent<DeleteProps> = ({
-    history,
-    location,
     id,
     name,
     api_url,
+    on_success,
+    endpoint,
 }) => {
     let [deleteInfo, updateDeleteInfo] = React.useState(createInitialEntity());
     const classes = useStyles();
 
     async function submit() {
         updateDeleteInfo({...deleteInfo, loading: true});
-        const url = api_url + "/data/delete/material";
+        const url = api_url + endpoint;
         let data = {"data": {"id": id}};
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
@@ -80,9 +79,7 @@ export const DeleteDialog: FunctionComponent<DeleteProps> = ({
                   if (resp['status'] === "OK") {
                       // do confirm of delete
                       console.log("Deleted")
-                      history.push({
-                          pathname: "/my_materials",
-                      });
+                      on_success();
                   } else {
                       updateDeleteInfo({...deleteInfo, loading: false, error_submitting: true});
                   }
@@ -120,7 +117,7 @@ export const DeleteDialog: FunctionComponent<DeleteProps> = ({
     return (
         <div>
             <Button className={classes.margin} variant={"contained"} color={"secondary"} startIcon={<DeleteIcon/>} onClick={handleOpenClose}>
-                Delete
+                Delete {name}
             </Button>
             <Dialog open={deleteInfo.open} onClose={handleOpenClose}
 
@@ -154,7 +151,7 @@ export const DeleteDialog: FunctionComponent<DeleteProps> = ({
                         </Grid>
 
                         <Grid item>
-                            <Button variant="contained" color="secondary" onClick={validateAndSubmit}>
+                            <Button variant="contained" color="secondary" onClick={validateAndSubmit} startIcon={<DeleteIcon/>}>
                                 Delete {name}
                             </Button>
                         </Grid>

@@ -15,6 +15,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import {Author} from "../author/Author";
 import PublishIcon from '@material-ui/icons/Publish';
 import SaveIcon from '@material-ui/icons/Save';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 import {TreeDialog} from "./TreeDialog";
 import {MaterialTypesArray, TagData, MaterialData, MaterialVisibilityArray, OntologyData} from "../../common/types";
@@ -22,6 +23,8 @@ import {ListItemLink} from "../ListItemLink";
 import Typography from "@material-ui/core/Typography";
 import {FileLink} from "../MaterialOverview";
 import GetAppIcon from "@material-ui/icons/GetApp";
+import EditIcon from '@material-ui/icons/Edit';
+import {DeleteDialog} from "./DeleteDialog";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -101,6 +104,7 @@ interface FormEntity {
     posting: boolean;
     fail: boolean;
     saved: boolean;
+    file_delete_mode: boolean;
     new: boolean;
     show_acm: boolean;
     show_pdc: boolean;
@@ -117,6 +121,7 @@ const createEmptyEntity = (location: any): FormEntity => {
         posting: false,
         fail: false,
         saved: false,
+        file_delete_mode: false,
         new: location.pathname.endsWith("/create"),
         show_acm: false,
         show_pdc: false,
@@ -413,8 +418,6 @@ export const MaterialForm: FunctionComponent<Props> = (
         setFormInfo({...formInfo, temp_tags: tags});
     };
 
-  ;
-
     const getPresignedUrl = (name: string, id: string): Promise<string> => {
         const url = api_url + "/data/put_file/material?id=" + id + "&file_key=" + name;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
@@ -471,7 +474,10 @@ export const MaterialForm: FunctionComponent<Props> = (
                 force_user_data_reload();
                 setFormInfo({...formInfo, fetched: false, new: false});
             } else {
-                fetchFileList().then(value => setFormInfo({...formInfo, files: value.files}));
+                // @HACK, need to allow for file list to update before fetching data
+                setTimeout(() => {
+                    fetchFileList().then(value => setFormInfo({...formInfo, files: value.files}));
+                }, 250);
             }
         });
     }
@@ -693,18 +699,45 @@ export const MaterialForm: FunctionComponent<Props> = (
                                         <Typography variant="h5">
                                             Files
                                         </Typography>
-                                        {formInfo.files.map(file => {
-                                            return <Button className={classes.margin}
-                                                           variant="contained"
-                                                           startIcon={<GetAppIcon/>}
-                                                           target={"_blank"}
-                                                           href={file.url}
-                                                           key={file.name}
-                                                           download={true}
-                                            >
-                                                {file.name}
-                                            </Button>
-                                        })}
+                                        <Button
+                                            startIcon={<EditIcon/>}
+                                            onClick={() => {
+                                                setFormInfo({...formInfo, file_delete_mode: !formInfo.file_delete_mode})
+                                            }}
+                                        >
+                                            Toggle Delete Files
+                                        </Button>
+                                        {formInfo.file_delete_mode ?
+                                            <div>
+                                                {formInfo.files.map(file => {
+                                                    if (formInfo.data.id)
+                                                        return <DeleteDialog id={formInfo.data.id} name={file.name}
+                                                                             key={file.name}
+                                                                             endpoint={"/data/delete_file/material?id=" + formInfo.data.id + "&file_key=" + file.name}
+                                                                             on_success={() => {
+                                                                                 fetchFileList().then(value => setFormInfo({...formInfo, files: value.files}));
+                                                                             }}
+                                                                             api_url={api_url}
+                                                        />
+                                                })
+                                                }
+                                            </div>
+                                            :
+                                            <div>
+                                                {formInfo.files.map(file => {
+                                                    return <Button className={classes.margin}
+                                                                   variant="contained"
+                                                                   startIcon={<GetAppIcon/>}
+                                                                   target={"_blank"}
+                                                                   href={file.url}
+                                                                   key={file.name}
+                                                                   download={true}
+                                                    >
+                                                        {file.name}
+                                                    </Button>
+                                                })}
+                                            </div>
+                                        }
 
                                         <Divider/>
                                     </div>
