@@ -181,7 +181,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                         const file_get = api_url + "/data/get_file/material?id=" + match.params.id + "&file_key=" + file_name;
                         let inner_promise: Promise<FileLink> = getJSONData(file_get, auth).then((resp) => {
                             if (resp === undefined) {
-                                aonsole.log("API SERVER FAIL")
+                                console.log("API SERVER FAIL")
                             } else {
                                 if (resp.status === "OK") {
                                     return {name: file_name, url: resp.url}
