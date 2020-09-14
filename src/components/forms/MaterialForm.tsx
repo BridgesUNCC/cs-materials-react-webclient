@@ -13,7 +13,8 @@ import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContentWrapper from "../SnackbarContentWrapper";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import {Author} from "../author/Author";
-
+import PublishIcon from '@material-ui/icons/Publish';
+import SaveIcon from '@material-ui/icons/Save';
 
 import {TreeDialog} from "./TreeDialog";
 import {MaterialTypesArray, TagData, MaterialData, MaterialVisibilityArray, OntologyData} from "../../common/types";
@@ -38,6 +39,10 @@ const useStyles = makeStyles((theme: Theme) =>
         textArea: {
             margin: theme.spacing(4),
             width: '80%',
+        },
+        saveButton: {
+            verticalAlign: 'middle',
+            textAlign: 'right',
         }
     }),
 );
@@ -95,6 +100,7 @@ interface FormEntity {
     fetched: boolean;
     posting: boolean;
     fail: boolean;
+    saved: boolean;
     new: boolean;
     show_acm: boolean;
     show_pdc: boolean;
@@ -110,6 +116,7 @@ const createEmptyEntity = (location: any): FormEntity => {
         fetched: false,
         posting: false,
         fail: false,
+        saved: false,
         new: location.pathname.endsWith("/create"),
         show_acm: false,
         show_pdc: false,
@@ -174,7 +181,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                         const file_get = api_url + "/data/get_file/material?id=" + match.params.id + "&file_key=" + file_name;
                         let inner_promise: Promise<FileLink> = getJSONData(file_get, auth).then((resp) => {
                             if (resp === undefined) {
-                                console.log("API SERVER FAIL")
+                                aonsole.log("API SERVER FAIL")
                             } else {
                                 if (resp.status === "OK") {
                                     return {name: file_name, url: resp.url}
@@ -293,7 +300,6 @@ export const MaterialForm: FunctionComponent<Props> = (
             let real_data = values.find(e => e.fetched)
             let tag_data = values.find(e => e.tags_fetched) || formInfo
             let file_data = values.find(e => e.files.length !== 0) || formInfo
-            console.log(real_data);
             if (real_data) {
                 let data = {...real_data, meta_tags: tag_data.meta_tags, tags_fetched: true, files: file_data.files}
                 setFormInfo(data);
@@ -309,7 +315,6 @@ export const MaterialForm: FunctionComponent<Props> = (
         const url = api_url + "/data/post/material";
 
         let data_tmp = {...formInfo.data, "instance_of": "material"};
-        console.log(data_tmp);
 
         data_tmp.tags = [];
         // Compress tag_map back into original data form of array of objects
@@ -336,7 +341,6 @@ export const MaterialForm: FunctionComponent<Props> = (
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         return postJSONData(url, data, auth).then(resp => {
-           console.log(resp);
 
            if (resp === undefined) {
                console.log("API SERVER FAIL")
@@ -344,7 +348,6 @@ export const MaterialForm: FunctionComponent<Props> = (
            } else {
                  if (resp['status'] === "OK") {
                      let id = resp['id'];
-                     console.log(id);
                      return handle_success(id);
                  } else {
                      setFormInfo({...formInfo, posting: false, fail: true});
@@ -417,7 +420,6 @@ export const MaterialForm: FunctionComponent<Props> = (
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         return getJSONData(url, auth).then(resp => {
-            console.log(resp)
             if (resp === undefined) {
                 console.log("API SERVER FAIL");
                 return "API ERROR";
@@ -432,7 +434,6 @@ export const MaterialForm: FunctionComponent<Props> = (
     }
 
     const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(event.currentTarget.files);
         // cache target
         let target = event.currentTarget;
         let id = match.params.id;
@@ -444,15 +445,12 @@ export const MaterialForm: FunctionComponent<Props> = (
                 }
             })
         }
-        console.log(id);
 
         let file: File;
         let promises = []
         if (target.files) {
             for (file of target.files) {
-                console.log(file);
                 let promise = getPresignedUrl(file.name, id).then(async data => {
-                    console.log(data);
                     const xhr = new XMLHttpRequest();
                     xhr.open('PUT', data);
                     xhr.setRequestHeader('Content-Type', file.type);
@@ -575,23 +573,43 @@ export const MaterialForm: FunctionComponent<Props> = (
     // @TODO, styling
     return (
         <div>
-        {(formInfo.data.material_type !== "collection")?
-          <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-              Material Form
-          </Typography>
-          :
-          <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-              Collection Form
-          </Typography>
-        }
-        {(formInfo.data.material_type !== "collection")?
-          <Author info={[]} currentLoc={"material_form"}/>
-          :
-          <Author info={[]} currentLoc={"collection_form"}/>
-        }
+            {(formInfo.data.material_type !== "collection")?
+                <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+                    Material Form
+                </Typography>
+                :
+                <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+                    Collection Form
+                </Typography>
+            }
+
+
+            <Button  className={classes.saveButton}
+                     startIcon={<SaveIcon/>}
+                     variant="contained" color="primary" onClick={() =>
+                onSubmit((id) => {
+
+                    if (formInfo.new) {
+                        history.push({
+                                pathname: "/material/" + id + "/edit"
+                            }
+                        );
+                        force_user_data_reload();
+                    }
+                    setFormInfo({...formInfo, saved: true})
+                    return id;
+                })}>
+                Save
+            </Button>
+
+            {(formInfo.data.material_type !== "collection")?
+                <Author info={[]} currentLoc={"material_form"}/>
+                :
+                <Author info={[]} currentLoc={"collection_form"}/>
+            }
             <Paper className={classes.root}>
                 {formInfo.posting &&
-                    <LinearProgress/>
+                <LinearProgress/>
                 }
                 {(!formInfo.fetched) ?
                     <CircularProgress/>
@@ -601,12 +619,12 @@ export const MaterialForm: FunctionComponent<Props> = (
                         direction="column"
                     >
                         <Grid item>
-                        <TextField
-                            label={"Title"}
-                            value={formInfo.data.title}
-                            className={classes.textField}
-                            onChange={onTextFieldChange("title")}
-                        />
+                            <TextField
+                                label={"Title"}
+                                value={formInfo.data.title}
+                                className={classes.textField}
+                                onChange={onTextFieldChange("title")}
+                            />
                         </Grid>
 
                         <Grid item>
@@ -647,46 +665,31 @@ export const MaterialForm: FunctionComponent<Props> = (
                             </TextField>
                         </Grid>
                         <Grid item>
-                        <TextField
-                            label={"Upstream URL"}
-                            value={formInfo.data.upstream_url === null ? "" : formInfo.data.upstream_url}
-                            className={classes.textField}
-                            onChange={onTextFieldChange("upstream_url")}
-                        />
+                            <TextField
+                                label={"Upstream URL"}
+                                value={formInfo.data.upstream_url === null ? "" : formInfo.data.upstream_url}
+                                className={classes.textField}
+                                onChange={onTextFieldChange("upstream_url")}
+                            />
                         </Grid>
 
                         <Grid item>
-                        <TextField
-                            label={"Description"}
-                            value={formInfo.data.description === null ? "" : formInfo.data.description}
-                            className={classes.textArea}
-                            multiline={true}
-                            onChange={onTextFieldChange("description")}
-                        />
+                            <TextField
+                                label={"Description"}
+                                value={formInfo.data.description === null ? "" : formInfo.data.description}
+                                className={classes.textArea}
+                                multiline={true}
+                                onChange={onTextFieldChange("description")}
+                            />
                         </Grid>
 
                         {tags_fields}
-
-                        <Grid  item>
-                            <Button
-                                variant="contained"
-                                component="label"
-                            >
-                                Upload File
-                                <input
-                                    type="file"
-                                    style={{ display: "none" }}
-                                    onChange={onFileUpload}
-                                />
-                            </Button>
-                        </Grid>
 
 
                         <Grid item>
                             {
                                 formInfo.files.length !== 0 ?
                                     <div>
-                                        <Divider/>
                                         <Typography variant="h5">
                                             Files
                                         </Typography>
@@ -710,14 +713,30 @@ export const MaterialForm: FunctionComponent<Props> = (
                             }
                         </Grid>
 
+                        <Grid  item>
+                            <Button
+                                variant="contained"
+                                color={"primary"}
+                                component="label"
+                            >
+                                Upload File
+                                <input
+                                    type="file"
+                                    style={{ display: "none" }}
+                                    onChange={onFileUpload}
+                                />
+                            </Button>
+                        </Grid>
+
+
                         <Grid item>
                             <Button  className={classes.margin}
-                                variant="contained" color="primary" onClick={() => {treeOpen("acm_2013")}}>
+                                     variant="contained" color="primary" onClick={() => {treeOpen("acm_2013")}}>
                                 ACM CSC 2013
                             </Button>
-                             <Button  className={classes.margin}
-                                variant="contained" color="primary" onClick={() => {treeOpen("pdc_2012")}}>
-                                 PDC 2012
+                            <Button  className={classes.margin}
+                                     variant="contained" color="primary" onClick={() => {treeOpen("pdc_2012")}}>
+                                PDC 2012
                             </Button>
                         </Grid>
 
@@ -750,6 +769,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                             item
                         >
                             <Button  className={classes.margin}
+                                     startIcon={<PublishIcon/>}
                                      variant="contained" color="primary" onClick={() =>
                                 onSubmit((id) => {
                                     history.push({
@@ -761,21 +781,46 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 })}>
                                 Submit
                             </Button>
+
                         </Grid>
 
                     </Grid>
-                    }
+                }
             </Paper>
+
+
 
             <TreeDialog open={formInfo.show_acm} title={"ACM CSC 2013"} onClose={treeClose} api_url={api_url}
                         tree_name={"acm"}
                         selected_tags={formInfo.temp_tags.ontology}
                         onCheck={onTreeCheckBoxClick}
+                        save={() => onSubmit((id) => {
+                            if (formInfo.new) {
+                                history.push({
+                                        pathname: "/material/" + id + "/edit"
+                                    }
+                                );
+                                force_user_data_reload();
+                            }
+                            setFormInfo({...formInfo, saved: true})
+                            return id;
+                        })}
             />
             <TreeDialog open={formInfo.show_pdc} title={"PDC 2012"} onClose={treeClose} api_url={api_url}
                         tree_name={"pdc"}
                         selected_tags={formInfo.temp_tags.ontology}
                         onCheck={onTreeCheckBoxClick}
+                        save={() => onSubmit((id) => {
+                            if (formInfo.new) {
+                                history.push({
+                                        pathname: "/material/" + id + "/edit"
+                                    }
+                                );
+                                force_user_data_reload();
+                            }
+                            setFormInfo({...formInfo, saved: true})
+                            return id;
+                        })}
             />
 
 
@@ -786,6 +831,17 @@ export const MaterialForm: FunctionComponent<Props> = (
                     message="submission failed, check credentials"
                     onClose={(event?: SyntheticEvent, reason?: string) => {
                         handleSnackbarClose("fail", event, reason);
+                    }}
+                />
+            </Snackbar>
+            <Snackbar open={formInfo.saved}
+                      autoHideDuration={5000}
+            >
+                <SnackbarContentWrapper
+                    variant="success"
+                    message="Save successful"
+                    onClose={(event?: SyntheticEvent, reason?: string) => {
+                        handleSnackbarClose("saved", event, reason);
                     }}
                 />
             </Snackbar>

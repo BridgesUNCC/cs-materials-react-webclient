@@ -6,6 +6,8 @@ import {AppBar, createStyles, fade, IconButton, Theme, Toolbar, Typography} from
 import {makeStyles} from "@material-ui/core/styles";
 import {DelayedSearch} from "./DelayedInput";
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import SaveIcon from "@material-ui/icons/Save";
+import Button from "@material-ui/core/Button";
 
 
 
@@ -76,6 +78,7 @@ interface Props {
     tree_name: string;
     selected_tags: TagData[];
     onCheck: (event: React.ChangeEvent<HTMLInputElement>, id: OntologyData) => void;
+    save?: () => void;
 }
 
 interface State {
@@ -88,7 +91,7 @@ const createEmptyInfo = (): State => {
     }
 };
 
-export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, api_url, tree_name, selected_tags, onCheck}) => {
+export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, api_url, tree_name, selected_tags, onCheck, save}) => {
     const classes = useStyles();
     const [viewInfo, setViewInfo] = React.useState(
         createEmptyInfo()
@@ -121,7 +124,16 @@ export const TreeDialog: FunctionComponent<Props> = ({open, title, onClose, api_
                         {title}
                     </Typography>
                     <DelayedSearch onChange={onDelayedChange} delay={200}/>
-
+                    {
+                        save ?
+                            <Button className={classes.margin}
+                                    startIcon={<SaveIcon/>}
+                                    variant="contained" color="secondary" onClick={() => save()}>
+                                Save
+                            </Button>
+                            :
+                            <div></div>
+                    }
                 </Toolbar>
                 </AppBar>
 
