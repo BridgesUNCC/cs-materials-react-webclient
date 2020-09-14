@@ -132,6 +132,16 @@ export const MaterialForm: FunctionComponent<Props> = (
         createEmptyEntity(location)
     );
 
+
+    let match_id = null;
+    if (match.params.id) {
+        match_id = Number(match.params.id);
+    }
+    // check if route has changed from another instance of this Form, if so clear data and re render.
+    if (formInfo.fetched && match_id !== formInfo.data.id) {
+        setFormInfo(createEmptyEntity(location));
+    }
+
     let tag_map: { [tag_type: string]: (TagData | string)[]} = {
         'author': formInfo.temp_tags.author,
         'course': formInfo.temp_tags.course,
@@ -141,56 +151,6 @@ export const MaterialForm: FunctionComponent<Props> = (
         'ontology': formInfo.temp_tags.ontology,
     };
 
-
-    if (!formInfo.tags_fetched) {
-        const url = api_url + "/data/meta_tags";
-
-        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
-
-        let material_type = parse_query_variable(location, "type");
-
-        let mapped_ids = parse_query_variable(location, "ids");
-        let list_data_promise: Promise<any> | null = null;
-        if (mapped_ids !== "") {
-            const list_url = api_url + "/data/list/materials?ids=" + mapped_ids;
-            list_data_promise = getJSONData(list_url, auth);
-        }
-
-        getJSONData(url, auth).then(resp => {
-           if (resp === undefined) {
-                console.log("API SERVER FAIL")
-           } else {
-               if (resp['status'] === "OK") {
-                   const meta_tags = resp['data'];
-                   const data = formInfo.data;
-
-                   if (material_type !== "") {
-                       data.material_type = material_type;
-                   }
-
-                   if (list_data_promise !== null) {
-                       list_data_promise.then(resp => {
-                           if (resp === undefined) {
-                               console.log("API SERVER FAIL")
-                           }
-                           else {
-                               if (resp['status'] === "OK") {
-                                   const mats = resp['data'];
-                                   data.materials = mats;
-
-                                   setFormInfo({...formInfo, tags_fetched: true, data, meta_tags})
-                               }
-                           }
-                       });
-                   } else {
-                       setFormInfo({...formInfo, tags_fetched: true, meta_tags})
-                   }
-               }
-           }
-        });
-
-
-    }
 
     let has_source = false;
     let id = parse_query_variable(location, "source");
@@ -234,70 +194,124 @@ export const MaterialForm: FunctionComponent<Props> = (
         }));
     }
 
-    if (formInfo.tags_fetched && !formInfo.fetched && (!formInfo.new || has_source)) {
+    if (!formInfo.fetched)  {
         const q_id = has_source ? id : match.params.id;
-        const url = api_url + "/data/material/meta?id=" + q_id;
+        const mat_url = api_url + "/data/material/meta?id=" + q_id;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+        const meta_tags_url = api_url + "/data/meta_tags";
 
         let promises: Promise<FormEntity>[] = [];
         let promise;
 
-        promise = getJSONData(url, auth).then(resp => {
+
+        let material_type = parse_query_variable(location, "type");
+
+        let mapped_ids = parse_query_variable(location, "ids");
+        let list_data_promise: Promise<any> | null = null;
+        if (mapped_ids !== "") {
+            const list_url = api_url + "/data/list/materials?ids=" + mapped_ids;
+            list_data_promise = getJSONData(list_url, auth);
+        }
+
+        promise = getJSONData(meta_tags_url, auth).then(resp => {
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
-                return {...formInfo, fetched: true}
+                return {...formInfo, tags_fetched: true}
             } else {
                 if (resp['status'] === "OK") {
-                    const data = resp['data'];
+                    const meta_tags = resp['data'];
+                    const data = formInfo.data;
 
-                    //@HACK somehow this logic  gets hit twice after a refresh, this clears some annoying behavior
-                    Object.values(tag_map).forEach(val => val.length = 0);
-
-                    // Push values to be displayed as being selected_tags on this material
-                    data.tags.forEach((tag: TagData) => {
-                        if (tag_map[tag.type]) {
-                            tag_map[tag.type].push(tag);
-                        }
-                    });
-
-                    if (has_source) {
-                        data.id = null
-                        data.title += " Copy"
+                    if (material_type !== "") {
+                        data.material_type = material_type;
                     }
 
-                    return {...formInfo, fetched: true, data}
+                    if (list_data_promise !== null) {
+                        return list_data_promise.then(resp => {
+                            if (resp === undefined) {
+                                console.log("API SERVER FAIL")
+                                return {...formInfo, tags_fetched: true, meta_tags}
+                            }
+                            else {
+                                if (resp['status'] === "OK") {
+                                    data.materials = resp.data;
+                                    return {...formInfo, tags_fetched: true, data, meta_tags}
+                                } else {
+                                    return {...formInfo, tags_fetched: true, data, meta_tags}
+                                }
+                            }
+                        });
+                    } else {
+                        return {...formInfo, tags_fetched: true, meta_tags}
+                    }
                 } else {
-                    return {...formInfo, fetched: true}
+                    return {...formInfo, tags_fetched: true}
                 }
             }
-        })
+        });
         promises.push(promise);
 
-        promise = fetchFileList();
-        promises.push(promise)
+        if (q_id) {
+            promise = getJSONData(mat_url, auth).then(resp => {
+                if (resp === undefined) {
+                    console.log("API SERVER FAIL")
+                    return {...formInfo, fetched: true}
+                } else {
+                    if (resp['status'] === "OK") {
+                        const data = resp['data'];
+
+                        //@HACK somehow this logic  gets hit twice after a refresh, this clears some annoying behavior
+                        Object.values(tag_map).forEach(val => val.length = 0);
+
+                        // Push values to be displayed as being selected_tags on this material
+                        data.tags.forEach((tag: TagData) => {
+                            if (tag_map[tag.type]) {
+                                tag_map[tag.type].push(tag);
+                            }
+                        });
+
+                        if (has_source) {
+                            data.id = null
+                            data.title += " Copy"
+                        }
+
+                        return {...formInfo, fetched: true, data}
+                    } else {
+                        return {...formInfo, fetched: true}
+                    }
+                }
+            })
+            promises.push(promise);
+        }
+
+        if (match.params.id) {
+            promise = fetchFileList();
+            promises.push(promise)
+        }
 
         Promise.all(promises).then((values) => {
             let real_data = values.find(e => e.fetched)
-            let file_data = values.find(e => !e.fetched) || formInfo
+            let tag_data = values.find(e => e.tags_fetched) || formInfo
+            let file_data = values.find(e => e.files.length !== 0) || formInfo
+            console.log(real_data);
             if (real_data) {
-                setFormInfo({...real_data, files: file_data.files});
+                let data = {...real_data, meta_tags: tag_data.meta_tags, tags_fetched: true, files: file_data.files}
+                setFormInfo(data);
+            } else {
+                // new material
+                setFormInfo({...tag_data, fetched: true})
             }
-        })
-
-    } else if (!formInfo.fetched && !has_source) {
-        setFormInfo({...formInfo, fetched: true})
+        });
     }
 
-    async function onSubmit() {
-        setFormInfo({...formInfo, posting: true});
+    async function onSubmit(handle_success: (id:number) => number): Promise<number | undefined> {
+        // setFormInfo({...formInfo, posting: true});
         const url = api_url + "/data/post/material";
 
         let data_tmp = {...formInfo.data, "instance_of": "material"};
         console.log(data_tmp);
 
         data_tmp.tags = [];
-
-
         // Compress tag_map back into original data form of array of objects
         Object.entries(tag_map).forEach(([key, value]) => {
             let vals = value.map(e => {
@@ -321,7 +335,7 @@ export const MaterialForm: FunctionComponent<Props> = (
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
-        postJSONData(url, data, auth).then(resp => {
+        return postJSONData(url, data, auth).then(resp => {
            console.log(resp);
 
            if (resp === undefined) {
@@ -330,11 +344,8 @@ export const MaterialForm: FunctionComponent<Props> = (
            } else {
                  if (resp['status'] === "OK") {
                      let id = resp['id'];
-                     history.push({
-                             pathname: "/material/" + id
-                         }
-                     );
-                     force_user_data_reload();
+                     console.log(id);
+                     return handle_success(id);
                  } else {
                      setFormInfo({...formInfo, posting: false, fail: true});
                  }
@@ -401,8 +412,8 @@ export const MaterialForm: FunctionComponent<Props> = (
 
   ;
 
-    const getPresignedUrl = (name: string): Promise<string> => {
-        const url = api_url + "/data/put_file/material?id=" + match.params.id + "&file_key=" + name;
+    const getPresignedUrl = (name: string, id: string): Promise<string> => {
+        const url = api_url + "/data/put_file/material?id=" + id + "&file_key=" + name;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         return getJSONData(url, auth).then(resp => {
@@ -420,32 +431,51 @@ export const MaterialForm: FunctionComponent<Props> = (
         });
     }
 
-    const onFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         console.log(event.currentTarget.files);
-        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+        // cache target
+        let target = event.currentTarget;
+        let id = match.params.id;
+        if (formInfo.new) {
+            // need an id for new material, submit it and get the id, redirect after file upload
+            await onSubmit((id: number) => id).then((resp) => {
+                if (resp !== undefined) {
+                    id = String(resp);
+                }
+            })
+        }
+        console.log(id);
 
         let file: File;
-        if (event.currentTarget.files) {
-            for (file of event.currentTarget.files) {
-                getPresignedUrl(file.name).then(async data => {
-                    /*
-                    const file_data = {
-                        ...data.fields,
-                        'Content-Type': file.type,
-                        'file': file,
-                    };
-                    */
-                    // Default options are marked with *
+        let promises = []
+        if (target.files) {
+            for (file of target.files) {
+                console.log(file);
+                let promise = getPresignedUrl(file.name, id).then(async data => {
+                    console.log(data);
                     const xhr = new XMLHttpRequest();
                     xhr.open('PUT', data);
                     xhr.setRequestHeader('Content-Type', file.type);
                     xhr.setRequestHeader('x-amz-acl', 'public-read');
                     xhr.send(file);
                 });
+                promises.push(promise);
             }
         }
 
-        fetchFileList().then(value => setFormInfo({...formInfo, files: value.files}));
+        // if new material redirect to its page, otherwise fetch file list
+        Promise.all(promises).then(() => {
+            if (formInfo.new) {
+                history.push({
+                        pathname: "/material/" + id + "/edit"
+                    }
+                );
+                force_user_data_reload();
+                setFormInfo({...formInfo, fetched: false, new: false});
+            } else {
+                fetchFileList().then(value => setFormInfo({...formInfo, files: value.files}));
+            }
+        });
     }
 
 
@@ -720,7 +750,15 @@ export const MaterialForm: FunctionComponent<Props> = (
                             item
                         >
                             <Button  className={classes.margin}
-                                variant="contained" color="primary" onClick={onSubmit}>
+                                     variant="contained" color="primary" onClick={() =>
+                                onSubmit((id) => {
+                                    history.push({
+                                            pathname: "/material/" + id
+                                        }
+                                    );
+                                    force_user_data_reload();
+                                    return id;
+                                })}>
                                 Submit
                             </Button>
                         </Grid>
