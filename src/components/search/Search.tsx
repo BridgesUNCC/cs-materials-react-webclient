@@ -5,7 +5,7 @@ import {TreeDialog} from "../forms/TreeDialog";
 import {makeStyles} from "@material-ui/core/styles";
 import {OntologyData, TagData} from "../../common/types"
 import {Link} from "react-router-dom";
-import {getJSONData, parse_query_variable} from "../../common/util";
+import {getJSONData} from "../../common/util";
 import Autocomplete, {AutocompleteChangeReason} from "@material-ui/lab/Autocomplete";
 
 

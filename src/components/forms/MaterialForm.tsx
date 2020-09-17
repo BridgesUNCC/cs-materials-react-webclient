@@ -15,7 +15,6 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import {Author} from "../author/Author";
 import PublishIcon from '@material-ui/icons/Publish';
 import SaveIcon from '@material-ui/icons/Save';
-import DeleteIcon from '@material-ui/icons/Delete';
 
 import {TreeDialog} from "./TreeDialog";
 import {MaterialTypesArray, TagData, MaterialData, MaterialVisibilityArray, OntologyData} from "../../common/types";
@@ -316,7 +315,7 @@ export const MaterialForm: FunctionComponent<Props> = (
     }
 
     async function onSubmit(handle_success: (id:number) => number): Promise<number | undefined> {
-        // setFormInfo({...formInfo, posting: true});
+        setFormInfo({...formInfo, posting: true});
         const url = api_url + "/data/post/material";
 
         let data_tmp = {...formInfo.data, "instance_of": "material"};
@@ -437,6 +436,22 @@ export const MaterialForm: FunctionComponent<Props> = (
     }
 
     const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        setFormInfo({...formInfo, posting: true});
+
+        const makePromise = (file: File): Promise<any> => {
+            return getPresignedUrl(file.name, id).then(async data => {
+                return new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('PUT', data);
+                    xhr.setRequestHeader('Content-Type', file.type);
+                    xhr.setRequestHeader('x-amz-acl', 'public-read');
+                    xhr.onload = resolve;
+                    xhr.onerror = reject;
+                    xhr.send(file);
+                });
+            });
+        }
+
         // cache target
         let target = event.currentTarget;
         let id = match.params.id;
@@ -453,14 +468,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         let promises = []
         if (target.files) {
             for (file of target.files) {
-                let promise = getPresignedUrl(file.name, id).then(async data => {
-                    const xhr = new XMLHttpRequest();
-                    xhr.open('PUT', data);
-                    xhr.setRequestHeader('Content-Type', file.type);
-                    xhr.setRequestHeader('x-amz-acl', 'public-read');
-                    xhr.send(file);
-                });
-                promises.push(promise);
+                promises.push(makePromise(file));
             }
         }
 
@@ -472,12 +480,9 @@ export const MaterialForm: FunctionComponent<Props> = (
                     }
                 );
                 force_user_data_reload();
-                setFormInfo({...formInfo, fetched: false, new: false});
+                setFormInfo({...formInfo, fetched: false, new: false, posting: false});
             } else {
-                // @HACK, need to allow for file list to update before fetching data
-                setTimeout(() => {
-                    fetchFileList().then(value => setFormInfo({...formInfo, files: value.files}));
-                }, 250);
+                fetchFileList().then(value => setFormInfo({...formInfo, files: value.files, posting: false}));
             }
         });
     }
@@ -603,7 +608,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                         force_user_data_reload();
                     }
                     setFormInfo({...formInfo, saved: true})
-                    return id;
+                    return id
                 })}>
                 Save
             </Button>
@@ -693,6 +698,9 @@ export const MaterialForm: FunctionComponent<Props> = (
 
 
                         <Grid item>
+                            {formInfo.posting &&
+                            <LinearProgress/>
+                            }
                             {
                                 formInfo.files.length !== 0 ?
                                     <div>
@@ -719,6 +727,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                                                                              }}
                                                                              api_url={api_url}
                                                         />
+                                                    return <div/>
                                                 })
                                                 }
                                             </div>

@@ -14,10 +14,6 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
-import {Link} from "react-router-dom";
-
-
-
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -90,6 +86,7 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
                                                                user_data,
                                                                from,
                                                            }) => {
+    let title;
     const classes = useStyles();
     let path = location.pathname;
     let search = location.search;
@@ -149,20 +146,21 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
 
     if(location.pathname !== "/comparison"){
       if (listInfo.search === "") {
-        var title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-            Select Materials
-        </Typography>
+          title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+              Select Materials
+          </Typography>;
       }
       else{
-        var title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+        title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
             Select Collections
-        </Typography>
+        </Typography>;
       }
     }else{
-      var title = <div></div>
+      title = <div></div>;
     }
 
-      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={{user_data}} currentLoc="compare" from="listTwo"/>
+    const analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={{user_data}}
+                             currentLoc="compare" from="listTwo"/>;
 
     // @Speed @TODO, smart cull entries so rendering doesn't take too long, maybe have a callback that renders more as
     // user scrolls down?

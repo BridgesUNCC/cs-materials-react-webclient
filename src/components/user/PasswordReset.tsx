@@ -109,7 +109,7 @@ export const PasswordReset: FunctionComponent<RegistrationProps> = ({
                     used = true;
                     token_acquired_fail = true;
                 }
-            };
+            }
 
             const payload = parseJwt(resp['super_access_token']);
             if (payload !== null) {

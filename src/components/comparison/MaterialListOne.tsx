@@ -14,10 +14,6 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
-import {Link} from "react-router-dom";
-
-
-
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -90,6 +86,7 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
                                                                user_data,
                                                                from,
                                                            }) => {
+    let title;
     const classes = useStyles();
     let path = location.pathname;
     let search = location.search;
@@ -106,7 +103,7 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
     //when a tab is clicked that tabs value is passed to this function
     //the value is assigned to the location search variable and the listinfo's fetched variable is set to false
     //that way, it is forced to reload with the new search filter
-    const handleChange=(event:any, newValue:string) => {
+    const handleChange = (event:any, newValue:string) => {
       location.search = newValue
       setTabState(newValue)
       if(user_data && newValue === "/my_materials"){
@@ -116,23 +113,23 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
     }
 
     if(location.pathname !== "/comparison"){
-      if (listInfo.search === "") {
-        var title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-            Select Materials
-        </Typography>
-      }
-      else{
-        var title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-            Select Collections
-        </Typography>
-      }
+        if (listInfo.search === "") {
+            title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+                Select Materials
+            </Typography>;
+        }
+        else{
+            title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+                Select Collections
+            </Typography>;
+        }
     }else{
-      var title = <div></div>
+        title = <div></div>;
     }
 
 
-      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={user_data} currentLoc="compare" from="listOne"/>
-
+    const analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={user_data}
+                             currentLoc="compare" from="listOne"/>;
 
 
     if (!listInfo.fetched || reload) {

@@ -105,9 +105,8 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-var compListOne: number[] = []
-var compListTwo: number[] = []
-var compLists: number[] = []
+let compListOne: number[] = [];
+let compListTwo: number[] = [];
 
 
 const drawerWidth = 300;
@@ -131,8 +130,8 @@ export const Analyze: FunctionComponent<Props> = (
 ) => {
 
     const classes = useStyles();
-    var [open, setOpen] = React.useState(true);
-    var [selectedIndex, setIndex] = React.useState(0);
+    let [open, setOpen] = React.useState(true);
+    let [selectedIndex, setIndex] = React.useState(0);
     const handleDrawerOpen = () => {
       setOpen(true);
     };
@@ -161,13 +160,11 @@ export const Analyze: FunctionComponent<Props> = (
         break;
     }
 
-    if(from === "listOne"){
+    if (from === "listOne") {
       compListOne = info
-    }else if(from === "listTwo"){
+    } else if (from === "listTwo") {
       compListTwo = info
     }
-    compLists = compListOne.concat(compListTwo)
-
 
     let radialacm;
     let radialpdc;
