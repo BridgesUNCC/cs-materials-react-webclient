@@ -4,7 +4,7 @@ import Button from "@material-ui/core/Button";
 import {postJSONData} from "../../common/util";
 import {createStyles, makeStyles, Theme} from "@material-ui/core";
 import Snackbar from '@material-ui/core/Snackbar';
-import SnackbarContentWrapper from "../SnackbarContentWrapper";
+import SnackbarContentWrapper from "../../common/SnackbarContentWrapper";
 import Grid from "@material-ui/core/Grid";
 
 

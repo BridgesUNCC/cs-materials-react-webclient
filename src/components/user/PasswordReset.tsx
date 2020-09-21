@@ -2,7 +2,7 @@ import React, {FunctionComponent, SyntheticEvent} from "react";
 import {createStyles, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import {parseJwt, postJSONData, getJSONData} from "../../common/util";
-import SnackbarContentWrapper from "../SnackbarContentWrapper";
+import SnackbarContentWrapper from "../../common/SnackbarContentWrapper";
 import Snackbar from "@material-ui/core/Snackbar";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";

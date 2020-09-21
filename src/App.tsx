@@ -9,8 +9,6 @@ import {AppBar, createStyles, Grid, Theme} from "@material-ui/core";
 import {AppBarUserMenu} from "./components/user/AppBarUserMenu";
 import {Route, RouteComponentProps, Switch} from "react-router";
 import Container from "@material-ui/core/Container";
-import Snackbar from '@material-ui/core/Snackbar';
-import SnackbarContentWrapper from "./components/SnackbarContentWrapper";
 import {MaterialOverview} from "./components/MaterialOverview";
 import Button from "@material-ui/core/Button";
 import {Link} from "react-router-dom";
@@ -27,6 +25,12 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import  {NotFound} from "./components/NotFound";
 import Typography from '@material-ui/core/Typography';
+import {
+    BuildSnackbar,
+    buildSnackbarProps,
+    emptySnackbarBuilderProps,
+    SnackbarBuilderProps
+} from "./common/SnackbarBuilder";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -87,18 +91,17 @@ interface Props extends RouteComponentProps {
 
 }
 
+
 export interface AppEntity {
     user_id: number | null;
     fetched_initial_data: boolean;
     force_fetch_data: boolean;
     api_url: string;
     user_data?: UserData | any;
-    snackbar_flags: SnackbarFlags;
+    snackbar_info: SnackbarBuilderProps;
 }
 
 const createInitialAppEntity = (): AppEntity => {
-    let snackbar_flags = defaultSnackbarFlags();
-
     // @TODO if token is blacklisted, drop it
     let jwt = localStorage.getItem("access_token");
 
@@ -115,7 +118,7 @@ const createInitialAppEntity = (): AppEntity => {
                     api_url: api_url,
                     fetched_initial_data: false,
                     force_fetch_data: false,
-                    snackbar_flags: snackbar_flags
+                    snackbar_info: emptySnackbarBuilderProps(),
                 };
             }
         }
@@ -126,7 +129,7 @@ const createInitialAppEntity = (): AppEntity => {
         api_url: api_url,
         fetched_initial_data: false,
         force_fetch_data: false,
-        snackbar_flags: snackbar_flags
+        snackbar_info: emptySnackbarBuilderProps(),
     };
 };
 
@@ -138,29 +141,6 @@ interface UserData {
     registered_on: string;
     owned_materials: number[];
 }
-
-interface SnackbarFlags {
-    ok: boolean;
-    logged_out: boolean;
-    request_confirm: boolean;
-    confirmed: boolean;
-    server_fail: boolean;
-    expired: boolean;
-    invalid: boolean;
-}
-
-const defaultSnackbarFlags = (): SnackbarFlags => {
-    return {
-        ok: false,
-        logged_out: false,
-        request_confirm: false,
-        confirmed: false,
-        server_fail: false,
-        expired: false,
-        invalid: false,
-    };
-};
-
 
 export const App: FunctionComponent<Props> = ({history, location}) => {
     const classes = useStyles();
@@ -176,41 +156,43 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
         // @TODO flash error
         getJSONData(appInfo.api_url + "/user/" + id + "/meta", {"Authorization": "bearer " + token}).then(
             resp => {
-                let ok = false, request_confirm = false, expired = false, server_fail = false, invalid = false;
                 let id_to_set = null;
+                let snackbar_info = {...appInfo.snackbar_info};
+
+                let cached_info = localStorage.getItem("snackbar_info");
+
+                if (cached_info) {
+                    snackbar_info = JSON.parse(cached_info);
+                    localStorage.removeItem("snackbar_info");
+                }
 
                 if (resp === undefined) {
                     console.log("API SERVER ERROR");
-                    server_fail = true;
+                    snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
                 } else {
-
                     if (resp['status'] === "Expired") {
                         // clear response so it doesn't store junk data
                         resp = null;
-                        expired = true;
+                        snackbar_info = buildSnackbarProps("info", "Session Expired, please login again");
                     } else if (resp['status'] === "Invalid") {
                         console.log("was logging out?");
-                        invalid = true;
-                        return;
+                        snackbar_info = buildSnackbarProps("error", "Invalid session, please login again");
                     } else if (resp['status'] === "OK") {
                         if (!fromStorage) {
                             if (!fromRegister) {
-                                ok = true;
+                                snackbar_info = buildSnackbarProps("success", "Login Successful");
                             } else {
-                                request_confirm = true;
+                                snackbar_info = buildSnackbarProps("info",
+                                    "A confirmation email has been sent, please confirm");
                             }
                         }
                         id_to_set = id;
                     }
                 }
 
-                let flags = appInfo.snackbar_flags;
-                flags = {...flags, ok, expired, server_fail, invalid, request_confirm};
-                console.log(resp);
-
                 setAppInfo({
                     ...appInfo, user_id: id_to_set, user_data: resp,
-                    snackbar_flags: flags, fetched_initial_data: true, force_fetch_data: false,
+                    fetched_initial_data: true, force_fetch_data: false, snackbar_info,
                 });
             }
         );
@@ -230,10 +212,11 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
         let token = localStorage.getItem("access_token");
         getJSONData(appInfo.api_url + "/logout", {"Authorization": "bearer " + token}).then(
             resp => {
-                let logged_out = false, server_fail = false;
+                let snackbar_info = {...appInfo.snackbar_info};
+                let logged_out = false;
                 if (resp === undefined) {
                     console.log("API SERVER ERROR");
-                    server_fail = true;
+                    snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
                 } else {
                     // @FIXME think about if these appInfos affect how true "logout" is
                     if (resp['status'] === "Expired") {
@@ -246,11 +229,12 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         logged_out = true;
                     }
                 }
-                let flags = appInfo.snackbar_flags;
-                flags = {...flags, logged_out, server_fail};
 
-                setAppInfo({...appInfo, user_id: null, user_data: null, snackbar_flags: flags,
-                });
+                if (logged_out) {
+                    snackbar_info = buildSnackbarProps("success", "Logged out successfully")
+                }
+
+                setAppInfo({...appInfo, user_id: null, user_data: null, snackbar_info});
                 localStorage.removeItem("access_token");
                 localStorage.removeItem("super_access_token")
 
@@ -265,18 +249,19 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
         // TODO flash some messages depending on appInfo of fetch
         getJSONData(url).then(resp => {
             console.log(resp);
+            let snackbar_info = {...appInfo.snackbar_info};
 
             if (resp === undefined) {
                 console.log("API SERVER ERROR");
-
+                snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
             }
 
             if (resp['status'] === "Invalid") {
                 if (resp['reason'] === "bad token") {
-
-                } else {
-
+                    snackbar_info = buildSnackbarProps("error", "Invalid session, please login again");
                 }
+            } else if (resp['status'] === "OK") {
+                snackbar_info = buildSnackbarProps("success", "Email Confirmed");
             }
 
             const payload = parseJwt(resp['access_token']);
@@ -284,6 +269,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 if (payload.sub !== null) {
                     // @TODO, push flag into local storage, that way the constructor can handle the flag for confirm message
                     localStorage.setItem("access_token", resp['access_token']);
+                    localStorage.setItem("snackbar_info", JSON.stringify(snackbar_info));
                     updateUserId(payload.sub);
                     let new_location = location.pathname.endsWith("/confirm") ?
                         location.pathname.slice(0, -8) :
@@ -307,15 +293,9 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
         confirm(appInfo.api_url);
     }
 
-    const handleSnackbarClose = (name: string) => (event?: object, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        let flags = appInfo.snackbar_flags;
-        flags = {...flags, [name]: false};
-        setAppInfo({...appInfo, snackbar_flags: flags});
-    };
+    const clearSnackbarProps = () => {
+        setAppInfo({...appInfo, snackbar_info: emptySnackbarBuilderProps(appInfo.snackbar_info)})
+    }
 
     const redirect = (new_location: string) => {
         history.push({pathname: new_location});
@@ -546,80 +526,8 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
             </Container>
 
             {/*handles cards for navigation*/}
-            {/**
-             Begin Snackbar stuff for account stuff, may be a @TODO or @FIXME at some point to
-             move it into its own component, that takes in the snackbar_flags from the appInfo of the app.
-             currently that may be too abstract for my own good, so I am doing it way
-             */}
-            <Snackbar autoHideDuration={5000}
-                      onClose={handleSnackbarClose("ok")}
-                      open={appInfo.snackbar_flags.ok}>
-                <SnackbarContentWrapper
-                    variant="success"
-                    message="Login Successful"
-                    onClose={() => {handleSnackbarClose("ok")()}}
-                />
-            </Snackbar>
 
-            <Snackbar autoHideDuration={5000}
-                      onClose={handleSnackbarClose("logged_out")}
-                      open={appInfo.snackbar_flags.logged_out}>
-                <SnackbarContentWrapper
-                    variant="success"
-                    message="Logged out successfully"
-                    onClose={() => handleSnackbarClose("logged_out")()}
-                />
-            </Snackbar>
-
-            <Snackbar autoHideDuration={5000}
-                      onClose={handleSnackbarClose("confirmed")}
-                      open={appInfo.snackbar_flags.confirmed}>
-                <SnackbarContentWrapper
-                    variant="success"
-                    message="Email Confirmed"
-                    onClose={() => handleSnackbarClose("confirmed")()}
-                />
-            </Snackbar>
-
-            <Snackbar autoHideDuration={5000}
-                      onClose={handleSnackbarClose("request_confirm")}
-                      open={appInfo.snackbar_flags.request_confirm}>
-                <SnackbarContentWrapper
-                    variant="info"
-                    message="A confirmation email has been sent, please confirm"
-                    onClose={() => handleSnackbarClose("request_confirm")}
-                />
-            </Snackbar>
-
-            <Snackbar autoHideDuration={5000}
-                      onClose={handleSnackbarClose("expired")}
-                      open={appInfo.snackbar_flags.expired}>
-                <SnackbarContentWrapper
-                    variant="info"
-                    message="Session Expired, please login again"
-                    onClose={() => handleSnackbarClose("expired")()}
-                />
-            </Snackbar>
-
-            <Snackbar autoHideDuration={5000}
-                      onClose={handleSnackbarClose("server_fail")}
-                      open={appInfo.snackbar_flags.server_fail}>
-                <SnackbarContentWrapper
-                    variant="error"
-                    message="API Error, contact admins"
-                    onClose={() => handleSnackbarClose("server_fail")()}
-                />
-            </Snackbar>
-
-            <Snackbar autoHideDuration={5000}
-                      onClose={handleSnackbarClose("invalid")}
-                      open={appInfo.snackbar_flags.invalid}>
-                <SnackbarContentWrapper
-                    variant="error"
-                    message="Invalid session, please login again"
-                    onClose={() => handleSnackbarClose("invalid")()}
-                />
-            </Snackbar>
+            <BuildSnackbar {...appInfo.snackbar_info} clearProps={clearSnackbarProps} />
 
         </div>
     );

@@ -1,4 +1,4 @@
-import React, {FunctionComponent, SyntheticEvent} from "react";
+import React, {FunctionComponent} from "react";
 import {RouteComponentProps} from "react-router";
 import {getJSONData, parse_query_variable, postJSONData} from "../../common/util";
 import {createStyles, Divider, List, MenuItem, Theme} from "@material-ui/core";
@@ -9,8 +9,6 @@ import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Button from "@material-ui/core/Button";
-import Snackbar from '@material-ui/core/Snackbar';
-import SnackbarContentWrapper from "../SnackbarContentWrapper";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import {Author} from "../author/Author";
 import PublishIcon from '@material-ui/icons/Publish';
@@ -24,6 +22,12 @@ import {FileLink} from "../MaterialOverview";
 import GetAppIcon from "@material-ui/icons/GetApp";
 import EditIcon from '@material-ui/icons/Edit';
 import {DeleteDialog} from "./DeleteDialog";
+import {
+    BuildSnackbar,
+    buildSnackbarProps,
+    emptySnackbarBuilderProps,
+    SnackbarBuilderProps
+} from "../../common/SnackbarBuilder";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -98,11 +102,10 @@ interface FormEntity {
     temp_tags: MetaTags;
     meta_tags: MetaTags;
     files: FileLink[];
+    snackbar_info: SnackbarBuilderProps;
     tags_fetched: boolean;
     fetched: boolean;
     posting: boolean;
-    fail: boolean;
-    saved: boolean;
     file_delete_mode: boolean;
     new: boolean;
     show_acm: boolean;
@@ -114,12 +117,11 @@ const createEmptyEntity = (location: any): FormEntity => {
         data: createEmptyData(),
         temp_tags: createEmptyTags(),
         meta_tags: createEmptyTags(),
+        snackbar_info: emptySnackbarBuilderProps(),
         files: [],
         tags_fetched: false,
         fetched: false,
         posting: false,
-        fail: false,
-        saved: false,
         file_delete_mode: false,
         new: location.pathname.endsWith("/create"),
         show_acm: false,
@@ -174,10 +176,12 @@ export const MaterialForm: FunctionComponent<Props> = (
     const fetchFileList = (): Promise<FormEntity> => {
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
         const files_url = api_url + "/data/list_files/material?id=" + match.params.id;
+        let snackbar_info = {...formInfo.snackbar_info};
         return getJSONData(files_url, auth).then((resp => {
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
-                return {...formInfo, fetched: false}
+                snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
+                return {...formInfo, fetched: false, snackbar_info}
             } else {
                 if (resp.status === "OK") {
                     let inner_promises: Promise<FileLink>[] = [];
@@ -186,6 +190,9 @@ export const MaterialForm: FunctionComponent<Props> = (
                         let inner_promise: Promise<FileLink> = getJSONData(file_get, auth).then((resp) => {
                             if (resp === undefined) {
                                 console.log("API SERVER FAIL")
+                                snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
+                                setFormInfo({...formInfo, snackbar_info});
+
                             } else {
                                 if (resp.status === "OK") {
                                     return {name: file_name, url: resp.url}
@@ -224,10 +231,13 @@ export const MaterialForm: FunctionComponent<Props> = (
             list_data_promise = getJSONData(list_url, auth);
         }
 
+        let snackbar_info = {...formInfo.snackbar_info};
+
         promise = getJSONData(meta_tags_url, auth).then(resp => {
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
-                return {...formInfo, tags_fetched: true}
+                snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
+                return {...formInfo, tags_fetched: true, snackbar_info}
             } else {
                 if (resp['status'] === "OK") {
                     const meta_tags = resp['data'];
@@ -266,7 +276,8 @@ export const MaterialForm: FunctionComponent<Props> = (
             promise = getJSONData(mat_url, auth).then(resp => {
                 if (resp === undefined) {
                     console.log("API SERVER FAIL")
-                    return {...formInfo, fetched: true}
+                    snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
+                    return {...formInfo, fetched: true, snackbar_info}
                 } else {
                     if (resp['status'] === "OK") {
                         const data = resp['data'];
@@ -345,16 +356,19 @@ export const MaterialForm: FunctionComponent<Props> = (
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         return postJSONData(url, data, auth).then(resp => {
+            let snackbar_info = {...formInfo.snackbar_info};
 
            if (resp === undefined) {
                console.log("API SERVER FAIL")
-               setFormInfo({...formInfo, posting: false, fail: true});
+               snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
+               setFormInfo({...formInfo, posting: false, snackbar_info});
            } else {
                  if (resp['status'] === "OK") {
                      let id = resp['id'];
                      return handle_success(id);
                  } else {
-                     setFormInfo({...formInfo, posting: false, fail: true});
+                     snackbar_info = buildSnackbarProps("error", "Error posting data, contact admins.");
+                     setFormInfo({...formInfo, posting: false, snackbar_info});
                  }
            }
         });
@@ -382,13 +396,9 @@ export const MaterialForm: FunctionComponent<Props> = (
         onUpdateMaterialTextField(field_id, e.target.value);
     };
 
-    const handleSnackbarClose =  (name: string, event?: SyntheticEvent, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setFormInfo({...formInfo, [name]: false});
-    };
+    const clearSnackbarProps = () => {
+        setFormInfo({...formInfo, snackbar_info: emptySnackbarBuilderProps(formInfo.snackbar_info)})
+    }
 
     const treeOpen = (tree: string) => {
         let info = formInfo;
@@ -437,12 +447,21 @@ export const MaterialForm: FunctionComponent<Props> = (
 
     const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         setFormInfo({...formInfo, posting: true});
+        let snackbar_info = {...formInfo.snackbar_info};
 
         const makePromise = (file: File): Promise<any> => {
-            return getPresignedUrl(file.name, id).then(async data => {
+            return getPresignedUrl(file.name, id).then(async url => {
                 return new Promise((resolve, reject) => {
+                    if (url === "API ERROR") {
+                        snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
+                        resolve();
+                    } else if (url   === "INVALID") {
+                        snackbar_info = buildSnackbarProps("error", "Error getting url, contact admins.");
+                        resolve();
+                    }
+
                     const xhr = new XMLHttpRequest();
-                    xhr.open('PUT', data);
+                    xhr.open('PUT', url);
                     xhr.setRequestHeader('Content-Type', file.type);
                     xhr.setRequestHeader('x-amz-acl', 'public-read');
                     xhr.onload = resolve;
@@ -480,9 +499,9 @@ export const MaterialForm: FunctionComponent<Props> = (
                     }
                 );
                 force_user_data_reload();
-                setFormInfo({...formInfo, fetched: false, new: false, posting: false});
+                setFormInfo({...formInfo, fetched: false, new: false, posting: false, snackbar_info});
             } else {
-                fetchFileList().then(value => setFormInfo({...formInfo, files: value.files, posting: false}));
+                fetchFileList().then(value => setFormInfo({...formInfo, files: value.files, posting: false, snackbar_info}));
             }
         });
     }
@@ -607,7 +626,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                         );
                         force_user_data_reload();
                     }
-                    setFormInfo({...formInfo, saved: true})
+                    let snackbar_info = buildSnackbarProps("success", "Saved");
+                    setFormInfo({...formInfo, snackbar_info})
                     return id
                 })}>
                 Save
@@ -844,7 +864,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 );
                                 force_user_data_reload();
                             }
-                            setFormInfo({...formInfo, saved: true})
+                            let snackbar_info = buildSnackbarProps("success", "Saved");
+                            setFormInfo({...formInfo, snackbar_info})
                             return id;
                         })}
             />
@@ -860,33 +881,14 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 );
                                 force_user_data_reload();
                             }
-                            setFormInfo({...formInfo, saved: true})
+                            let snackbar_info = buildSnackbarProps("success", "Saved");
+                            setFormInfo({...formInfo, snackbar_info})
                             return id;
                         })}
             />
 
 
-
-            <Snackbar open={formInfo.fail}>
-                <SnackbarContentWrapper
-                    variant="error"
-                    message="submission failed, check credentials"
-                    onClose={(event?: SyntheticEvent, reason?: string) => {
-                        handleSnackbarClose("fail", event, reason);
-                    }}
-                />
-            </Snackbar>
-            <Snackbar open={formInfo.saved}
-                      autoHideDuration={5000}
-            >
-                <SnackbarContentWrapper
-                    variant="success"
-                    message="Save successful"
-                    onClose={(event?: SyntheticEvent, reason?: string) => {
-                        handleSnackbarClose("saved", event, reason);
-                    }}
-                />
-            </Snackbar>
+            <BuildSnackbar {...formInfo.snackbar_info} clearProps={clearSnackbarProps}/>
         </div>
     )
 };
