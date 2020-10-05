@@ -118,16 +118,8 @@ export const Author: FunctionComponent<Props> = (
 ) => {
   const classes = useStyles();
 
-  var [open, setOpen] = React.useState(true);
-  var [selectedIndex, setIndex] = React.useState(0);
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-  const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+  let [open, setOpen] = React.useState(true);
+  let [selectedIndex, setIndex] = React.useState(0);
 
   switch(currentLoc) {
     case "material_form":

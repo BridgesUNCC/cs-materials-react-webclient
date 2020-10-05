@@ -157,14 +157,14 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
             || []))]
         localStorage.setItem("checked_materials", selected_materials.toString());
 
-        setListInfo({... listInfo, selected_materials});
+        setListInfo({...listInfo, selected_materials});
     };
 
     const handleSelectNone = () => {
         let selected_materials: number[] = []
         localStorage.setItem("checked_materials", selected_materials.toString());
 
-        setListInfo({... listInfo, selected_materials});
+        setListInfo({...listInfo, selected_materials});
     };
 
     return (

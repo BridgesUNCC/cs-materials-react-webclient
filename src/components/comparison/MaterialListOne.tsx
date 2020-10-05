@@ -14,10 +14,6 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
-import {Link} from "react-router-dom";
-
-
-
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -90,6 +86,7 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
                                                                user_data,
                                                                from,
                                                            }) => {
+    let title;
     const classes = useStyles();
     let path = location.pathname;
     let search = location.search;
@@ -137,7 +134,7 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
     //when a tab is clicked that tabs value is passed to this function
     //the value is assigned to the location search variable and the listinfo's fetched variable is set to false
     //that way, it is forced to reload with the new search filter
-    const handleChange=(event:any, newValue:string) => {
+    const handleChange = (event:any, newValue:string) => {
       location.search = newValue
       setTabState(newValue)
       if(user_data && newValue === "/my_materials"){
@@ -147,24 +144,55 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
     }
 
     if(location.pathname !== "/comparison"){
-      if (listInfo.search === "") {
-        var title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-            Select Materials
-        </Typography>
-      }
-      else{
-        var title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-            Select Collections
-        </Typography>
-      }
+        if (listInfo.search === "") {
+            title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+                Select Materials
+            </Typography>;
+        }
+        else{
+            title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+                Select Collections
+            </Typography>;
+        }
     }else{
-      var title = <div></div>
+        title = <div></div>;
     }
 
 
+    const analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={user_data}
+                             currentLoc="compare" from="listOne"/>;
 
 
+    if (!listInfo.fetched || reload) {
+        let ids
+        (tabState === "/my_materials") ? ids = user_materials?.toString() : ids = ""
+        // let ids = user_materials?.toString() || "";
+        ids += parse_query_variable(location, "ids");
+        let tags = parse_query_variable(location, "tags");
+        let sim_mats = parse_query_variable(location, "sim_mats");
+        let keyword = parse_query_variable(location, "keyword");
+        let material_types = parse_query_variable(location, "material_types");
 
+
+        const url = api_url + "/data/list/materials?ids=" + ids + "&selected_tags=" + tags + "&sim_mats=" + sim_mats
+            + "&keyword=" + keyword + "&material_types=" + material_types;
+
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+
+        // @TODO pass in auth token
+        getJSONData(url, auth).then(resp => {
+            if (resp === undefined) {
+                console.log("API SERVER FAIL")
+            }
+            else {
+                if (resp['status'] === "OK") {
+                    const data = resp['data'];
+                    console.log(data)
+                    setListInfo({...listInfo, fetched: true, materials: data, search: search, path})
+                }
+            }
+        })
+    }
 
     // @Speed @TODO, smart cull entries so rendering doesn't take too long, maybe have a callback that renders more as
     // user scrolls down?

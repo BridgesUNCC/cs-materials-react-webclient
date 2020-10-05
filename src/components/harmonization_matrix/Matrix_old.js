@@ -39,7 +39,7 @@ class Matrix_old extends Component {
     var edgeHash = {}
     var materialList = []
     materials = this.props.data.materials.map(e => e); //materials returned
-    var tags = this.props.data.tags; // tags returned
+    var tags = this.props.data.tags; // selected_tags returned
     var matrix = [];
     var xAxisLabels = [];
     var yAxisLabels = [];
@@ -78,7 +78,7 @@ class Matrix_old extends Component {
     //specific material sorting below
     // xAxisLabels.sort(function(x,y){ return x == "Peachy Unplugged Parallels" ? -1 : y == "Peachy Unplugged Parallels" ? 1 : 0; });
 
-    // iterate over material to add match values for cells when sorting my most freq tags
+    // iterate over material to add match values for cells when sorting my most freq selected_tags
     for(let i = 0; i < xAxisLabels.length; i++){
       for(let j = 0; j < globalTagIDs.length; j++){
         let gridid = xAxisLabels[i] + "-" + globalTagIDs[j];
@@ -169,7 +169,7 @@ class Matrix_old extends Component {
         //checking if it is a already existing material tag in the matrix
         if(d3.select(this).style("fill") === "red" || d3.select(this).style("fill") === "blue"){
           d3.select(this).style("fill", "grey"); //make grey if exists
-          //iterate through the material list, find material, iterate through tags, remove tag
+          //iterate through the material list, find material, iterate through selected_tags, remove tag
           for(let i = 0; i < materials.length; i++){
             if(d.material === materials[i].title){
               for(let j = 0; j < materials[i].tags.length; j++){
@@ -182,7 +182,7 @@ class Matrix_old extends Component {
         }else{ // if it doesnt exist in matrix
           d3.select(this).style("fill-opacity", 1)
           d3.select(this).style("fill","blue");
-          //iterate through materials, if matches material cell, add material tag to tags
+          //iterate through materials, if matches material cell, add material tag to selected_tags
           for(let i = 0; i < materials.length; i++){
             if(d.material === materials[i].title){
               materials[i].tags.push({bloom: "none", id: d.cellTag})

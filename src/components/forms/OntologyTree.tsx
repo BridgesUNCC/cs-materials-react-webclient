@@ -40,7 +40,7 @@ interface Props {
     api_url: string;
     tree_name: string;
     selected_tags: TagData[];
-    onCheck: (event: React.ChangeEvent<HTMLInputElement>, id: number) => void;
+    onCheck: (event: React.ChangeEvent<HTMLInputElement>, id: OntologyData) => void;
     search_term: string;
 }
 
@@ -130,7 +130,7 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
                     defaultChecked={treeInfo.checked.find(e => Number(e) === node.id) !== undefined}
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                         console.log(event);
-                        onCheck(event, node.id);
+                        onCheck(event, node);
                     }}
                     onClick={e => (e.stopPropagation())}
                 />

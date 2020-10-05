@@ -1,4 +1,4 @@
-import React, {FunctionComponent, SyntheticEvent} from "react";
+import React, {FunctionComponent} from "react";
 import {RouteComponentProps} from "react-router";
 import {getJSONData, parse_query_variable, postJSONData} from "../../common/util";
 import {createStyles, Divider, List, MenuItem, Theme} from "@material-ui/core";
@@ -9,16 +9,25 @@ import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Button from "@material-ui/core/Button";
-import Snackbar from '@material-ui/core/Snackbar';
-import SnackbarContentWrapper from "../SnackbarContentWrapper";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import {Author} from "../author/Author";
-
+import PublishIcon from '@material-ui/icons/Publish';
+import SaveIcon from '@material-ui/icons/Save';
 
 import {TreeDialog} from "./TreeDialog";
-import {MaterialTypesArray, TagData, MaterialData, MaterialVisibilityArray} from "../../common/types";
+import {MaterialTypesArray, TagData, MaterialData, MaterialVisibilityArray, OntologyData} from "../../common/types";
 import {ListItemLink} from "../ListItemLink";
 import Typography from "@material-ui/core/Typography";
+import {FileLink} from "../MaterialOverview";
+import GetAppIcon from "@material-ui/icons/GetApp";
+import EditIcon from '@material-ui/icons/Edit';
+import {DeleteDialog} from "./DeleteDialog";
+import {
+    BuildSnackbar,
+    buildSnackbarProps,
+    emptySnackbarBuilderProps,
+    SnackbarBuilderProps
+} from "../../common/SnackbarBuilder";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -36,6 +45,10 @@ const useStyles = makeStyles((theme: Theme) =>
         textArea: {
             margin: theme.spacing(4),
             width: '80%',
+        },
+        saveButton: {
+            verticalAlign: 'middle',
+            textAlign: 'right',
         }
     }),
 );
@@ -88,10 +101,12 @@ interface FormEntity {
     data:  MaterialData;
     temp_tags: MetaTags;
     meta_tags: MetaTags;
+    files: FileLink[];
+    snackbar_info: SnackbarBuilderProps;
     tags_fetched: boolean;
     fetched: boolean;
     posting: boolean;
-    fail: boolean;
+    file_delete_mode: boolean;
     new: boolean;
     show_acm: boolean;
     show_pdc: boolean;
@@ -102,10 +117,12 @@ const createEmptyEntity = (location: any): FormEntity => {
         data: createEmptyData(),
         temp_tags: createEmptyTags(),
         meta_tags: createEmptyTags(),
+        snackbar_info: emptySnackbarBuilderProps(),
+        files: [],
         tags_fetched: false,
         fetched: false,
         posting: false,
-        fail: false,
+        file_delete_mode: false,
         new: location.pathname.endsWith("/create"),
         show_acm: false,
         show_pdc: false,
@@ -128,6 +145,16 @@ export const MaterialForm: FunctionComponent<Props> = (
         createEmptyEntity(location)
     );
 
+
+    let match_id = null;
+    if (match.params.id) {
+        match_id = Number(match.params.id);
+    }
+    // check if route has changed from another instance of this Form, if so clear data and re render.
+    if (formInfo.fetched && match_id !== formInfo.data.id) {
+        setFormInfo(createEmptyEntity(location));
+    }
+
     let tag_map: { [tag_type: string]: (TagData | string)[]} = {
         'author': formInfo.temp_tags.author,
         'course': formInfo.temp_tags.course,
@@ -138,10 +165,62 @@ export const MaterialForm: FunctionComponent<Props> = (
     };
 
 
-    if (!formInfo.tags_fetched) {
-        const url = api_url + "/data/meta_tags";
+    let has_source = false;
+    let id = parse_query_variable(location, "source");
+    if (!formInfo.fetched && formInfo.new) {
+        if (id !== "") {
+            has_source = true;
+        }
+    }
 
+    const fetchFileList = (): Promise<FormEntity> => {
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+        const files_url = api_url + "/data/list_files/material?id=" + match.params.id;
+        let snackbar_info = {...formInfo.snackbar_info};
+        return getJSONData(files_url, auth).then((resp => {
+            if (resp === undefined) {
+                console.log("API SERVER FAIL")
+                snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
+                return {...formInfo, fetched: false, snackbar_info}
+            } else {
+                if (resp.status === "OK") {
+                    let inner_promises: Promise<FileLink>[] = [];
+                    resp.data.forEach((file_name: string) => {
+                        const file_get = api_url + "/data/get_file/material?id=" + match.params.id + "&file_key=" + file_name;
+                        let inner_promise: Promise<FileLink> = getJSONData(file_get, auth).then((resp) => {
+                            if (resp === undefined) {
+                                console.log("API SERVER FAIL")
+                                snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
+                                setFormInfo({...formInfo, snackbar_info});
+
+                            } else {
+                                if (resp.status === "OK") {
+                                    return {name: file_name, url: resp.url}
+                                }
+                            }
+                            return {name: "", url: ""}
+                        })
+                        inner_promises.push(inner_promise);
+                    })
+                    return Promise.all(inner_promises).then((files) => {
+                        return {...formInfo, files, fetched: false}
+                    })
+                } else {
+                    return {...formInfo, fetched: false}
+                }
+            }
+        }));
+    }
+
+    if (!formInfo.fetched)  {
+        const q_id = has_source ? id : match.params.id;
+        const mat_url = api_url + "/data/material/meta?id=" + q_id;
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+        const meta_tags_url = api_url + "/data/meta_tags";
+
+        let promises: Promise<FormEntity>[] = [];
+        let promise;
+
 
         let material_type = parse_query_variable(location, "type");
 
@@ -152,93 +231,107 @@ export const MaterialForm: FunctionComponent<Props> = (
             list_data_promise = getJSONData(list_url, auth);
         }
 
-        getJSONData(url, auth).then(resp => {
-           if (resp === undefined) {
+        let snackbar_info = {...formInfo.snackbar_info};
+
+        promise = getJSONData(meta_tags_url, auth).then(resp => {
+            if (resp === undefined) {
                 console.log("API SERVER FAIL")
-           } else {
-               if (resp['status'] === "OK") {
-                   const meta_tags = resp['data'];
-                   const data = formInfo.data;
+                snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
+                return {...formInfo, tags_fetched: true, snackbar_info}
+            } else {
+                if (resp['status'] === "OK") {
+                    const meta_tags = resp['data'];
+                    const data = formInfo.data;
 
-                   if (material_type !== "") {
-                       data.material_type = material_type;
-                   }
+                    if (material_type !== "") {
+                        data.material_type = material_type;
+                    }
 
-                   if (list_data_promise !== null) {
-                       list_data_promise.then(resp => {
-                           if (resp === undefined) {
-                               console.log("API SERVER FAIL")
-                           }
-                           else {
-                               if (resp['status'] === "OK") {
-                                   const mats = resp['data'];
-                                   data.materials = mats;
+                    if (list_data_promise !== null) {
+                        return list_data_promise.then(resp => {
+                            if (resp === undefined) {
+                                console.log("API SERVER FAIL")
+                                return {...formInfo, tags_fetched: true, meta_tags}
+                            }
+                            else {
+                                if (resp['status'] === "OK") {
+                                    data.materials = resp.data;
+                                    return {...formInfo, tags_fetched: true, data, meta_tags}
+                                } else {
+                                    return {...formInfo, tags_fetched: true, data, meta_tags}
+                                }
+                            }
+                        });
+                    } else {
+                        return {...formInfo, tags_fetched: true, meta_tags}
+                    }
+                } else {
+                    return {...formInfo, tags_fetched: true}
+                }
+            }
+        });
+        promises.push(promise);
 
-                                   setFormInfo({...formInfo, tags_fetched: true, data, meta_tags})
-                               }
-                           }
-                       });
-                   } else {
-                       setFormInfo({...formInfo, tags_fetched: true, meta_tags})
-                   }
-               }
-           }
+        if (q_id) {
+            promise = getJSONData(mat_url, auth).then(resp => {
+                if (resp === undefined) {
+                    console.log("API SERVER FAIL")
+                    snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
+                    return {...formInfo, fetched: true, snackbar_info}
+                } else {
+                    if (resp['status'] === "OK") {
+                        const data = resp['data'];
+
+                        //@HACK somehow this logic  gets hit twice after a refresh, this clears some annoying behavior
+                        Object.values(tag_map).forEach(val => val.length = 0);
+
+                        // Push values to be displayed as being selected_tags on this material
+                        data.tags.forEach((tag: TagData) => {
+                            if (tag_map[tag.type]) {
+                                tag_map[tag.type].push(tag);
+                            }
+                        });
+
+                        if (has_source) {
+                            data.id = null
+                            data.title += " Copy"
+                        }
+
+                        return {...formInfo, fetched: true, data}
+                    } else {
+                        return {...formInfo, fetched: true}
+                    }
+                }
+            })
+            promises.push(promise);
+        }
+
+        if (match.params.id) {
+            promise = fetchFileList();
+            promises.push(promise)
+        }
+
+        Promise.all(promises).then((values) => {
+            let real_data = values.find(e => e.fetched)
+            let tag_data = values.find(e => e.tags_fetched) || formInfo
+            let file_data = values.find(e => e.files.length !== 0) || formInfo
+            if (real_data) {
+                let data = {...real_data, meta_tags: tag_data.meta_tags, tags_fetched: true, files: file_data.files}
+                setFormInfo(data);
+            } else {
+                // new material
+                setFormInfo({...tag_data, fetched: true})
+            }
         });
     }
 
-    let has_source = false;
-    let id = parse_query_variable(location, "source");
-    if (!formInfo.fetched && formInfo.new) {
-        if (id !== "") {
-            has_source = true;
-        }
-    }
-
-    if (formInfo.tags_fetched && !formInfo.fetched && (!formInfo.new || has_source)) {
-        const q_id = has_source ? id : match.params.id;
-        const url = api_url + "/data/material/meta?id=" + q_id;
-        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
-
-        getJSONData(url, auth).then(resp => {
-            if (resp === undefined) {
-                console.log("API SERVER FAIL")
-            } else {
-                if (resp['status'] === "OK") {
-                    const data = resp['data'];
-
-                    //@HACK somehow this logic  gets hit twice after a refresh, this clears some annoying behavior
-                    Object.values(tag_map).forEach(val => val.length = 0);
-
-                    // Push values to be displayed as being tags on this material
-                    data.tags.forEach((tag: TagData) => {
-                        if (tag_map[tag.type]) {
-                            tag_map[tag.type].push(tag);
-                        }
-                    });
-
-                    if (has_source) {
-                        data.id = null
-                        data.title += " Copy"
-                    }
-
-                    setFormInfo({...formInfo, fetched: true, data})
-                }
-            }
-        })
-    } else if (!formInfo.fetched && !has_source) {
-        setFormInfo({...formInfo, fetched: true})
-    }
-
-    async function onSubmit() {
+    async function onSubmit(handle_success: (id:number) => number): Promise<number | undefined> {
         setFormInfo({...formInfo, posting: true});
         const url = api_url + "/data/post/material";
 
         let data_tmp = {...formInfo.data, "instance_of": "material"};
-        console.log(data_tmp);
 
         data_tmp.tags = [];
-
-
         // Compress tag_map back into original data form of array of objects
         Object.entries(tag_map).forEach(([key, value]) => {
             let vals = value.map(e => {
@@ -262,22 +355,20 @@ export const MaterialForm: FunctionComponent<Props> = (
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
-        postJSONData(url, data, auth).then(resp => {
-           console.log(resp);
+        return postJSONData(url, data, auth).then(resp => {
+            let snackbar_info = {...formInfo.snackbar_info};
 
            if (resp === undefined) {
                console.log("API SERVER FAIL")
-               setFormInfo({...formInfo, posting: false, fail: true});
+               snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
+               setFormInfo({...formInfo, posting: false, snackbar_info});
            } else {
                  if (resp['status'] === "OK") {
                      let id = resp['id'];
-                     history.push({
-                             pathname: "/material/" + id
-                         }
-                     );
-                     force_user_data_reload();
+                     return handle_success(id);
                  } else {
-                     setFormInfo({...formInfo, posting: false, fail: true});
+                     snackbar_info = buildSnackbarProps("error", "Error posting data, contact admins.");
+                     setFormInfo({...formInfo, posting: false, snackbar_info});
                  }
            }
         });
@@ -305,13 +396,9 @@ export const MaterialForm: FunctionComponent<Props> = (
         onUpdateMaterialTextField(field_id, e.target.value);
     };
 
-    const handleSnackbarClose =  (name: string, event?: SyntheticEvent, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setFormInfo({...formInfo, [name]: false});
-    };
+    const clearSnackbarProps = () => {
+        setFormInfo({...formInfo, snackbar_info: emptySnackbarBuilderProps(formInfo.snackbar_info)})
+    }
 
     const treeOpen = (tree: string) => {
         let info = formInfo;
@@ -327,18 +414,97 @@ export const MaterialForm: FunctionComponent<Props> = (
         setFormInfo({...formInfo, show_acm: false, show_pdc: false});
     };
 
-    const onTreeCheckBoxClick = (event: React.ChangeEvent<HTMLInputElement>, id: number) => {
+    const onTreeCheckBoxClick = (event: React.ChangeEvent<HTMLInputElement>, node: OntologyData) => {
         let selected = formInfo.temp_tags.ontology;
         if (event.target.checked)
-            selected.push({id, title: "", type: "", bloom: ""});
+            selected.push({id: node.id, title: "", type: "", bloom: ""});
         else {
-            selected = selected.filter(e => e.id !== id);
+            selected = selected.filter(e => e.id !== node.id);
         }
 
         let tags = formInfo.temp_tags;
         tags.ontology = selected;
         setFormInfo({...formInfo, temp_tags: tags});
     };
+
+    const getPresignedUrl = (name: string, id: string): Promise<string> => {
+        const url = api_url + "/data/put_file/material?id=" + id + "&file_key=" + name;
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+
+        return getJSONData(url, auth).then(resp => {
+            if (resp === undefined) {
+                console.log("API SERVER FAIL");
+                return "API ERROR";
+            } else {
+                if (resp.status === "OK") {
+                    return resp.data;
+                } else {
+                    return "INVALID"
+                }
+            }
+        });
+    }
+
+    const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        setFormInfo({...formInfo, posting: true});
+        let snackbar_info = {...formInfo.snackbar_info};
+
+        const makePromise = (file: File): Promise<any> => {
+            return getPresignedUrl(file.name, id).then(async url => {
+                return new Promise((resolve, reject) => {
+                    if (url === "API ERROR") {
+                        snackbar_info = buildSnackbarProps("error", "API Error, contact admins");
+                        resolve();
+                    } else if (url   === "INVALID") {
+                        snackbar_info = buildSnackbarProps("error", "Error getting url, contact admins.");
+                        resolve();
+                    }
+
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('PUT', url);
+                    xhr.setRequestHeader('Content-Type', file.type);
+                    xhr.setRequestHeader('x-amz-acl', 'public-read');
+                    xhr.onload = resolve;
+                    xhr.onerror = reject;
+                    xhr.send(file);
+                });
+            });
+        }
+
+        // cache target
+        let target = event.currentTarget;
+        let id = match.params.id;
+        if (formInfo.new) {
+            // need an id for new material, submit it and get the id, redirect after file upload
+            await onSubmit((id: number) => id).then((resp) => {
+                if (resp !== undefined) {
+                    id = String(resp);
+                }
+            })
+        }
+
+        let file: File;
+        let promises = []
+        if (target.files) {
+            for (file of target.files) {
+                promises.push(makePromise(file));
+            }
+        }
+
+        // if new material redirect to its page, otherwise fetch file list
+        Promise.all(promises).then(() => {
+            if (formInfo.new) {
+                history.push({
+                        pathname: "/material/" + id + "/edit"
+                    }
+                );
+                force_user_data_reload();
+                setFormInfo({...formInfo, fetched: false, new: false, posting: false, snackbar_info});
+            } else {
+                fetchFileList().then(value => setFormInfo({...formInfo, files: value.files, posting: false, snackbar_info}));
+            }
+        });
+    }
 
 
     let tags_fields;
@@ -437,23 +603,44 @@ export const MaterialForm: FunctionComponent<Props> = (
     // @TODO, styling
     return (
         <div>
-        {(formInfo.data.material_type !== "collection")?
-          <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-              Material Form
-          </Typography>
-          :
-          <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-              Collection Form
-          </Typography>
-        }
-        {(formInfo.data.material_type !== "collection")?
-          <Author info={[]} currentLoc={"material_form"}/>
-          :
-          <Author info={[]} currentLoc={"collection_form"}/>
-        }
+            {(formInfo.data.material_type !== "collection")?
+                <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+                    Material Form
+                </Typography>
+                :
+                <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+                    Collection Form
+                </Typography>
+            }
+
+
+            <Button  className={classes.saveButton}
+                     startIcon={<SaveIcon/>}
+                     variant="contained" color="primary" onClick={() =>
+                onSubmit((id) => {
+
+                    if (formInfo.new) {
+                        history.push({
+                                pathname: "/material/" + id + "/edit"
+                            }
+                        );
+                        force_user_data_reload();
+                    }
+                    let snackbar_info = buildSnackbarProps("success", "Saved");
+                    setFormInfo({...formInfo, snackbar_info})
+                    return id
+                })}>
+                Save
+            </Button>
+
+            {(formInfo.data.material_type !== "collection")?
+                <Author info={[]} currentLoc={"material_form"}/>
+                :
+                <Author info={[]} currentLoc={"collection_form"}/>
+            }
             <Paper className={classes.root}>
                 {formInfo.posting &&
-                    <LinearProgress/>
+                <LinearProgress/>
                 }
                 {(!formInfo.fetched) ?
                     <CircularProgress/>
@@ -463,12 +650,12 @@ export const MaterialForm: FunctionComponent<Props> = (
                         direction="column"
                     >
                         <Grid item>
-                        <TextField
-                            label={"Title"}
-                            value={formInfo.data.title}
-                            className={classes.textField}
-                            onChange={onTextFieldChange("title")}
-                        />
+                            <TextField
+                                label={"Title"}
+                                value={formInfo.data.title}
+                                className={classes.textField}
+                                onChange={onTextFieldChange("title")}
+                            />
                         </Grid>
 
                         <Grid item>
@@ -509,35 +696,109 @@ export const MaterialForm: FunctionComponent<Props> = (
                             </TextField>
                         </Grid>
                         <Grid item>
-                        <TextField
-                            label={"Upstream URL"}
-                            value={formInfo.data.upstream_url === null ? "" : formInfo.data.upstream_url}
-                            className={classes.textField}
-                            onChange={onTextFieldChange("upstream_url")}
-                        />
+                            <TextField
+                                label={"Upstream URL"}
+                                value={formInfo.data.upstream_url === null ? "" : formInfo.data.upstream_url}
+                                className={classes.textField}
+                                onChange={onTextFieldChange("upstream_url")}
+                            />
                         </Grid>
 
                         <Grid item>
-                        <TextField
-                            label={"Description"}
-                            value={formInfo.data.description === null ? "" : formInfo.data.description}
-                            className={classes.textArea}
-                            multiline={true}
-                            onChange={onTextFieldChange("description")}
-                        />
+                            <TextField
+                                label={"Description"}
+                                value={formInfo.data.description === null ? "" : formInfo.data.description}
+                                className={classes.textArea}
+                                multiline={true}
+                                onChange={onTextFieldChange("description")}
+                            />
                         </Grid>
 
                         {tags_fields}
 
 
                         <Grid item>
+                            {formInfo.posting &&
+                            <LinearProgress/>
+                            }
+                            {
+                                formInfo.files.length !== 0 ?
+                                    <div>
+                                        <Typography variant="h5">
+                                            Files
+                                        </Typography>
+                                        <Button
+                                            startIcon={<EditIcon/>}
+                                            onClick={() => {
+                                                setFormInfo({...formInfo, file_delete_mode: !formInfo.file_delete_mode})
+                                            }}
+                                        >
+                                            Toggle Delete Files
+                                        </Button>
+                                        {formInfo.file_delete_mode ?
+                                            <div>
+                                                {formInfo.files.map(file => {
+                                                    if (formInfo.data.id)
+                                                        return <DeleteDialog id={formInfo.data.id} name={file.name}
+                                                                             key={file.name}
+                                                                             endpoint={"/data/delete_file/material?id=" + formInfo.data.id + "&file_key=" + file.name}
+                                                                             on_success={() => {
+                                                                                 fetchFileList().then(value => setFormInfo({...formInfo, files: value.files}));
+                                                                             }}
+                                                                             api_url={api_url}
+                                                        />
+                                                    return <div/>
+                                                })
+                                                }
+                                            </div>
+                                            :
+                                            <div>
+                                                {formInfo.files.map(file => {
+                                                    return <Button className={classes.margin}
+                                                                   variant="contained"
+                                                                   startIcon={<GetAppIcon/>}
+                                                                   target={"_blank"}
+                                                                   href={file.url}
+                                                                   key={file.name}
+                                                                   download={true}
+                                                    >
+                                                        {file.name}
+                                                    </Button>
+                                                })}
+                                            </div>
+                                        }
+
+                                        <Divider/>
+                                    </div>
+                                    :
+                                    <div/>
+                            }
+                        </Grid>
+
+                        <Grid  item>
+                            <Button
+                                variant="contained"
+                                color={"primary"}
+                                component="label"
+                            >
+                                Upload File
+                                <input
+                                    type="file"
+                                    style={{ display: "none" }}
+                                    onChange={onFileUpload}
+                                />
+                            </Button>
+                        </Grid>
+
+
+                        <Grid item>
                             <Button  className={classes.margin}
-                                variant="contained" color="primary" onClick={() => {treeOpen("acm_2013")}}>
+                                     variant="contained" color="primary" onClick={() => {treeOpen("acm_2013")}}>
                                 ACM CSC 2013
                             </Button>
-                             <Button  className={classes.margin}
-                                variant="contained" color="primary" onClick={() => {treeOpen("pdc_2012")}}>
-                                 PDC 2012
+                            <Button  className={classes.margin}
+                                     variant="contained" color="primary" onClick={() => {treeOpen("pdc_2012")}}>
+                                PDC 2012
                             </Button>
                         </Grid>
 
@@ -570,34 +831,64 @@ export const MaterialForm: FunctionComponent<Props> = (
                             item
                         >
                             <Button  className={classes.margin}
-                                variant="contained" color="primary" onClick={onSubmit}>
+                                     startIcon={<PublishIcon/>}
+                                     variant="contained" color="primary" onClick={() =>
+                                onSubmit((id) => {
+                                    history.push({
+                                            pathname: "/material/" + id
+                                        }
+                                    );
+                                    force_user_data_reload();
+                                    return id;
+                                })}>
                                 Submit
                             </Button>
+
                         </Grid>
+
                     </Grid>
-                    }
+                }
             </Paper>
+
+
 
             <TreeDialog open={formInfo.show_acm} title={"ACM CSC 2013"} onClose={treeClose} api_url={api_url}
                         tree_name={"acm"}
                         selected_tags={formInfo.temp_tags.ontology}
                         onCheck={onTreeCheckBoxClick}
+                        save={() => onSubmit((id) => {
+                            if (formInfo.new) {
+                                history.push({
+                                        pathname: "/material/" + id + "/edit"
+                                    }
+                                );
+                                force_user_data_reload();
+                            }
+                            let snackbar_info = buildSnackbarProps("success", "Saved");
+                            setFormInfo({...formInfo, snackbar_info})
+                            return id;
+                        })}
             />
             <TreeDialog open={formInfo.show_pdc} title={"PDC 2012"} onClose={treeClose} api_url={api_url}
                         tree_name={"pdc"}
                         selected_tags={formInfo.temp_tags.ontology}
                         onCheck={onTreeCheckBoxClick}
+                        save={() => onSubmit((id) => {
+                            if (formInfo.new) {
+                                history.push({
+                                        pathname: "/material/" + id + "/edit"
+                                    }
+                                );
+                                force_user_data_reload();
+                            }
+                            let snackbar_info = buildSnackbarProps("success", "Saved");
+                            setFormInfo({...formInfo, snackbar_info})
+                            return id;
+                        })}
             />
 
-            <Snackbar open={formInfo.fail}>
-                <SnackbarContentWrapper
-                    variant="error"
-                    message="submission failed, check credentials"
-                    onClose={(event?: SyntheticEvent, reason?: string) => {
-                        handleSnackbarClose("fail", event, reason);
-                    }}
-                />
-            </Snackbar>
+
+            <BuildSnackbar {...formInfo.snackbar_info} clearProps={clearSnackbarProps}/>
         </div>
     )
 };
