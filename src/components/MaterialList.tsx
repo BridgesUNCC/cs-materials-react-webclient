@@ -67,10 +67,11 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     const classes = useStyles();
     let path = location.pathname;
     let search = location.search;
-    console.log(history)
+
     const [listInfo, setListInfo] = React.useState<ListEntity>(
         createEmptyEntity(path)
     );
+
     let reload = path !== listInfo.path || search !== listInfo.search;
 
 
@@ -107,6 +108,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     // user scrolls down?
     let output;
     let count = 0;
+    console.log(listInfo)
     if (listInfo.materials !== null && !reload) {
         output = listInfo.materials.map((value, index) => {
             // @Hack @FIXME cull entries for speed
@@ -168,13 +170,13 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     return (
         <div>
         {/*load selected material to analyze comp for visualze*/}
-        {(listInfo.search === "")?
+        {(listInfo.search !== "?material_types=collection")?
           <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={{}} currentLoc="materials" from="materials"/>
           :
           <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={{}} currentLoc="collection" from="collection"/>
         }
         {/*uses the listinfor search variable to determine if on collections or not, could prob be done a better way*/}
-          {(listInfo.search === "") ?
+          {(listInfo.search !== "?material_types=collection") ?
             <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
                 Select Materials
             </Typography>

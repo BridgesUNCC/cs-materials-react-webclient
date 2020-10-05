@@ -162,7 +162,7 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
       var title = <div></div>
     }
 
-      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={{user_data}} currentLoc="compare" from="listTwo"/>
+
 
     // @Speed @TODO, smart cull entries so rendering doesn't take too long, maybe have a callback that renders more as
     // user scrolls down?
@@ -210,6 +210,7 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
     };
 
     console.log(listInfo.selected_materials)
+    var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={{user_data}} currentLoc="compare" from="listTwo"/>
 
     return (
         <div>

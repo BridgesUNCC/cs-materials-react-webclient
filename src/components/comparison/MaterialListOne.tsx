@@ -103,38 +103,6 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
 
     let reload = path !== listInfo.path || search !== listInfo.search;
 
-    //when a tab is clicked that tabs value is passed to this function
-    //the value is assigned to the location search variable and the listinfo's fetched variable is set to false
-    //that way, it is forced to reload with the new search filter
-    const handleChange=(event:any, newValue:string) => {
-      location.search = newValue
-      setTabState(newValue)
-      if(user_data && newValue === "/my_materials"){
-        location.search = ""
-      }
-      setListInfo({...listInfo, fetched: false})
-    }
-
-    if(location.pathname !== "/comparison"){
-      if (listInfo.search === "") {
-        var title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-            Select Materials
-        </Typography>
-      }
-      else{
-        var title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-            Select Collections
-        </Typography>
-      }
-    }else{
-      var title = <div></div>
-    }
-
-
-      var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={user_data} currentLoc="compare" from="listOne"/>
-
-
-
     if (!listInfo.fetched || reload) {
         let ids
         (tabState === "/my_materials") ? ids = user_materials?.toString() : ids = ""
@@ -165,6 +133,38 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
             }
         })
     }
+
+    //when a tab is clicked that tabs value is passed to this function
+    //the value is assigned to the location search variable and the listinfo's fetched variable is set to false
+    //that way, it is forced to reload with the new search filter
+    const handleChange=(event:any, newValue:string) => {
+      location.search = newValue
+      setTabState(newValue)
+      if(user_data && newValue === "/my_materials"){
+        location.search = ""
+      }
+      setListInfo({...listInfo, fetched: false})
+    }
+
+    if(location.pathname !== "/comparison"){
+      if (listInfo.search === "") {
+        var title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+            Select Materials
+        </Typography>
+      }
+      else{
+        var title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+            Select Collections
+        </Typography>
+      }
+    }else{
+      var title = <div></div>
+    }
+
+
+
+
+
 
     // @Speed @TODO, smart cull entries so rendering doesn't take too long, maybe have a callback that renders more as
     // user scrolls down?
@@ -212,6 +212,7 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
     };
 
     console.log(listInfo.selected_materials)
+    var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={user_data} currentLoc="compare" from="listOne"/>
 
     return (
         <div>

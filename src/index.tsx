@@ -13,7 +13,7 @@ serviceWorker.unregister();
 
 const theme = createMuiTheme({
   palette: {
-    type: 'dark',
+    type: 'light',
   },
 });
 

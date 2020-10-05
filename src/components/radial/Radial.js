@@ -7,30 +7,23 @@ import * as d3 from "d3";
 class Radial extends Component {
   componentDidMount() {
     this.container = d3.select("#RadialContainer");
-    this.svg = this.container.append("svg").append("g");
+    this.svg       = this.container.append("svg").append("g");
     this.drawRadial();
   }
 
   drawRadial(){
-
     let secondClassificationTree;
     let secondClassificationSet;
-    console.log(Object.keys(this.props.data[0]));
-    console.log(Object.values(this.props.data[0]));
 
-    let data = Object.values(this.props.data[0]);
-    let data2 = Object.values(this.props.data[0]);
-    let assignments = this.props.data[1];
-    let assignmentsArray = assignments.assignments;
-    let view = this.props.view || this.props.data.length === 3 ? "compare" : "first";
-    console.log(view);
-    console.log(this.props.data.length);
+    let data             = Object.values(this.props.data[0]);
+    let data2            = Object.values(this.props.data[0]);
+    let assignments      = this.props.data[1];
+    var assignmentsArray = assignments.assignments;
+    let view             = this.props.view || this.props.data.length === 3 ? "compare" : "first";
 
     function unflatten(arr) {
-      const tree = [],
-          mappedArr = {};
-      let arrElem,
-          mappedElem;
+      const tree = [], mappedArr = {};
+      let arrElem, mappedElem;
 
       // First map the nodes of the array to an object -> create a hash table.
       let i = 0;
@@ -137,7 +130,7 @@ class Radial extends Component {
           root.childhits += scaleIntermediary(tree, root.children[i])
         }
       }
-      root.size = (root.childhits/50)*10+10
+      root.size = (root.childhits/50)*5+10
       if(root.id === tree[0].id){
         root.size = 30;
       }
@@ -274,13 +267,13 @@ class Radial extends Component {
       let howManyNodes = countVertices(tree,root);
       let anglePerVertex = 2*Math.PI/howManyNodes;
       let neededLength = howManyNodes * 15;
-	neededLength /= layers;
+	     neededLength /= layers;
 
-	//depthOffset is the radius of the circle where all the nodes at a particular level are going to sit.
-	//in other words, all node at depth D should sit between D*depthOffset and (D+1)*depthOffset
-	let depthOffset = neededLength / Math.PI / 2 / layers;
-	if (depthOffset < 1.01*layers*layerDepth)
-	    depthOffset = 1.01*layers*layerDepth;
+    	//depthOffset is the radius of the circle where all the nodes at a particular level are going to sit.
+    	//in other words, all node at depth D should sit between D*depthOffset and (D+1)*depthOffset
+    	let depthOffset = neededLength / Math.PI / 2 / layers;
+    	if (depthOffset < 1.01*layers*layerDepth)
+    	    depthOffset = 1.01*layers*layerDepth;
 
       function findNodeInClassTree(tree, node){
         let currNode = node;
@@ -343,7 +336,6 @@ class Radial extends Component {
       }
     }
 
-
     function compareClassifications(tree1, tree2, data){
       let maxHits1 = 0;
       let maxHist2 = 0;
@@ -375,6 +367,16 @@ class Radial extends Component {
 
       mark[findMarked(treeRoot.id)].visited = true;
       completeTree.push(treeRoot);
+      let total1 = 0;
+      let total2 = 0;
+      for(let j = 0; j < data.length; j ++){
+        if(data[j].firstTreeHits){
+          total1 += 1;
+        }
+        if(data[j].secondTreeHits){
+          total2 += 1;
+        }
+      }
       for (let i = 0; i < data.length; i++){
         if(data[i].hits > 0 && !mark[findMarked(data[i].id)].visited){
           compareClassificationsHelper(mark, data[i].id, completeTree);
@@ -382,14 +384,26 @@ class Radial extends Component {
         if(data[i].firstTreeHits || data[i].secondTreeHits){
           if(data[i].firstTreeHits && data[i].secondTreeHits){
             let total = data[i].firstTreeHits + data[i].secondTreeHits
-            let redColor = data[i].firstTreeHits/total;
-            let blueColor = data[i].secondTreeHits/total;
-            completeTree[findInClassTree(data[i].id, completeTree)].color = blueColor
+            let firstTreeRatio = data[i].firstTreeHits/assignmentsArray.length
+            let secondTreeRatio = data[i].secondTreeHits/secondAssignmentsArray.length
+            data[i].firstTreeRatio = firstTreeRatio
+            data[i].secondTreeRatio = secondTreeRatio
+            let c;
+
+            if(secondTreeRatio/firstTreeRatio > 1){
+              c = 0.5 + (0.5 * secondTreeRatio) - (0.5 * firstTreeRatio)
+              console.log(c)
+            }else if(secondTreeRatio/firstTreeRatio < 1){
+              c = 0.5 - (0.5 * firstTreeRatio) + (0.5 * secondTreeRatio)
+            }else{
+              c = 0.5
+            }
+
+            completeTree[findInClassTree(data[i].id, completeTree)].color = c
           }
           if(data[i].firstTreeHits && !data[i].secondTreeHits){
             completeTree[findInClassTree(data[i].id, completeTree)].color = [128,0,128]//purple
-          }
-          if(!data[i].firstTreeHits && data[i].secondTreeHits){
+          }else if(!data[i].firstTreeHits && data[i].secondTreeHits){
             completeTree[findInClassTree(data[i].id, completeTree)].color = [255,165,0]//orange
           }
         }
@@ -407,11 +421,11 @@ class Radial extends Component {
         treeRoot = null;
         data = Object.values(this.props.data[0]);
         let secondAssignments = this.props.data[2];
-        let secondAssignmentsArray = secondAssignments.assignments;
+        var secondAssignmentsArray = secondAssignments.assignments;
+        console.log(assignmentsArray.length)
         secondClassificationSet = parseClassification(secondAssignmentsArray, "2");
         secondClassificationTree = buildClassificationTree(secondClassificationSet);
       }
-      // let compareACMTree = Object.values(this.props.data[0]);
       let comparedTree = compareClassifications(firstClassificationTree, secondClassificationTree, data);
       comparedTree = unflatten(comparedTree);
       layoutRadialLayer(comparedTree);
@@ -441,21 +455,17 @@ class Radial extends Component {
       var tree = secondUnflattenedClassificationTree
     }
 
+    //visualization containter size and initial drag position
     const g = this.container.select('svg').attr('width', vWidth).attr('height', vHeight)
         .select('g').attr('transform', 'translate(' + vWidth / 2 + ',' + vHeight / 2 + ')');
 
+    //tree size
     const vLayout = d3.tree().size([2 * Math.PI, Math.min(vWidth * 2, vHeight * 2)]); // margin!
 
     // Layout + Data
     const vRoot = d3.hierarchy(tree[0]);
     const vNodes = vRoot.descendants();
     const vLinks = vLayout(vRoot).links();
-
-    // Draw on screen curved links
-    // g.selectAll('path').data(vLinks).enter().append('path')
-    //     .attr('d', d3.linkRadial()
-    //         .angle(function (d) { return d.x; })
-    //         .radius(function (d) { return d.y; }));
 
     // straight links
     const link = g.selectAll(".link")
@@ -477,13 +487,14 @@ class Radial extends Component {
           return d.target.data.locationY;
         });
 
-    var color_sequential = d3.scaleSequential(d3.interpolatePuOr).domain([0,1])
-    console.log(color_sequential)
+    //creates divergent scale that interpolates from purple to orange in the range from 0-1 (0.5 = white)
+    var colorDivergent = d3.scaleSequential(d3.interpolatePuOr).domain([0,1])
 
+    //styling for the nodes in tree
     g.selectAll('circle').data(vNodes).enter().append('circle')
         .attr('r', function (d) {return d.data.size - 5})
         .attr("transform", function (d) {return "translate(" + d.data.locationX + "," + d.data.locationY + ")"; })
-        .style("fill-opacity", .75) // set the fill opacity
+        .style("fill-opacity", 1.0) // set the fill opacity
         .style("stroke", "black")
         .style("fill", function (d) {
           if(!d.data.firstTreeHits && !d.data.secondTreeHits || view === "first"){
@@ -493,7 +504,7 @@ class Radial extends Component {
           }else{
             let inter = d3.interpolate("purple", "orange")
             console.log(d.data.color)
-            return color_sequential(d.data.color)
+            return colorDivergent(d.data.color)
           }
         })
         .on("mouseover", function(d){
@@ -534,6 +545,17 @@ class Radial extends Component {
                   .text(text)
 
             }
+            if(d.data.firstTreeRatio){
+              let text = d.data.firstTreeRatio*100 + "% of first tree -----" + d.data.secondTreeRatio*100 + "% of second tree"
+              d3.select("#assignmenttooltip")
+                  .select("#value")
+                  .append('p')
+                  .append("tspan")
+                  .attr("dy", 25)
+                  .attr('x', 0)
+                  .style("color", "black")
+                  .text(text)
+            }
           }
 
 
@@ -558,6 +580,7 @@ class Radial extends Component {
     function handleMouseOut(d, i) {
       d3.select("#tooltip").classed("hidden", true);
       d3.select("#assignmenttooltip").classed("hidden", true);
+
       // Select text by id and then remove
       d3.select("text").remove();  // Remove text location
       d3.selectAll("tspan").remove();
