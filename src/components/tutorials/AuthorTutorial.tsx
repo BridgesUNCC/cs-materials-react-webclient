@@ -66,14 +66,14 @@ export const AuthorTutorial: FunctionComponent = ({ }) => {
           home page titled 'Author'. If you don't have an account, you can click the register
           button and fill out the necessary information. If you are already logged in, you can click 'Begin'.
           This section of the website is where you can create materials and collections
-          to later view, edit, claassify, and analyze.
+          to later view, edit, classify, and analyze.
         </Typography>
         <img src={require('../../common/images/authortut_1.PNG')} alt="Italian Trulli"></img>
         <Typography variant="body1" className={classes.body} gutterBottom>
           Once you have clicked the 'Begin' button on the author section of the homepage,
-          you will be brought to a blank screen with with navigation tabs on the left. The tabs
+          you will be brought to a blank screen with navigation tabs on the left. The tabs
           are labeled based on the section of the website they are designed for. The first three tabs:
-          'Create Materials', 'Create Collections', and 'View My Materials' are a part of the authroing section.
+          'Create Materials', 'Create Collections', and 'View My Materials' are a part of the authoring section.
         </Typography>
         <Typography variant="h4" className={classes.subHeading}>
           Create Materials
@@ -112,7 +112,7 @@ export const AuthorTutorial: FunctionComponent = ({ }) => {
         <img src={require('../../common/images/authortut_6.PNG')} alt="Italian Trulli"></img>
         <img src={require('../../common/images/authortut_7.PNG')} alt="Italian Trulli"></img>
         <Typography variant="body1" className={classes.body} gutterBottom>
-          From here you can select from the list of materials by ticking the box to the right of each entry. If needed,
+          From here, you can select from the list of materials by checking the box to the right of each entry. If needed,
           'Select all' and 'Select None' buttons are provided. Once the desired materials are selected, clicking the
           'Create Collection From Selected Materials' button can be clicked. This button will send you to a blank form similar
           to the 'Create Materials' form. You can begin to fill out this form similar to the create materials one with all the
@@ -128,12 +128,12 @@ export const AuthorTutorial: FunctionComponent = ({ }) => {
         <img src={require('../../common/images/authortut_8.PNG')} alt="Italian Trulli"></img>
         <img src={require('../../common/images/authortut_9.PNG')} alt="Italian Trulli"></img>
         <Typography variant="body1" className={classes.body} gutterBottom>
-          From here you can view the information about your material by clicking the entry (not the box). This will bring
+          From here, you can view the information about your material by clicking the entry (not the box). This will bring
           you to a view describing the information entered during the creation of the material.
         </Typography>
         <img src={require('../../common/images/authortut_10.PNG')} alt="Italian Trulli"></img>
         <Typography variant="body1" className={classes.body} gutterBottom>
-          As creator of this material, you have multiple choices you can make from this page. You can:
+          As creator of this material, you have multiple choices. You can:
           'Duplicate', 'Edit', or 'Delete' this material. Duplicating will create a copy of this material which is useful
           when you want to create a material similar to the current one. Editing allows you to change the metadata and tags of the material.
           Deleting will remove this material from your account and CS Materials.
