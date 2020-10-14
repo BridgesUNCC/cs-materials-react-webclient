@@ -62,8 +62,8 @@ export const SearchTutorial: FunctionComponent = ({ }) => {
           Getting Started
         </Typography>
         <Typography variant="body1" className={classes.body} gutterBottom>
-        First, you will need to first click the 'BEGIN' button on the right section of the
-        home page titled 'Search'. This section of the website is where you can search for materials
+        First, you will need to click the 'BEGIN' button on the right section of the
+        home page titled 'Search'. This section of the website is where you can query for materials
         related to tags, keywords, ACM/PDC learning outcomes, knowledge units, or knowledge areas.
         </Typography>
         <img src={require('../../common/images/searchtut_1.PNG')} alt="Italian Trulli"></img>
@@ -71,9 +71,8 @@ export const SearchTutorial: FunctionComponent = ({ }) => {
           Once you have clicked the 'Begin' button on the search section of the homepage,
           you will be brought to a screen with a keywords and tags section, along with buttons
           to view the ACM and PDC hierarchy. Searching by keywords will match with words from material's
-          titles and descriptions. Searching by tags will match with materials of the same tags example: arrays, for loops.
-          You can click on 'ACM CSC 2013' or 'PDC 2012' to view the knowledge areas, knowledge units, and learning outcomes
-          of that particular classification.
+          titles and descriptions. Searching by tags will match with materials of the same tags, example: arrays, for loops.
+          You can click on 'ACM CSC 2013' or 'PDC 2012' to view the knowledge areas, knowledge units, and learning outcomes.
         </Typography>
         <img src={require('../../common/images/searchtut_2.PNG')} alt="Italian Trulli"></img>
         <Typography variant="body1" className={classes.body} gutterBottom>
