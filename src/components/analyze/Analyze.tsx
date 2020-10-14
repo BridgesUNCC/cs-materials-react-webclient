@@ -112,7 +112,8 @@ let compListTwo: number[] = [];
 const drawerWidth = 300;
 
 interface Props {
- info: number[],
+ listOne: number[],
+ listTwo: number[],
  user_id: any,
  user_data: any,
  currentLoc: string,
@@ -121,7 +122,8 @@ interface Props {
 
 export const Analyze: FunctionComponent<Props> = (
   {
-    info,
+    listOne,
+    listTwo,
     user_id,
     user_data,
     currentLoc,
@@ -160,11 +162,17 @@ export const Analyze: FunctionComponent<Props> = (
         break;
     }
 
+
+
     if (from === "listOne") {
-      compListOne = info
-    } else if (from === "listTwo") {
-      compListTwo = info
+      compListOne = listOne
+
     }
+    if (from === "listTwo") {
+      compListTwo = listTwo
+    }
+    console.log(compListOne,compListTwo)
+    console.log(listOne)
 
     let radialacm;
     let radialpdc;
@@ -182,13 +190,13 @@ export const Analyze: FunctionComponent<Props> = (
             <ListItemText primary="Radial View PDC 2012" />
         </ListItem>
     } else {
-        radialacm = <ListItem button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=acm&ids=' + info}>
+        radialacm = <ListItem button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=acm&ids=' + listOne}>
             <ListItemIcon>
                 <PeopleIcon />
             </ListItemIcon>
             <ListItemText primary="Radial View ACM-CSC 2013" />
         </ListItem>
-        radialpdc = <ListItem button onClick={() => setIndex(5)} selected={selectedIndex === 5} component={Link} to={'/radial?tree=pdc&ids=' + info}>
+        radialpdc = <ListItem button onClick={() => setIndex(5)} selected={selectedIndex === 5} component={Link} to={'/radial?tree=pdc&ids=' + listOne}>
             <ListItemIcon>
                 <PeopleIcon />
             </ListItemIcon>
@@ -247,7 +255,7 @@ export const Analyze: FunctionComponent<Props> = (
             </ListItem>
             {radialacm}
             {radialpdc}
-            <ListItem button onClick={() => setIndex(6)} selected={selectedIndex === 6} component={Link} to={'/matrix?ids='+ (info.length === 0 ? -1 : info)}>
+            <ListItem button onClick={() => setIndex(6)} selected={selectedIndex === 6} component={Link} to={'/matrix?ids='+ listOne}>
               <ListItemIcon>
                 <BarChartIcon />
               </ListItemIcon>

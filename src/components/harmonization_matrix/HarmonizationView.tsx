@@ -269,7 +269,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
 
     return (
         <div>
-        <Analyze info={[]} user_id={user_id} user_data={{}} currentLoc={"matrix"} from={"matrix"}/>
+        <Analyze listOne={[]} listTwo={[]} user_id={user_id} user_data={{}} currentLoc={"matrix"} from={"matrix"}/>
             {
                 <Paper className={classes.paper}>
                     <TextField

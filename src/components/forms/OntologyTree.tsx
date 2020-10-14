@@ -9,6 +9,9 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import {Box, Checkbox, CircularProgress, Divider} from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import {getJSONData} from "../../common/util";
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import Button from '@material-ui/core/Button';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -107,6 +110,19 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
         createTreeInfo(selected_tags, search_term,)
     );
 
+    let [tag, settag] = React.useState([] as string[])
+
+    const [anchorEl, setAnchorEl] = React.useState(null);
+
+    const handleClick = (event: any) => {
+      setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+      setAnchorEl(null);
+    };
+
+
 
     const handleChange = (event: React.ChangeEvent<{}>, expanded: string[]) => {
         console.log(expanded);
@@ -129,7 +145,7 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
                     color="default"
                     defaultChecked={treeInfo.checked.find(e => Number(e) === node.id) !== undefined}
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                        console.log(event);
+                        settag(tag.concat(node.title))
                         onCheck(event, node);
                     }}
                     onClick={e => (e.stopPropagation())}
@@ -211,7 +227,24 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
     const tree = treeInfo.fetched && treeInfo.ontology !== null ?
         createTree(treeInfo.ontology, -1, expanded, propagate_expand) : <CircularProgress/>;
 
+    console.log(tag)
+
     return (
+      <div>
+        <Button variant="contained" color="secondary" aria-haspopup="true" onClick={handleClick}>
+          View Selected Tags
+        </Button>
+        <Menu
+          id="simple-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+        >
+        {tag.map((tag) => (
+          <MenuItem onClick={handleClose}>{tag}</MenuItem>
+        ))}
+        </Menu>
         <TreeView
             className={classes.root}
             defaultCollapseIcon={<ExpandMoreIcon />}
@@ -221,5 +254,6 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
         >
             {tree}
         </TreeView>
+      </div>
     );
 };

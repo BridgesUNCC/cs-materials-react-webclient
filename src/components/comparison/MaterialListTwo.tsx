@@ -55,6 +55,8 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     user_id: any;
     user_data: any;
     from: string;
+    onGetList(list: any, from: string): void; // lol this actually works for call back values from child component
+    listOne: number[];
 }
 
 function TabPanel(props: any) {
@@ -85,6 +87,8 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
                                                                user_id,
                                                                user_data,
                                                                from,
+                                                               onGetList,
+                                                               listOne,
                                                            }) => {
     let title;
     const classes = useStyles();
@@ -96,10 +100,40 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
     );
     const [tabState, setTabState] = React.useState("")
 
-    let reload = path !== listInfo.path || search !== listInfo.search;
+    let reload = path !== listInfo.path
 
     if(user_data)
       user_materials = user_data.owned_materials
+
+
+    //when a tab is clicked that tabs value is passed to this function
+    //the value is assigned to the location search variable and the listinfo's fetched variable is set to false
+    //that way, it is forced to reload with the new search filter
+    const handleChange=(event:any, newValue:string) => {
+      location.search = newValue
+      setTabState(newValue)
+      if(user_data && newValue === "/my_materials"){
+        location.search = ""
+      }
+      setListInfo({...listInfo, fetched: false})
+    }
+
+    if(location.pathname !== "/comparison"){
+      if (listInfo.search === "") {
+          title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+              Select Materials
+          </Typography>;
+      }
+      else{
+        title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+            Select Collections
+        </Typography>;
+      }
+    }else{
+      title = <div></div>;
+    }
+
+
 
 
     if (!listInfo.fetched || reload) {
@@ -132,35 +166,7 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
         })
     }
 
-    //when a tab is clicked that tabs value is passed to this function
-    //the value is assigned to the location search variable and the listinfo's fetched variable is set to false
-    //that way, it is forced to reload with the new search filter
-    const handleChange=(event:any, newValue:string) => {
-      location.search = newValue
-      setTabState(newValue)
-      if(user_data && newValue === "/my_materials"){
-        location.search = ""
-      }
-      setListInfo({...listInfo, fetched: false})
-    }
 
-    if(location.pathname !== "/comparison"){
-      if (listInfo.search === "") {
-          title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-              Select Materials
-          </Typography>;
-      }
-      else{
-        title = <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-            Select Collections
-        </Typography>;
-      }
-    }else{
-      title = <div></div>;
-    }
-
-    const analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={{user_data}}
-                             currentLoc="compare" from="listTwo"/>;
 
     // @Speed @TODO, smart cull entries so rendering doesn't take too long, maybe have a callback that renders more as
     // user scrolls down?
@@ -205,27 +211,30 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
         }
 
         setListInfo({...listInfo, selected_materials: selected});
+        console.log(listInfo)
     };
 
     console.log(listInfo.selected_materials)
-    var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={{user_data}} currentLoc="compare" from="listTwo"/>
-
+    let analyze = <Analyze listOne={listOne} listTwo={listInfo.selected_materials} user_id={user_id} user_data={user_data}
+                             currentLoc="compare" from="listTwo"/>;
+    // var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={{user_data}} currentLoc="compare" from="listTwo"/>
+    onGetList(listInfo.selected_materials, "listTwo")
     return (
         <div>
         <AppBar position="static">
-        <Tabs value={"hello"} onChange={handleChange} aria-label="wrapped label tabs example">
+        <Tabs value={""} onChange={handleChange} aria-label="wrapped label tabs example">
           <Tab value="" label="All Materials"/>
           <Tab value="?material_types=collection" label="Collections" />
           <Tab value="/my_materials" label="My Materials" />
         </Tabs>
       </AppBar>
-      <TabPanel value={"hello"} index="one">
+      <TabPanel value={""} index="one">
         Item One
       </TabPanel>
-      <TabPanel value={"hello"} index="two">
+      <TabPanel value={"?material_types=collection"} index="two">
         Item Two
       </TabPanel>
-      <TabPanel value={"hello"} index="three">
+      <TabPanel value={"/my_materials"} index="three">
         Item Three
       </TabPanel>
         {/*load selected material to analyze comp for visualze*/}

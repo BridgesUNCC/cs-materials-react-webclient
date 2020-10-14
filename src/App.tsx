@@ -19,6 +19,10 @@ import OntologyWrapper from "./components/radial/OntologyWrapper";
 import {Search} from "./components/search/Search";
 import {Analyze} from "./components/analyze/Analyze";
 import {Author} from "./components/author/Author";
+import {TutorialIndex} from "./components/tutorials/TutorialIndex";
+import {AnalyzeTutorial} from "./components/tutorials/AnalyzeTutorial";
+import {AuthorTutorial} from "./components/tutorials/AuthorTutorial";
+import {SearchTutorial} from "./components/tutorials/SearchTutorial";
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
@@ -318,6 +322,11 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 >
                                     CS Materials
                                 </Button>
+                                <Button className={classes.margin} variant="contained" color="primary"
+                                        component={ Link } to={"/tutorialindex"}
+                                >
+                                    Tutorials
+                                </Button>
                             </Grid>
 
                             <Grid item className={classes.toolbarButtons}>
@@ -425,7 +434,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/analyze" render={(route_props) => (
                         <Container maxWidth="lg">
-                            <Analyze info={[]} user_id={appInfo.user_id} user_data={appInfo.user_data} currentLoc={""} from={"nav"}/>
+                            <Analyze listOne={[]} listTwo={[]} user_id={appInfo.user_id} user_data={appInfo.user_data} currentLoc={""} from={"nav"}/>
                         </Container>
                     )}
                     />
@@ -517,7 +526,30 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         </Container>
                     )}
                     />
-
+                    <Route path="/tutorialindex"render={(route_props) => (
+                        <Container maxWidth="xl">
+                            <TutorialIndex/>
+                        </Container>
+                    )}
+                    />
+                    <Route path="/Analyzetutorial"render={(route_props) => (
+                        <Container maxWidth="xl">
+                            <AnalyzeTutorial/>
+                        </Container>
+                    )}
+                    />
+                    <Route path="/Authortutorial"render={(route_props) => (
+                        <Container maxWidth="xl">
+                            <AuthorTutorial/>
+                        </Container>
+                    )}
+                    />
+                    <Route path="/searchtutorial"render={(route_props) => (
+                        <Container maxWidth="xl">
+                            <SearchTutorial/>
+                        </Container>
+                    )}
+                    />
                     <Route path="/login"/>
                     <Route path="/register"/>
 

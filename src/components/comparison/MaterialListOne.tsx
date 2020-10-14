@@ -55,6 +55,8 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     user_id: any;
     user_data: any;
     from: string;
+    onGetList(list: any, from: string): void; // lol this actually works for call back values from child component
+    listTwo: number[];
 }
 
 function TabPanel(props: any) {
@@ -85,6 +87,8 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
                                                                user_id,
                                                                user_data,
                                                                from,
+                                                               onGetList,
+                                                               listTwo,
                                                            }) => {
     let title;
     const classes = useStyles();
@@ -98,38 +102,7 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
     );
     const [tabState, setTabState] = React.useState("")
 
-    let reload = path !== listInfo.path || search !== listInfo.search;
-
-    if (!listInfo.fetched || reload) {
-        let ids
-        (tabState === "/my_materials") ? ids = user_materials?.toString() : ids = ""
-        // let ids = user_materials?.toString() || "";
-        ids += parse_query_variable(location, "ids");
-        let tags = parse_query_variable(location, "tags");
-        let sim_mats = parse_query_variable(location, "sim_mats");
-        let keyword = parse_query_variable(location, "keyword");
-        let material_types = parse_query_variable(location, "material_types");
-
-
-        const url = api_url + "/data/list/materials?ids=" + ids + "&tags=" + tags + "&sim_mats=" + sim_mats
-            + "&keyword=" + keyword + "&material_types=" + material_types;
-
-        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
-
-        // @TODO pass in auth token
-        getJSONData(url, auth).then(resp => {
-            if (resp === undefined) {
-                console.log("API SERVER FAIL")
-            }
-            else {
-                if (resp['status'] === "OK") {
-                    const data = resp['data'];
-                    console.log(data)
-                    setListInfo({...listInfo, fetched: true, materials: data, search: search, path})
-                }
-            }
-        })
-    }
+    let reload = path !== listInfo.path
 
     //when a tab is clicked that tabs value is passed to this function
     //the value is assigned to the location search variable and the listinfo's fetched variable is set to false
@@ -159,8 +132,6 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
     }
 
 
-    const analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={user_data}
-                             currentLoc="compare" from="listOne"/>;
 
 
     if (!listInfo.fetched || reload) {
@@ -174,7 +145,7 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
         let material_types = parse_query_variable(location, "material_types");
 
 
-        const url = api_url + "/data/list/materials?ids=" + ids + "&selected_tags=" + tags + "&sim_mats=" + sim_mats
+        const url = api_url + "/data/list/materials?ids=" + ids + "&tags=" + tags + "&sim_mats=" + sim_mats
             + "&keyword=" + keyword + "&material_types=" + material_types;
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
@@ -235,29 +206,31 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
         } else {
             selected = selected.filter(e => e !== id);
         }
-
         setListInfo({...listInfo, selected_materials: selected});
     };
 
     console.log(listInfo.selected_materials)
-    var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={user_data} currentLoc="compare" from="listOne"/>
-
+    console.log(reload)
+    let analyze = <Analyze listOne={listInfo.selected_materials} listTwo={listTwo} user_id={user_id} user_data={user_data}
+                             currentLoc="compare" from="listOne"/>;
+    // var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={user_data} currentLoc="compare" from="listOne"/>
+    onGetList(listInfo.selected_materials, "listOne")
     return (
         <div>
           <AppBar position="static">
-          <Tabs value={"hello"} onChange={handleChange} aria-label="wrapped label tabs example">
+          <Tabs value={""} onChange={handleChange} aria-label="wrapped label tabs example">
             <Tab value="" label="All Materials"/>
             <Tab value="?material_types=collection" label="Collections" />
             <Tab value="/my_materials" label="My Materials" />
           </Tabs>
         </AppBar>
-        <TabPanel value={"hello"} index="one">
+        <TabPanel value={""} index="one">
           Item One
         </TabPanel>
-        <TabPanel value={"hello"} index="two">
+        <TabPanel value={"?material_types=collection"} index="two">
           Item Two
         </TabPanel>
-        <TabPanel value={"hello"} index="three">
+        <TabPanel value={"/my_materials"} index="three">
           Item Three
         </TabPanel>
         {/*load selected material to analyze comp for visualze*/}
