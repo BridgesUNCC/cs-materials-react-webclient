@@ -11,7 +11,8 @@ class OntologyWrapper extends Component{
         loading: true,
         width: 700,
         height: 500,
-        text: ''
+        text: '',
+        tags: "",
     };
 
     async componentDidMount() {
@@ -19,6 +20,7 @@ class OntologyWrapper extends Component{
         const radialapi = this.props.api_url + "/data/ontology_trees_old";
 
         let ids    = "";
+        let tags   = "";
         var tree   = "";
         let oneids = "";
         let twoids = "";
@@ -33,7 +35,11 @@ class OntologyWrapper extends Component{
         }else{
           if (this.props.location.search.split("ids=")[1])
               ids = this.props.location.search.split("ids=")[1].split("&")[0];
+          if (this.props.location.search.split("tags=")[1])
+              tags = this.props.location.search.split("tags=")[1].split("&")[0]
         }
+
+
 
         if (this.props.location.search.split("tree=")[1])
             tree = this.props.location.search.split("tree=")[1].split("&")[0];
@@ -62,7 +68,7 @@ class OntologyWrapper extends Component{
         } else {
             assignmentresponse = await fetch(api_url + "/data/ontology_data_old?ids=" + ids);
             assignmentdata = await assignmentresponse.json();
-            this.setState({data: [radialdata, assignmentdata], loading: false})
+            this.setState({data: [radialdata, assignmentdata], loading: false, tags: tags})
         }
     }
 
@@ -78,7 +84,7 @@ class OntologyWrapper extends Component{
                     <div>loading...</div>
                 ) : (
                     <div id={"RadialContainer"}>
-                        <Radial data={this.state.data} width={this.state.width} height={this.state.height} />
+                        <Radial data={this.state.data} width={this.state.width} height={this.state.height} tags={this.state.tags}/>
                     </div>
                 )}
             </div>
