@@ -113,6 +113,12 @@ class Radial extends Component {
             }
             data[i].secondTreeHits += 1;
           }
+        }else{
+          if(trimming == true){
+            if(temp1.includes(data[i].pk.toString())){
+              set.push(data[i].id)
+            }
+          }
         }
       }
       return set
@@ -491,7 +497,6 @@ class Radial extends Component {
       scaleIntermediary(firstUnflattenedClassificationTree, firstUnflattenedClassificationTree[0])
       layoutRadialLayer(firstUnflattenedClassificationTree);
       var tree = firstUnflattenedClassificationTree
-      // trimTree(tree[0], tree)
     } else if (view === "second"){
       mark = [];
       if(this.props.data[2]){
