@@ -438,11 +438,14 @@ class Radial extends Component {
 
     //unhides the parents of the specified tags
     //from the flattened verison of the tree
+    //could be better just tried to get working
     function unhp(parent, tree){
       for(let i = 0; i < tree.length; i++){
         if(tree[i].id == parent){
           tree[i].hide = false
-          tree[i].color = "blue"
+          if(tree[i].color != "orange"){
+            tree[i].color = "blue"
+          }
           if(tree[i].parent){
             unhp(tree[i].parent, tree)
           }
@@ -455,11 +458,14 @@ class Radial extends Component {
     //iterates through the tree and checks if a node is in the
     //list of tags that is wanting to be shown, then shows the path to the root of tree
     //(flattened tree as parameter)
+    //just tried to get working
     function trimTree2(tree){
       for(let i = 0; i < tree.length; i++){
         if(temp1.includes(tree[i].pk.toString())){
           tree[i].hide = false;
-          tree[i].color = "orange"
+          if(tree[i].color != "orange"){
+            tree[i].color = "grey"
+          }
           if(tree[i].parent){
             unhp(tree[i].parent, tree)
           }
