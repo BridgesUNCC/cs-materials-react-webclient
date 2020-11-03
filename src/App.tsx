@@ -23,6 +23,8 @@ import {TutorialIndex} from "./components/tutorials/TutorialIndex";
 import {AnalyzeTutorial} from "./components/tutorials/AnalyzeTutorial";
 import {AuthorTutorial} from "./components/tutorials/AuthorTutorial";
 import {SearchTutorial} from "./components/tutorials/SearchTutorial";
+import {SearchRelation} from "./components/search/SearchRelation";
+import {SearchRelationView} from "./components/search/SearchRelationView";
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
@@ -547,6 +549,12 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     <Route path="/searchtutorial"render={(route_props) => (
                         <Container maxWidth="xl">
                             <SearchTutorial/>
+                        </Container>
+                    )}
+                    />
+                    <Route path="/searchrelation"render={(route_props) => (
+                        <Container maxWidth="xl">
+                            <SearchRelationView {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} />
                         </Container>
                     )}
                     />
