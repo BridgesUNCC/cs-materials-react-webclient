@@ -106,9 +106,9 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
           }
         }
 
-	
-
-        console.log(max_opacity)
+	all_similarities.sort();
+	var similarity_threshold = all_similarities[all_similarities.length-1-(data['result'].length+1)*2];
+        console.log(JSON.stringify(all_similarities));
 
         let link = g.append("g").selectAll("link").data(links)
                      .enter()
@@ -134,7 +134,10 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
                        
                      })
                      .style("opacity", function(d){
+		         if (d.value > similarity_threshold)
                          return d.value / max_opacity/2.
+			 else
+			 return 0.;
                        
                        // return d.value / max_opacity
                        // return d.value
