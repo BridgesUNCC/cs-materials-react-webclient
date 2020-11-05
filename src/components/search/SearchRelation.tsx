@@ -33,6 +33,8 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
                                                            }) => {
 
 
+	console.log("duhadgjkbadf")
+
     const ref = useRef(null);
 
     const classes = useStyles();
@@ -49,16 +51,22 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
           .select('g').attr('transform', 'translate(' + 2000 / 2 + ',' + 1000 / 2 + ')');
 
       if(data != undefined){
+            const queryID = data['result'].length;
+
+	    console.log("something"+queryID);
+
+	    let all_similarities : number[] = [];
+
         let nodes: any[] = []
         let links: any[] = []
-        let nodeJSON = {'id': 20,
+        let nodeJSON = {'id': queryID,
                         'name': data['query'].query_matID.toString(),
                         'x': data['query'].mds_x,
                         'y': data['query'].mds_y,
                         'color': "blue",
                         'size': 20}
         nodes.push(nodeJSON)
-        for(let i = 0; i < data['result'].length - 1; i++){
+        for(let i = 0; i < data['result'].length; i++){
           //add this node to the list with its location data
           let nodeJSON = {'id': i,
                           'name': data['result'][i].title,
@@ -67,12 +75,13 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
                           'color': "red",
                           'size': 10}
           let linkJSON = {"source": i,
-                          "targert": 20,
+                          "target": queryID,
                           "value": data['result'][i].query_similarity,
                           "x1": (data['result'][i].mds_x * 300),
                           "y1": (data['result'][i].mds_y * 300),
                           "x2": (data['query'].mds_x * 300),
                           "y2": (data['query'].mds_y * 300)}
+	all_similarities.push(data['result'][i].query_similarity)
           if(data['result'][i].query_similarity > max_opacity){
             max_opacity = data['result'][i].query_similarity
           }
@@ -81,36 +90,23 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
           for( let j = i+1; j < data['result'].length; j++){
             //add link for this node to the i node with their result_similarity
             let linkJSON = {"source": j,
-                            "targert": i,
+                            "target": i,
                             "value": data['result'][j].result_similarity[i],
                             "x1": (data['result'][j].mds_x * 300),
                             "y1": (data['result'][j].mds_y * 300),
                             "x2": (data['result'][i].mds_x * 300),
                             "y2": (data['result'][i].mds_y * 300)}
+
+            if (data['result'][j].result_similarity[i] != 1)
+	      all_similarities.push(data['result'][j].result_similarity[i]);
             if(data['result'][j].result_similarity[i] > max_opacity && data['result'][j].result_similarity[i] != 1){
               max_opacity = data['result'][j].result_similarity[i]
             }
             links.push(linkJSON)
           }
         }
-        nodeJSON = {'id': data['result'].length - 1,
-                    'name': data['result'][data['result'].length - 1].title,
-                    'x': data['result'][data['result'].length - 1].mds_x,
-                    'y': data['result'][data['result'].length - 1].mds_y,
-                    'color': "red",
-                    'size': 10}
-        let linkJSON = {"source": data['result'].length - 1,
-                        "targert": 20,
-                        "value": data['result'][data['result'].length - 1].query_similarity,
-                        "x1": (data['result'][data['result'].length - 1].mds_x * 300),
-                        "y1": (data['result'][data['result'].length - 1].mds_y * 300),
-                        "x2": (data['query'].mds_x * 300),
-                        "y2": (data['query'].mds_y * 300)}
-        if(data['result'][data['result'].length - 1].query_similarity > max_opacity){
-          max_opacity = data['result'][data['result'].length - 1].query_similarity
-        }
-        nodes.push(nodeJSON)
-        links.push(linkJSON)
+
+	
 
         console.log(max_opacity)
 
@@ -133,22 +129,13 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
                      })
                      .attr("fill", "none")
                      .attr("stroke", function(d){
-                       if(d.value / max_opacity > 0.75){
+                       
                          return "white"
-                       }else if(d.value / max_opacity < 0.75 || d.value / max_opacity > 0.5){
-                         return "red"
-                       }else{
-                         return "black"
-                       }
+                       
                      })
                      .style("opacity", function(d){
-                       if(d.value / max_opacity > 0.75){
-                         return d.value / max_opacity
-                       }else if(d.value / max_opacity < 0.75 || d.value / max_opacity > 0.5){
-                         return (d.value / max_opacity) - 0.25
-                       }else{
-                         return (d.value / max_opacity)
-                       }
+                         return d.value / max_opacity/2.
+                       
                        // return d.value / max_opacity
                        // return d.value
                      })
