@@ -44,15 +44,30 @@ class Radial extends Component {
         if (mappedArr.hasOwnProperty(id)) {
           mappedElem = mappedArr[id];
           // If the element is not at the root level, add it to its parent array of children.
-          if (mappedElem.parent) {
-            if(mappedArr[mappedElem['parent']]['children']){}
-            mappedArr[mappedElem['parent']]['children'].push(mappedElem);
-            mappedElem = mappedArr[mappedElem.parent]
+          if(trimming){
+            if (mappedElem.parent && mappedElem.hide == false) {
+              console.log(mappedElem)
+              if(mappedArr[mappedElem['parent']]['children']){}
+              mappedArr[mappedElem['parent']]['children'].push(mappedElem);
+              mappedElem = mappedArr[mappedElem.parent]
+            }
+            // If the element is at the root level, add it to first level elements array.
+            else {
+              tree.push(mappedElem);
+            }
+          }else{
+            if (mappedElem.parent) {
+              console.log(mappedElem)
+              if(mappedArr[mappedElem['parent']]['children']){}
+              mappedArr[mappedElem['parent']]['children'].push(mappedElem);
+              mappedElem = mappedArr[mappedElem.parent]
+            }
+            // If the element is at the root level, add it to first level elements array.
+            else {
+              tree.push(mappedElem);
+            }
           }
-          // If the element is at the root level, add it to first level elements array.
-          else {
-            tree.push(mappedElem);
-          }
+
         }
       }
       return tree;
@@ -473,6 +488,14 @@ class Radial extends Component {
       }
     }
 
+    async function removefromtree(tree){
+      for(let i = 0; i < tree.length; i++){
+        if(tree[i].hide === true || tree[i].pk == 441){
+          tree.splice(i, 1)
+        }
+      }
+    }
+
     if (view === "compare"){
       let firstClassificationSet = parseClassification(assignmentsArray, "1");
       let firstClassificationTree = buildClassificationTree(firstClassificationSet);
@@ -498,6 +521,7 @@ class Radial extends Component {
       if(trimming == true){
         trimTree1(firstFlatClassificationTree)
         trimTree2(firstFlatClassificationTree)
+        removefromtree(firstClassificationTree)
       }
       let firstUnflattenedClassificationTree = unflatten(firstFlatClassificationTree);
       scaleIntermediary(firstUnflattenedClassificationTree, firstUnflattenedClassificationTree[0])
