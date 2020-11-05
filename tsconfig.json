@@ -19,7 +19,8 @@
     "noEmit": true,
     "jsx": "react"
   },
-  "include": [
+    "include": [
     "src"
-  ]
+    ],
+    "exclude": [ "src/components/search/.#SearchRelationView.tsx"]
 }

@@ -65,13 +65,31 @@ export const SearchRelationView: FunctionComponent<Props> = ({
         createEmptyInfo()
     );
 
-
     const classes = useStyles();
 
     if (!viewInfo.fetched) {
         console.log("pinging");
 
-        getJSONData("https://cors-anywhere.herokuapp.com/https://csmaterials-search.herokuapp.com/search/?matID=254&k=20", {}).then(resp => {
+	//Erik says: there must be a better way to parse GET parameters?
+	var k = "20"
+	if (location.search.split("k=")[1])
+              k = location.search.split("k=")[1].split("&")[0];
+
+	var matchpool = "all"
+	if (location.search.split("matchpool=")[1])
+              matchpool = location.search.split("matchpool=")[1].split("&")[0];
+
+	var matID = "1"
+	if (location.search.split("matID=")[1])
+              matID = location.search.split("matID=")[1].split("&")[0];
+
+	
+
+	//	var url = "https://cors-anywhere.herokuapp.com/https://csmaterials-search.herokuapp.com/search/?matID=254&k=20"
+	var url = "https://cors-anywhere.herokuapp.com/https://csmaterials-search.herokuapp.com/search?matID="+matID
+	  +"&matchpool="+matchpool
+	  +"&k="+k;
+        getJSONData(url, {}).then(resp => {
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
             }
