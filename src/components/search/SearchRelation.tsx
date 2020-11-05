@@ -41,6 +41,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
     var max_opacity: any = 0;
 
     useEffect(() => {
+      console.log("hello")
       const svgElement = d3.select(ref.current);
       let container = d3.select('#parent')
       let svg = container.append('svg').append('g')
@@ -69,10 +70,10 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
           let linkJSON = {"source": i,
                           "targert": 20,
                           "value": data['result'][i].query_similarity,
-                          "x1": (data['result'][i].mds_x * 300),
-                          "y1": (data['result'][i].mds_y * 300),
-                          "x2": (data['query'].mds_x * 300),
-                          "y2": (data['query'].mds_y * 300)}
+                          "x1": (data['result'][i].mds_x * 500),
+                          "y1": (data['result'][i].mds_y * 500),
+                          "x2": (data['query'].mds_x * 500),
+                          "y2": (data['query'].mds_y * 500)}
           if(data['result'][i].query_similarity > max_opacity){
             max_opacity = data['result'][i].query_similarity
           }
@@ -83,10 +84,10 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
             let linkJSON = {"source": j,
                             "targert": i,
                             "value": data['result'][j].result_similarity[i],
-                            "x1": (data['result'][j].mds_x * 300),
-                            "y1": (data['result'][j].mds_y * 300),
-                            "x2": (data['result'][i].mds_x * 300),
-                            "y2": (data['result'][i].mds_y * 300)}
+                            "x1": (data['result'][j].mds_x * 500),
+                            "y1": (data['result'][j].mds_y * 500),
+                            "x2": (data['result'][i].mds_x * 500),
+                            "y2": (data['result'][i].mds_y * 500)}
             if(data['result'][j].result_similarity[i] > max_opacity && data['result'][j].result_similarity[i] != 1){
               max_opacity = data['result'][j].result_similarity[i]
             }
@@ -102,10 +103,10 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
         let linkJSON = {"source": data['result'].length - 1,
                         "targert": 20,
                         "value": data['result'][data['result'].length - 1].query_similarity,
-                        "x1": (data['result'][data['result'].length - 1].mds_x * 300),
-                        "y1": (data['result'][data['result'].length - 1].mds_y * 300),
-                        "x2": (data['query'].mds_x * 300),
-                        "y2": (data['query'].mds_y * 300)}
+                        "x1": (data['result'][data['result'].length - 1].mds_x * 500),
+                        "y1": (data['result'][data['result'].length - 1].mds_y * 500),
+                        "x2": (data['query'].mds_x * 500),
+                        "y2": (data['query'].mds_y * 500)}
         if(data['result'][data['result'].length - 1].query_similarity > max_opacity){
           max_opacity = data['result'][data['result'].length - 1].query_similarity
         }
@@ -165,16 +166,16 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
                     })
                     .attr("transform", function (d) {
                       console.log(d)
-                      return "translate(" + ((d.x * 300)) + "," + ((d.y * 300)) + ")";
+                      return "translate(" + ((d.x * 500)) + "," + ((d.y * 500)) + ")";
                     })
         let background = g.append('g').selectAll("rect")
           .data(nodes)
           .enter().append("rect")
           .attr("x", function(d){
-            return d.x * 300 - 5
+            return d.x * 500 - 5
           })
           .attr("y", function(d){
-            return d.y * 300 - 12
+            return d.y * 500 - 12
           })
           .attr("width", function(d){
             if(d.name.length <= 3){
@@ -194,10 +195,10 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
             .data(nodes)
             .enter().append("text")
             .attr("x", function(d){
-              return d.x * 300
+              return d.x * 500
             })
             .attr("y", function(d){
-              return d.y * 300
+              return d.y * 500
             })
             .attr('background-color', "white")
             .text(function(d) { return d.name })
