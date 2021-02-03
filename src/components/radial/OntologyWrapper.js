@@ -76,11 +76,17 @@ class OntologyWrapper extends Component{
             }
                 {this.state.loading ? (
                     <div>loading...</div>
-                ) : (
-                    <div id={"RadialContainer"}>
-                        <Radial data={this.state.data} width={this.state.width} height={this.state.height} />
-                    </div>
-                )}
+                    ) :
+                    ( this.state.data[1].assignments.length === 0 ?
+                            <div>No results for that query</div>
+                            :
+                            (
+                                <div id={"RadialContainer"}>
+                                    <Radial data={this.state.data} width={this.state.width} height={this.state.height} />
+                                </div>
+                            )
+                    )
+                }
             </div>
         );
     }
