@@ -11,21 +11,32 @@ class Radial extends Component {
     this.drawRadial();
   }
 
+  shouldComponentUpdate(){
+    //this is updated from ontologywrapper so it clears all svg draws for a new render
+    this.svg.selectAll("*").remove()
+    this.drawRadial()
+    return true
+  }
+
   drawRadial(){
     let secondClassificationTree;
     let secondClassificationSet;
 
     let data             = Object.values(this.props.data[0]);
+    data                 = JSON.parse(JSON.stringify(data)) //deep clone the data
     let data2            = Object.values(this.props.data[0]);
-    let assignments      = this.props.data[1];
+    let assignments      = JSON.parse(JSON.stringify(this.props.data[1]));
     var assignmentsArray = assignments.assignments;
     let view             = this.props.view || this.props.data.length === 3 ? "compare" : "first";
     let temp1            = this.props.tags.split(',');
     let trimming         = false;
+
+
+    // console.log(data)
+
     if(temp1[0] != ""){
       trimming = true;
     }
-
 
     function unflatten(arr) {
       const tree = [], mappedArr = {};
@@ -58,7 +69,6 @@ class Radial extends Component {
             }
           }else{
             if (mappedElem.parent) {
-              console.log(mappedElem)
               if(mappedArr[mappedElem['parent']]['children']){}
               mappedArr[mappedElem['parent']]['children'].push(mappedElem);
               mappedElem = mappedArr[mappedElem.parent]
@@ -115,7 +125,6 @@ class Radial extends Component {
             data[i].assignmentNames.push(name)
           }
           set.push(tag);
-          console.log(data[i].pk)
           data[i].hits += 1;
           maxHits = (data[i].hits > maxHits) ? data[i].hits : maxHits;
           if(whichTree === "1"){
@@ -195,7 +204,6 @@ class Radial extends Component {
           classificationTree[findInClassTree(node, classificationTree)].color = (vd_node.hits) ? "orange" : "blue";
           classificationTree[findInClassTree(node, classificationTree)].size = (vd_node.hits/maxHits) * 10 + 10;
           (classificationTree[findInClassTree(node, classificationTree)].childhits) ? classificationTree[findInClassTree(node, classificationTree)].size = (vd_node.childhits/maxHits) * 10 + 10 : classificationTree[findInClassTree(node, classificationTree)].size = (vd_node.hits/maxHits) * 10 + 10
-          console.log(findMarked(vd_node.parent))
           if(findMarked(vd_node.parent) === -1){
             let tempProp = {};
             let foundnode = findInTree(vd_node.parent);
@@ -512,7 +520,8 @@ class Radial extends Component {
       if (this.props.data[2]){
         maxHits = 0;
         treeRoot = null;
-        data = Object.values(this.props.data[0]);
+        // data = Object.values(this.props.data[0]);
+        // data                 = JSON.parse(JSON.stringify(data)) //deep clone the data
         let secondAssignments = this.props.data[2];
         var secondAssignmentsArray = secondAssignments.assignments;
         console.log(assignmentsArray.length)

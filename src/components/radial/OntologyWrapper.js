@@ -13,6 +13,8 @@ class OntologyWrapper extends Component{
         height: 500,
         text: '',
         tags: "",
+        radialdata: {data: {acm: {}, pdc: {}}},
+        visual: "",
     };
 
     async componentDidMount() {
@@ -43,12 +45,14 @@ class OntologyWrapper extends Component{
 
         if (this.props.location.search.split("tree=")[1])
             tree = this.props.location.search.split("tree=")[1].split("&")[0];
+            this.state.visual = tree
 
         if (tree !== "acm" && tree !== "pdc")
             tree = "acm";
 
         const radialresponse = await fetch(radialapi);
         let radialdata       = await radialresponse.json();
+        this.state.radialdata = radialdata
 
         radialdata = radialdata.data[tree];
 
@@ -72,13 +76,24 @@ class OntologyWrapper extends Component{
         }
     }
 
+    //oh my finally got this to work lol this looks funky but allows the user to switch back and forth from
+    //acm and pdc radial views without re-selecting the materials or collections.
+    //probably a better way of doing this because I had to go through the props.history.location to determine which page i am searching for.
+    //also this calls render again because it doenst recall Radial automatically.
+    shouldComponentUpdate(){
+      console.log(this.props.history.location.search.split("tree=")[1].split("&")[0])
+      this.state.data[0] = this.state.radialdata.data[this.props.history.location.search.split("tree=")[1].split("&")[0]]
+      this.render()
+      return true
+    }
+
     render() {
         return (
             <div>
             {(this.props.location.search.split("tree=")[1].split("&")[0] === "acm")?
-            <Analyze info={[]} user_id={this.props.user_id} currentLoc="radial" from="radial"/>
+            <Analyze listOne={this.props.location.search.split("ids=")[1].split("&")[0]} user_id={this.props.user_id} currentLoc="radial" from="radial"/>
             :
-            <Analyze info={[]} user_id={this.props.user_id} currentLoc="radialpdc" from="radial"/>
+            <Analyze listOne={this.props.location.search.split("ids=")[1].split("&")[0]} user_id={this.props.user_id} currentLoc="radialpdc" from="radial"/>
             }
                 {this.state.loading ? (
                     <div>loading...</div>
