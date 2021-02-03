@@ -20,6 +20,11 @@ class Radial extends Component {
     let assignments      = this.props.data[1];
     var assignmentsArray = assignments.assignments;
     let view             = this.props.view || this.props.data.length === 3 ? "compare" : "first";
+    let temp1            = this.props.tags.split(',');
+    let trimming         = false;
+    if(temp1[0] != ""){
+      trimming = true;
+    }
 
     function unflatten(arr) {
       const tree = [], mappedArr = {};
@@ -39,14 +44,30 @@ class Radial extends Component {
         if (mappedArr.hasOwnProperty(id)) {
           mappedElem = mappedArr[id];
           // If the element is not at the root level, add it to its parent array of children.
-          if (mappedElem.parent) {
-            mappedArr[mappedElem['parent']]['children'].push(mappedElem);
-            mappedElem = mappedArr[mappedElem.parent]
+          if(trimming){
+            if (mappedElem.parent && mappedElem.hide == false) {
+              console.log(mappedElem)
+              if(mappedArr[mappedElem['parent']]['children']){}
+              mappedArr[mappedElem['parent']]['children'].push(mappedElem);
+              mappedElem = mappedArr[mappedElem.parent]
+            }
+            // If the element is at the root level, add it to first level elements array.
+            else {
+              tree.push(mappedElem);
+            }
+          }else{
+            if (mappedElem.parent) {
+              console.log(mappedElem)
+              if(mappedArr[mappedElem['parent']]['children']){}
+              mappedArr[mappedElem['parent']]['children'].push(mappedElem);
+              mappedElem = mappedArr[mappedElem.parent]
+            }
+            // If the element is at the root level, add it to first level elements array.
+            else {
+              tree.push(mappedElem);
+            }
           }
-          // If the element is at the root level, add it to first level elements array.
-          else {
-            tree.push(mappedElem);
-          }
+
         }
       }
       return tree;
@@ -93,6 +114,7 @@ class Radial extends Component {
             data[i].assignmentNames.push(name)
           }
           set.push(tag);
+          console.log(data[i].pk)
           data[i].hits += 1;
           maxHits = (data[i].hits > maxHits) ? data[i].hits : maxHits;
           if(whichTree === "1"){
@@ -105,6 +127,12 @@ class Radial extends Component {
               data[i].secondTreeHits = 0;
             }
             data[i].secondTreeHits += 1;
+          }
+        }else{
+          if(trimming == true){
+            if(temp1.includes(data[i].pk.toString())){
+              set.push(data[i].id)
+            }
           }
         }
       }
@@ -119,7 +147,6 @@ class Radial extends Component {
 
 
     function scaleIntermediary(tree, root){
-      console.log(root)
       if(root.children <= 0){
         return root.hits
       }else{
@@ -248,13 +275,17 @@ class Radial extends Component {
       return count;
     }
 
+    //find in unflattened tree
     function findNodeInClassTree(tree, node){
       let currNode = node;
-      if(currNode.id === node.id){
-        return currNode;
+      let found = ""
+      if(currNode === tree.id){
+        return tree;
       }else{
-        for(let i = 0; i < currNode.children.length; i++){
-          findNodeInClassTree(tree, currNode)
+        if(tree.children){
+          for(let i = 0; i < tree.children.length; i++){
+           return findNodeInClassTree(tree.children[i], currNode)
+          }
         }
       }
     }
@@ -412,6 +443,59 @@ class Radial extends Component {
       return completeTree;
     }
 
+
+    //starts tree as all hidden nodes
+    function trimTree1(tree){
+      for(let i = 0; i < tree.length; i++){
+        tree[i].hide = true;
+      }
+    }
+
+    //unhides the parents of the specified tags
+    //from the flattened verison of the tree
+    //could be better just tried to get working
+    function unhp(parent, tree){
+      for(let i = 0; i < tree.length; i++){
+        if(tree[i].id == parent){
+          tree[i].hide = false
+          if(tree[i].color != "orange"){
+            tree[i].color = "blue"
+          }
+          if(tree[i].parent){
+            unhp(tree[i].parent, tree)
+          }
+          break;
+        }
+      }
+      return
+    }
+
+    //iterates through the tree and checks if a node is in the
+    //list of tags that is wanting to be shown, then shows the path to the root of tree
+    //(flattened tree as parameter)
+    //just tried to get working
+    function trimTree2(tree){
+      for(let i = 0; i < tree.length; i++){
+        if(temp1.includes(tree[i].pk.toString())){
+          tree[i].hide = false;
+          if(tree[i].color != "orange"){
+            tree[i].color = "grey"
+          }
+          if(tree[i].parent){
+            unhp(tree[i].parent, tree)
+          }
+        }
+      }
+    }
+
+    async function removefromtree(tree){
+      for(let i = 0; i < tree.length; i++){
+        if(tree[i].hide === true || tree[i].pk == 441){
+          tree.splice(i, 1)
+        }
+      }
+    }
+
     if (view === "compare"){
       let firstClassificationSet = parseClassification(assignmentsArray, "1");
       let firstClassificationTree = buildClassificationTree(firstClassificationSet);
@@ -434,6 +518,11 @@ class Radial extends Component {
       let firstClassificationSet = parseClassification(assignmentsArray, "1");
       let firstClassificationTree = buildClassificationTree(firstClassificationSet);
       let firstFlatClassificationTree = addChildren(firstClassificationTree);
+      if(trimming == true){
+        trimTree1(firstFlatClassificationTree)
+        trimTree2(firstFlatClassificationTree)
+        removefromtree(firstClassificationTree)
+      }
       let firstUnflattenedClassificationTree = unflatten(firstFlatClassificationTree);
       scaleIntermediary(firstUnflattenedClassificationTree, firstUnflattenedClassificationTree[0])
       layoutRadialLayer(firstUnflattenedClassificationTree);
@@ -466,6 +555,18 @@ class Radial extends Component {
     const vRoot = d3.hierarchy(tree[0]);
     const vNodes = vRoot.descendants();
     const vLinks = vLayout(vRoot).links();
+    let newNodes = []
+
+    if(trimming == true){
+      for(let i = 0; i < vNodes.length; i++){
+        if(vNodes[i].data.hide != true){
+          newNodes.push(vNodes[i])
+        }
+      }
+    }else{
+      newNodes = vNodes
+    }
+
 
     // straight links
     const link = g.selectAll(".link")
@@ -473,7 +574,17 @@ class Radial extends Component {
         .enter().append("line")
         .attr("class", "link")
         .attr("stroke", "#ccc")
-        .attr('stroke-width', "1px")
+        .attr('stroke-width', function(d){
+          if(trimming == true){
+            if(d.source.data.hide == true || d.target.data.hide == true){
+              return '0px'
+            }else{
+              return '1px'
+            }
+          }else{
+            return '1px'
+          }
+        })
         .attr("x1", function (d) {
           return d.source.data.locationX;
         })
@@ -491,10 +602,16 @@ class Radial extends Component {
     var colorDivergent = d3.scaleSequential(d3.interpolatePuOr).domain([0,1])
 
     //styling for the nodes in tree
-    g.selectAll('circle').data(vNodes).enter().append('circle')
+    g.selectAll('circle').data(newNodes).enter().append('circle')
         .attr('r', function (d) {return d.data.size - 5})
         .attr("transform", function (d) {return "translate(" + d.data.locationX + "," + d.data.locationY + ")"; })
-        .style("fill-opacity", 1.0) // set the fill opacity
+        .style("fill-opacity", function(d){
+          if(d.data.hide == true){
+            return '0'
+          }else{
+            return '0.8'
+          }
+        }) // set the fill opacity
         .style("stroke", "black")
         .style("fill", function (d) {
           if(!d.data.firstTreeHits && !d.data.secondTreeHits || view === "first"){

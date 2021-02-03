@@ -69,8 +69,7 @@ export const TutorialIndex: FunctionComponent = ({ }) => {
                       Authoring Tutorial
                     </Typography>
                     <Typography variant="body2" color="textSecondary" component="p">
-                      Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging
-                      across all continents except Antarctica
+                      Input your own materials and classes into CS-Materials, and classify them against curriculum guidelines.
                     </Typography>
                   </CardContent>
                 </CardActionArea>
@@ -94,8 +93,7 @@ export const TutorialIndex: FunctionComponent = ({ }) => {
                       Analyzing Tutorial
                     </Typography>
                     <Typography variant="body2" color="textSecondary" component="p">
-                      Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging
-                      across all continents except Antarctica
+                      Study the coverage of courses and the alignment between different components of the class.
                     </Typography>
                   </CardContent>
                 </CardActionArea>
@@ -118,8 +116,7 @@ export const TutorialIndex: FunctionComponent = ({ }) => {
                       Searching Tutorial
                     </Typography>
                     <Typography variant="body2" color="textSecondary" component="p">
-                      Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging
-                      across all continents except Antarctica
+		      Search for new materials to be integrated in your class.
                     </Typography>
                   </CardContent>
                 </CardActionArea>
