@@ -15,6 +15,7 @@ class Radial extends Component {
     //this is updated from ontologywrapper so it clears all svg draws for a new render
     this.svg.selectAll("*").remove()
     this.drawRadial()
+    console.log("here")
     return true
   }
 
@@ -389,7 +390,6 @@ class Radial extends Component {
       let maxHist2 = 0;
       let treeRoot = "";
       mark = [];
-      console.log(tree1)
       for(let i = 0; i < tree1.length; i++){
         if(tree1[i].hits > 0){
           findInTree(tree1[i].id).cnt1 = tree1[i].hits;

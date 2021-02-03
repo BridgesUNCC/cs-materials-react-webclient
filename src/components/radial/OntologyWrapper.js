@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import Radial from './Radial';
 import {Analyze} from "../analyze/Analyze";
-
-
+import {Button, CircularProgress, createStyles, Paper, TextField, Theme} from "@material-ui/core";
+import {makeStyles} from "@material-ui/core/styles";
 
 class OntologyWrapper extends Component{
     state = {
@@ -15,7 +15,10 @@ class OntologyWrapper extends Component{
         tags: "",
         radialdata: {data: {acm: {}, pdc: {}}},
         visual: "",
+        temptags: "",
     };
+
+
 
     async componentDidMount() {
         const api_url = this.props.api_url;
@@ -40,7 +43,6 @@ class OntologyWrapper extends Component{
           if (this.props.location.search.split("tags=")[1])
               tags = this.props.location.search.split("tags=")[1].split("&")[0]
         }
-
 
 
         if (this.props.location.search.split("tree=")[1])
@@ -87,9 +89,39 @@ class OntologyWrapper extends Component{
       return true
     }
 
+    onTextFieldChange = (e)=> {
+      console.log(e)
+        let fields = this.state;
+        fields.temptags = e.currentTarget.value;
+        console.log(this.state)
+    };
+
+    onSubmit = (e)=> {
+      this.state.tags = this.state.temptags
+      this.shouldComponentUpdate()
+      console.log(this.state)
+    };
+
+
     render() {
         return (
             <div>
+            {
+                <Paper >
+                    <TextField
+                        label={"Set of IDs"}
+                        // value={5}
+                        onChange={this.onTextFieldChange}
+                    />
+
+                    <Button
+                        variant={"contained"}
+                        onClick={this.onSubmit}
+                    >
+                        Submit Matrix
+                    </Button>
+                </Paper>
+            }
             {(this.props.location.search.split("tree=")[1].split("&")[0] === "acm")?
             <Analyze listOne={this.props.location.search.split("ids=")[1].split("&")[0]} user_id={this.props.user_id} currentLoc="radial" from="radial"/>
             :
