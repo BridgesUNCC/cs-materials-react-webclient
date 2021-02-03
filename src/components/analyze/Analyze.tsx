@@ -163,7 +163,7 @@ export const Analyze: FunctionComponent<Props> = (
     }
 
 
-
+    console.log(from)
     if (from === "listOne") {
       compListOne = listOne
 

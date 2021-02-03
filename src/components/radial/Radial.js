@@ -26,6 +26,7 @@ class Radial extends Component {
       trimming = true;
     }
 
+
     function unflatten(arr) {
       const tree = [], mappedArr = {};
       let arrElem, mappedElem;
@@ -194,20 +195,28 @@ class Radial extends Component {
           classificationTree[findInClassTree(node, classificationTree)].color = (vd_node.hits) ? "orange" : "blue";
           classificationTree[findInClassTree(node, classificationTree)].size = (vd_node.hits/maxHits) * 10 + 10;
           (classificationTree[findInClassTree(node, classificationTree)].childhits) ? classificationTree[findInClassTree(node, classificationTree)].size = (vd_node.childhits/maxHits) * 10 + 10 : classificationTree[findInClassTree(node, classificationTree)].size = (vd_node.hits/maxHits) * 10 + 10
+          console.log(findMarked(vd_node.parent))
           if(findMarked(vd_node.parent) === -1){
             let tempProp = {};
             let foundnode = findInTree(vd_node.parent);
-            tempProp["id"] = foundnode.id;
+            if(foundnode === undefined){
+              tempProp["id"] = -1
+            }else{
+              tempProp["id"] = foundnode.id;
+            }
             tempProp["visited"] = false;
             mark.push(tempProp)
           }
           //change label here
           //change label here
-          if(!mark[findMarked(vd_node.parent)].visited){
-            let vd_parent = findInTree(vd_node.parent);
-            classificationTree.push(vd_parent);
-            node = vd_node.parent
+          if(findMarked(vd_node.parent) !== -1){
+            if(!mark[findMarked(vd_node.parent)].visited){
+              let vd_parent = findInTree(vd_node.parent);
+              classificationTree.push(vd_parent);
+              node = vd_node.parent
+            }
           }
+
         }
       }
       return classificationTree

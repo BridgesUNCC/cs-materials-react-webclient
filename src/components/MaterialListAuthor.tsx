@@ -99,6 +99,7 @@ export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
     if (listInfo.materials !== null && !reload) {
         output = listInfo.materials.map((value, index) => {
             // @Hack @FIXME cull entries for speed
+            console.log(listInfo)
             if (count++ > 250)
                 return null;
             return (

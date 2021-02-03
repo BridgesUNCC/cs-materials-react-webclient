@@ -128,7 +128,6 @@ export const HarmonizationView: FunctionComponent<Props> = ({
             ids = viewInfo.ids;
         }
 
-        console.log(ids);
         const url = api_url + "/data/harmonization?ids=" + ids + "&tag_types=" + tag_types;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
@@ -142,7 +141,6 @@ export const HarmonizationView: FunctionComponent<Props> = ({
 
                     // deep clone
                     const init_mapping = data.mapping.map(e => e);
-
                     //@FIXME this is probably bad form
                     // This will populate the mapping data with the non mapping relationships
                     data.material_axis.forEach((mat, i) => {
