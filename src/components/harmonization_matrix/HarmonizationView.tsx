@@ -115,7 +115,6 @@ export const HarmonizationView: FunctionComponent<Props> = ({
     const classes = useStyles();
 
     if (!viewInfo.fetched) {
-        console.log("pinging");
 
         let ids = "";
         let tag_types = "";
@@ -132,7 +131,6 @@ export const HarmonizationView: FunctionComponent<Props> = ({
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         getJSONData(url, auth).then(resp => {
-            console.log(resp);
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
             } else {
@@ -228,7 +226,6 @@ export const HarmonizationView: FunctionComponent<Props> = ({
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         getJSONData(fetch_url, auth).then(resp => {
-            console.log(resp);
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
             } else {
@@ -237,14 +234,12 @@ export const HarmonizationView: FunctionComponent<Props> = ({
 
                     let relevant_mapping = viewInfo.data.mapping.filter(element => element.weight > 0.0);
 
-                    console.log(relevant_mapping);
 
                     //@ts-ignore
                     let post_data = {"data": []};
                     data.forEach((material) => {
                         let tags = relevant_mapping.filter(element => element.mat_id === material.id);
 
-                        console.log(tags);
                         material.tags = tags.map(element => {
                             return {"instance_of": "tag", "id": element.tag_id}
                         });
@@ -252,8 +247,6 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                         // @ts-ignore
                         post_data.data.push(material)
                     });
-
-                    console.log(post_data);
 
                     postJSONData(post_url, post_data, auth).then((resp) => {
                         setViewInfo({...viewInfo, fetched: false});
