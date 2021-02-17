@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Radial from './Radial';
 import {Analyze} from "../analyze/Analyze";
+import {getJSONData} from "../../common/util";
 
 
 
@@ -17,6 +18,7 @@ class OntologyWrapper extends Component{
 
     async componentDidMount() {
         const api_url = this.props.api_url;
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
         const radialapi = this.props.api_url + "/data/ontology_trees_old";
 
         let ids    = "";
@@ -58,16 +60,11 @@ class OntologyWrapper extends Component{
         //@TODO FIXME ALL OF THIS
         if (compare) {
             // comparison view is broken
-            let assignmentresponse2;
-            let assignmentdata2;
-            assignmentresponse = await fetch(api_url + "/data/ontology_data_old?ids=" + oneids.toString());
-            assignmentdata = await assignmentresponse.json();
-            assignmentresponse2 =  await fetch(api_url + "/data/ontology_data_old?ids=" + twoids.toString());
-            assignmentdata2 = await assignmentresponse2.json();
+            assignmentdata = await getJSONData(api_url + "/data/ontology_data_old?ids=" + oneids.toString(), auth);
+            let assignmentdata2 = await getJSONData(api_url + "/data/ontology_data_old?ids=" + twoids.toString(), auth);
             this.setState({data: [radialdata, assignmentdata, assignmentdata2], loading: false})
         } else {
-            assignmentresponse = await fetch(api_url + "/data/ontology_data_old?ids=" + ids);
-            assignmentdata = await assignmentresponse.json();
+            assignmentdata= await getJSONData(api_url + "/data/ontology_data_old?ids=" + ids, auth);
             this.setState({data: [radialdata, assignmentdata], loading: false, tags: tags})
         }
     }
