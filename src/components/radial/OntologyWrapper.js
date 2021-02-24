@@ -1,8 +1,14 @@
 import React, {Component} from 'react';
 import Radial from './Radial';
 import {Analyze} from "../analyze/Analyze";
+<<<<<<< HEAD
 import {Button, CircularProgress, createStyles, Paper, TextField, Theme} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
+=======
+import {getJSONData} from "../../common/util";
+
+
+>>>>>>> 1e991d817412cf5f0828af5d907920eab27064e9
 
 class OntologyWrapper extends Component{
     state = {
@@ -22,6 +28,7 @@ class OntologyWrapper extends Component{
 
     async componentDidMount() {
         const api_url = this.props.api_url;
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
         const radialapi = this.props.api_url + "/data/ontology_trees_old";
 
         let ids    = "";
@@ -64,16 +71,11 @@ class OntologyWrapper extends Component{
         //@TODO FIXME ALL OF THIS
         if (compare) {
             // comparison view is broken
-            let assignmentresponse2;
-            let assignmentdata2;
-            assignmentresponse = await fetch(api_url + "/data/ontology_data_old?ids=" + oneids.toString());
-            assignmentdata = await assignmentresponse.json();
-            assignmentresponse2 =  await fetch(api_url + "/data/ontology_data_old?ids=" + twoids.toString());
-            assignmentdata2 = await assignmentresponse2.json();
+            assignmentdata = await getJSONData(api_url + "/data/ontology_data_old?ids=" + oneids.toString(), auth);
+            let assignmentdata2 = await getJSONData(api_url + "/data/ontology_data_old?ids=" + twoids.toString(), auth);
             this.setState({data: [radialdata, assignmentdata, assignmentdata2], loading: false})
         } else {
-            assignmentresponse = await fetch(api_url + "/data/ontology_data_old?ids=" + ids);
-            assignmentdata = await assignmentresponse.json();
+            assignmentdata= await getJSONData(api_url + "/data/ontology_data_old?ids=" + ids, auth);
             this.setState({data: [radialdata, assignmentdata], loading: false, tags: tags})
         }
     }
@@ -129,11 +131,17 @@ class OntologyWrapper extends Component{
             }
                 {this.state.loading ? (
                     <div>loading...</div>
-                ) : (
-                    <div id={"RadialContainer"}>
-                        <Radial data={this.state.data} width={this.state.width} height={this.state.height} tags={this.state.tags}/>
-                    </div>
-                )}
+                    ) :
+                    ( this.state.data[1].assignments.length === 0 ?
+                            <div>No results for that query</div>
+                            :
+                            (
+                                <div id={"RadialContainer"}>
+                                    <Radial data={this.state.data} width={this.state.width} height={this.state.height} tags={this.state.tags}/>
+                                </div>
+                            )
+                    )
+                }
             </div>
         );
     }
