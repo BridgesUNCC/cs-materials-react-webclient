@@ -33,6 +33,11 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         inheritTypography: {
             fontWeight: "inherit",
+        },
+        tags: {
+          position: 'fixed',
+          float: 'right',
+          marginLeft: 1500,
         }
     }),
 );
@@ -231,9 +236,12 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
 
     return (
       <div>
-        <Button variant="contained" color="secondary" aria-haspopup="true" onClick={handleClick}>
-          View Selected Tags
-        </Button>
+      <div>
+      <Button variant="contained" color="secondary" aria-haspopup="true" onClick={handleClick} className={classes.tags} style={{zIndex:1}}>
+        View Selected Tags
+      </Button>
+      </div>
+      <div>
         <Menu
           id="simple-menu"
           anchorEl={anchorEl}
@@ -254,6 +262,7 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
         >
             {tree}
         </TreeView>
+      </div>
       </div>
     );
 };
