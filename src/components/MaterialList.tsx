@@ -16,8 +16,14 @@ import {Analyze} from "./analyze/Analyze";
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
-            padding: theme.spacing(3, 2),
-            margin: theme.spacing(5),
+            padding: theme.spacing(3, 2, 0, 0),
+            margin: theme.spacing(2, 0, 0, 0),
+            align: 'center',
+            marginLeft: 100,
+        },
+        titles:{
+          align: 'center',
+          marginLeft: 100,
         },
         margin: {
             margin: theme.spacing(5),
@@ -177,11 +183,11 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
         }
         {/*uses the listinfor search variable to determine if on collections or not, could prob be done a better way*/}
           {(listInfo.search !== "?material_types=collection") ?
-            <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+            <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom className={classes.titles}>
                 Select Materials
             </Typography>
             :
-            <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
+            <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom className={classes.titles}>
                 Select Collections
             </Typography>
           }
