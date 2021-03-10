@@ -3,8 +3,31 @@
 
 import React, {Component} from 'react';
 import * as d3 from "d3";
+import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import InputLabel from '@material-ui/core/InputLabel';
+import Input from '@material-ui/core/Input';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
 
 class Radial extends Component {
+
+  constructor(){
+    super()
+    this.state = {
+      open: false,
+      trimming: false,
+      grayRemoval: "0",
+      formatAfter: "0"
+    }
+  }
+
   componentDidMount() {
     this.container = d3.select("#RadialContainer");
     this.svg       = this.container.append("svg").append("g");
@@ -19,6 +42,27 @@ class Radial extends Component {
     return true
   }
 
+  handleClickOpen = () => {
+    this.setState({...this.state, open: true})
+    console.log(this.state.open)
+  };
+
+  handleClose = () => {
+    this.setState({...this.state, open: false})
+  }
+
+  handleChange = (event) => {
+    this.setState({...this.state, grayRemoval: event.target.value})
+    console.log(this.state)
+    // setAge(Number(event.target.value) || '');
+  };
+
+  handle2Change = (event) => {
+    this.setState({...this.state, formatAfter: event.target.value})
+    console.log(this.state)
+    // setAge(Number(event.target.value) || '');
+  };
+
   drawRadial(){
     let secondClassificationTree;
     let secondClassificationSet;
@@ -30,14 +74,28 @@ class Radial extends Component {
     var assignmentsArray = assignments.assignments;
     let view             = this.props.view || this.props.data.length === 3 ? "compare" : "first";
     let temp1            = this.props.tags.split(',');
-    let trimming         = false;
+    // let trimming         = false;
 
 
-    // console.log(data)
+    console.log(this.state.grayRemoval)
 
-    if(temp1[0] != ""){
-      trimming = true;
-    }
+    var trimming = this.state.trimming
+
+    var removeGray = this.state.grayRemoval
+    var formatAfter = this.state.formatAfter
+
+    // if(temp1[0] != ""){
+    //   trimming = true;
+    // }
+
+
+
+
+
+    const handleClick = () => {
+      this.state.open = true
+      return true
+    };
 
     function unflatten(arr) {
       const tree = [], mappedArr = {};
@@ -140,7 +198,7 @@ class Radial extends Component {
             data[i].secondTreeHits += 1;
           }
         }else{
-          if(trimming == true){
+          if(trimming){
             if(temp1.includes(data[i].pk.toString())){
               set.push(data[i].id)
             }
@@ -513,6 +571,41 @@ class Radial extends Component {
       }
     }
 
+    // function hideGreyParents(parent, tree){
+    //   for(let i = 0; i < tree.length; i++){
+    //     if(tree[i].id == parent){
+    //       tree[i].hide = false
+    //       if(tree[i].color !== "grey"){
+    //         tree[i].hide = false
+    //       }
+    //       if(tree[i].parent){
+    //         hideGreyParents(tree[i].parent, tree)
+    //       }
+    //       break;
+    //     }
+    //   }
+    //   return
+    // }
+
+    function trimGrey(tree){
+      for(let i = 0; i < tree.length; i++){
+        if(tree[i].color !== "grey"){
+          tree[i].hide = false;
+          // if(tree[i].parent){
+          //   hideGreyParents(tree[i].parent, tree)
+          // }
+        }
+      }
+    }
+
+    // async function removeGrayNodes(tree){
+    //   for (let i = 0; i < tree.length; i++){
+    //     if(tree[i].color === "grey"){
+    //
+    //     }
+    //   }
+    // }
+
     if (view === "compare"){
       let firstClassificationSet = parseClassification(assignmentsArray, "1");
       let firstClassificationTree = buildClassificationTree(firstClassificationSet);
@@ -536,6 +629,15 @@ class Radial extends Component {
       let firstClassificationSet = parseClassification(assignmentsArray, "1");
       let firstClassificationTree = buildClassificationTree(firstClassificationSet);
       let firstFlatClassificationTree = addChildren(firstClassificationTree);
+      if(removeGray == "1"){
+        trimTree1(firstFlatClassificationTree)
+        trimGrey(firstFlatClassificationTree)
+        if(formatAfter == "0"){
+
+        }else if(formatAfter == "1"){
+          removefromtree(firstClassificationTree)
+        }
+      }
       if(trimming == true){
         trimTree1(firstFlatClassificationTree)
         trimTree2(firstFlatClassificationTree)
@@ -574,11 +676,12 @@ class Radial extends Component {
     const vNodes = vRoot.descendants();
     const vLinks = vLayout(vRoot).links();
     let newNodes = []
-
-    if(trimming == true){
+    if(trimming == true || removeGray == "1"){
       for(let i = 0; i < vNodes.length; i++){
         if(vNodes[i].data.hide != true){
           newNodes.push(vNodes[i])
+          console.log(removeGray)
+
         }
       }
     }else{
@@ -593,7 +696,7 @@ class Radial extends Component {
         .attr("class", "link")
         .attr("stroke", "#ccc")
         .attr('stroke-width', function(d){
-          if(trimming == true){
+          if(trimming == true || removeGray == "1"){
             if(d.source.data.hide == true || d.target.data.hide == true){
               return '0px'
             }else{
@@ -726,6 +829,53 @@ class Radial extends Component {
   render(){
     return (
         <div id="parent">
+
+        <Button onClick={this.handleClickOpen}>Open select dialog</Button>
+      <div id="RadialSettings">
+      <Dialog disableBackdropClick disableEscapeKeyDown open={this.state.open} onClose={this.handleClose}>
+        <DialogTitle>Choose Radial Settings</DialogTitle>
+        <DialogContent>
+          <form>
+            <FormControl>
+              <InputLabel htmlFor="demo-dialog-native" id={"FormControl"}>Remove Gray Nodes</InputLabel>
+              <Select
+                native
+                value={this.state.grayRemoval}//age
+                onChange={this.handleChange}
+                input={<Input id="demo-dialog-native" />}
+                id={"inputselect"}
+              >
+                <option aria-label="None" value="" />
+                <option value={1}>true</option>
+                <option value={0}>false</option>
+              </Select>
+            </FormControl>
+            <FormControl>
+              <InputLabel id="demo-dialog-select-label" id={"FormControl"}>Layout After Removal</InputLabel>
+              <Select
+                labelId="demo-dialog-select-label"
+                value={this.state.formatAfter}//age
+                onChange={this.handle2Change}
+                input={<Input />}
+                id={"inputselect"}
+              >
+                <option aria-label="None" value="" />
+                <option value={1}>true</option>
+                <option value={0}>false</option>
+              </Select>
+            </FormControl>
+          </form>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={this.handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={this.handleClose} color="primary">
+            Ok
+          </Button>
+        </DialogActions>
+      </Dialog>
+      </div>
           <div id={"App" + this.props.id}>
             <div id="tooltips">
               <div id="tooltip" class="hidden">

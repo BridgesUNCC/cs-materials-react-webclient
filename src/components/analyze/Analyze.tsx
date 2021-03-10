@@ -160,6 +160,9 @@ export const Analyze: FunctionComponent<Props> = (
       case "matrix":
         selectedIndex = 6;
         break;
+      case "similarity":
+        selectedIndex = 7;
+        break;
     }
 
 
@@ -260,6 +263,7 @@ export const Analyze: FunctionComponent<Props> = (
               </ListItemIcon>
               <ListItemText primary="Harmonization View" />
             </ListItem>
+
           </div></List>
           {(user_id !== null) ?
             <Divider />
@@ -303,6 +307,12 @@ export const Analyze: FunctionComponent<Props> = (
               <DashboardIcon />
             </ListItemIcon>
             <ListItemText primary="Search" />
+          </ListItem>
+          <ListItem button onClick={() => setIndex(7)} selected={selectedIndex === 7} component={Link} to={'/searchrelation?k=20&matID=1'}>
+            <ListItemIcon>
+              <BarChartIcon />
+            </ListItemIcon>
+            <ListItemText primary="Similarity" />
           </ListItem>
           </div></List>
 

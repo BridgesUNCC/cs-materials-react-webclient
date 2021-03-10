@@ -74,6 +74,8 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     let path = location.pathname;
     let search = location.search;
 
+    console.log(path)
+
     const [listInfo, setListInfo] = React.useState<ListEntity>(
         createEmptyEntity(path)
     );

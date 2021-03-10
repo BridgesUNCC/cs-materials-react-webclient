@@ -32,8 +32,10 @@ import {
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
-          padding: theme.spacing(3, 2),
-          margin: theme.spacing(5),
+          padding: theme.spacing(3, 2, 0, 0),
+          margin: theme.spacing(2, 0, 0, 0),
+          align: 'center',
+          marginLeft: 100,
         },
         margin: {
             margin: theme.spacing(5),

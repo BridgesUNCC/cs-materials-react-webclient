@@ -109,9 +109,23 @@
 #RadialContainer{
   position: absolute;
   left: 0%;
-  top: 17%;
+  top: 5%;
   margin-left: 0;
   padding-left: 0px;
+}
+
+#RadialSettings{
+  width: auto;
+  position: center;
+}
+
+#FormControl{
+  margin-bottom: 10px;
+}
+
+#inputselect{
+  margin-top: 20px;
+  margin-left: 10px;
 }
 
 .viewport {
