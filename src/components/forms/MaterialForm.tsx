@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {RouteComponentProps} from "react-router";
+import {RouteComponentProps, Prompt} from "react-router";
 import {getJSONData, parse_query_variable, postJSONData} from "../../common/util";
 import {createStyles, Divider, List, MenuItem, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
@@ -112,6 +112,7 @@ interface FormEntity {
     new: boolean;
     show_acm: boolean;
     show_pdc: boolean;
+    is_dirty: boolean;
 }
 
 const createEmptyEntity = (location: any): FormEntity => {
@@ -128,6 +129,7 @@ const createEmptyEntity = (location: any): FormEntity => {
         new: location.pathname.endsWith("/create"),
         show_acm: false,
         show_pdc: false,
+        is_dirty: false,
     };
 };
 
@@ -146,6 +148,19 @@ export const MaterialForm: FunctionComponent<Props> = (
     const [formInfo, setFormInfo] = React.useState(
         createEmptyEntity(location)
     );
+
+
+    if (formInfo.is_dirty) {
+        window.onbeforeunload = (e: any) => {
+            let confirmation_message = 'It looks like you have been editing something. If you leave before saving, your changes will be lost.';
+            (e || window.event).returnValue = confirmation_message; //Gecko + IE
+            return confirmation_message; //Gecko + Webkit, Safari, Chrome etc
+        };
+    } else {
+        window.onbeforeunload = () => {
+            return undefined;
+        }
+    }
 
 
     let match_id = null;
@@ -380,14 +395,14 @@ export const MaterialForm: FunctionComponent<Props> = (
     const onTagTextFieldChange = (field_id: string) => (e: any, value: any): void => {
         let fields = formInfo.temp_tags;
         fields = {...fields, [field_id]: value};
-        setFormInfo({...formInfo, temp_tags: fields});
+        setFormInfo({...formInfo, temp_tags: fields, is_dirty: true});
 
     };
 
     const onUpdateMaterialTextField = (name: string, value: string) => {
         let fields = formInfo.data;
         fields = {...fields, [name]: value};
-        setFormInfo({...formInfo, data: fields});
+        setFormInfo({...formInfo, data: fields, is_dirty: true});
     };
 
     const onTextFieldChange = (field_id: string) => (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -426,7 +441,7 @@ export const MaterialForm: FunctionComponent<Props> = (
 
         let tags = formInfo.temp_tags;
         tags.ontology = selected;
-        setFormInfo({...formInfo, temp_tags: tags});
+        setFormInfo({...formInfo, temp_tags: tags, is_dirty: true});
     };
 
     const getPresignedUrl = (name: string, id: string): Promise<string> => {
@@ -615,6 +630,12 @@ export const MaterialForm: FunctionComponent<Props> = (
                 </Typography>
             }
 
+            <Prompt
+                when={formInfo.is_dirty}
+                message={() =>
+                    `Are you sure you want to leave this form? Unsaved changes will be lost.`
+                }
+            />
 
             <Button  className={classes.saveButton}
                      startIcon={<SaveIcon/>}
@@ -629,7 +650,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                         force_user_data_reload();
                     }
                     let snackbar_info = buildSnackbarProps("success", "Saved");
-                    setFormInfo({...formInfo, snackbar_info})
+                    setFormInfo({...formInfo, snackbar_info, is_dirty: false})
                     return id
                 })}>
                 Save
@@ -836,6 +857,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                                      startIcon={<PublishIcon/>}
                                      variant="contained" color="primary" onClick={() =>
                                 onSubmit((id) => {
+                                    window.onunload = () => {};
+                                    setFormInfo({...formInfo, is_dirty: false});
                                     history.push({
                                             pathname: "/material/" + id
                                         }
