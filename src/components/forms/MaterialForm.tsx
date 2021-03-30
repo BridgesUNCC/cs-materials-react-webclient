@@ -28,6 +28,7 @@ import {
     emptySnackbarBuilderProps,
     SnackbarBuilderProps
 } from "../../common/SnackbarBuilder";
+import { promises } from "dns";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -643,6 +644,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                 onSubmit((id) => {
 
                     if (formInfo.new) {
+                        window.onbeforeunload = () => { };
+                        setFormInfo({ ...formInfo, is_dirty: false });
                         history.push({
                                 pathname: "/material/" + id + "/edit"
                             }
@@ -883,6 +886,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                         onCheck={onTreeCheckBoxClick}
                         save={() => onSubmit((id) => {
                             if (formInfo.new) {
+                                window.onbeforeunload = () => { };
+                                setFormInfo({ ...formInfo, is_dirty: false });
                                 history.push({
                                         pathname: "/material/" + id + "/edit"
                                     }
@@ -890,7 +895,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 force_user_data_reload();
                             }
                             let snackbar_info = buildSnackbarProps("success", "Saved");
-                            setFormInfo({...formInfo, snackbar_info})
+                            setFormInfo({...formInfo, snackbar_info, is_dirty: false})
                             return id;
                         })}
             />
@@ -900,6 +905,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                         onCheck={onTreeCheckBoxClick}
                         save={() => onSubmit((id) => {
                             if (formInfo.new) {
+                                window.onbeforeunload = () => { };
+                                setFormInfo({ ...formInfo, is_dirty: false });
                                 history.push({
                                         pathname: "/material/" + id + "/edit"
                                     }
@@ -907,7 +914,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 force_user_data_reload();
                             }
                             let snackbar_info = buildSnackbarProps("success", "Saved");
-                            setFormInfo({...formInfo, snackbar_info})
+                            setFormInfo({...formInfo, snackbar_info, is_dirty: false})
                             return id;
                         })}
             />
