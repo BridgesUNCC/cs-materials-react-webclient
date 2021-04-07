@@ -13,7 +13,8 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import {Author} from "../author/Author";
 import PublishIcon from '@material-ui/icons/Publish';
 import SaveIcon from '@material-ui/icons/Save';
-
+import Tooltip from '@material-ui/core/Tooltip';
+import HelpIcon from '@material-ui/icons/Help';
 import {TreeDialog} from "./TreeDialog";
 import {MaterialTypesArray, TagData, MaterialData, MaterialVisibilityArray, OntologyData} from "../../common/types";
 import {ListItemLink} from "../ListItemLink";
@@ -46,8 +47,13 @@ const useStyles = makeStyles((theme: Theme) =>
             width: '70%',
         },
         textArea: {
-            margin: theme.spacing(4),
-            width: '80%',
+            margin: theme.spacing(4, 0, 0, 0),
+            width: '90%',
+        },
+        icon: {
+          marginRight: 100,
+          marginTop: 50,
+          marginLeft: 0,
         },
         saveButton: {
             verticalAlign: 'middle',
@@ -63,6 +69,7 @@ interface MatchParams {
 interface Props extends RouteComponentProps<MatchParams> {
     api_url: string;
     force_user_data_reload: () => void;
+
 }
 
 interface MetaTags {
@@ -397,13 +404,13 @@ export const MaterialForm: FunctionComponent<Props> = (
         let fields = formInfo.temp_tags;
         fields = {...fields, [field_id]: value};
         setFormInfo({...formInfo, temp_tags: fields, is_dirty: true});
-
     };
 
     const onUpdateMaterialTextField = (name: string, value: string) => {
         let fields = formInfo.data;
         fields = {...fields, [name]: value};
         setFormInfo({...formInfo, data: fields, is_dirty: true});
+
     };
 
     const onTextFieldChange = (field_id: string) => (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -416,6 +423,11 @@ export const MaterialForm: FunctionComponent<Props> = (
 
     const clearSnackbarProps = () => {
         setFormInfo({...formInfo, snackbar_info: emptySnackbarBuilderProps(formInfo.snackbar_info)})
+    }
+
+    const addTextFieldValue = (field_id: string) => (e: React.ChangeEvent<HTMLInputElement>): void => {
+      onUpdateMaterialTextField(field_id, e.currentTarget.value)
+      // console.log(e.currentTarget.getAttribute('value'))
     }
 
     const treeOpen = (tree: string) => {
@@ -435,7 +447,7 @@ export const MaterialForm: FunctionComponent<Props> = (
     const onTreeCheckBoxClick = (event: React.ChangeEvent<HTMLInputElement>, node: OntologyData) => {
         let selected = formInfo.temp_tags.ontology;
         if (event.target.checked)
-            selected.push({id: node.id, title: "", type: "", bloom: ""});
+            selected.push({id: node.id, title: node.title, type: "", bloom: ""});
         else {
             selected = selected.filter(e => e.id !== node.id);
         }
@@ -566,9 +578,24 @@ export const MaterialForm: FunctionComponent<Props> = (
             name: string
         }
 
+
         const MyAutocomplete: FunctionComponent<KeyProp> = ({name}) => {
+            const handleKeyDown = (event: any) => {
+              switch (event.key) {
+                case "Tab": {
+                  event.preventDefault()
+                  event.stopPropagation();
+                  console.log(event.target.value)
+                  defaults[name].push(event.target.value)
+                  event.target.value = ""
+                  break;
+                }
+                default:
+              }
+            };
             return (
-                <Grid item>
+              <Grid container spacing={0}>
+                <Grid item xs={11}>
                     <Autocomplete
                         multiple
                         disableClearable={true}
@@ -588,7 +615,11 @@ export const MaterialForm: FunctionComponent<Props> = (
                         }}
                         freeSolo
                         onChange={onTagTextFieldChange(name)}
-                        renderInput={params => (
+                        renderInput={params => {
+                          Object.assign(params.inputProps, {onKeyDown: handleKeyDown})
+                            // params.inputProps.onKeyDown = handleKeyDown;
+                            {console.log(params.inputProps)}
+                            return(
                             <TextField
                                 {...params}
                                 variant="standard"
@@ -599,9 +630,17 @@ export const MaterialForm: FunctionComponent<Props> = (
                                 className={classes.textArea}
                                 fullWidth
                             />
-                        )}
+                          );
+                        }}
                     />
                 </Grid>
+                <Grid item xs={1}>
+                <Tooltip title="Press 'Enter' to submit each entry">
+                    <HelpIcon className={classes.icon}/>
+                </Tooltip>
+                </Grid>
+                </Grid>
+
             )
         };
 
@@ -619,6 +658,7 @@ export const MaterialForm: FunctionComponent<Props> = (
 
     // @TODO, flash error messages for empty title
     // @TODO, styling
+    console.log(formInfo.temp_tags)
     return (
         <div>
             {(formInfo.data.material_type !== "collection")?

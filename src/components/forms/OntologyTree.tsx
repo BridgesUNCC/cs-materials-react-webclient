@@ -127,10 +127,13 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
       setAnchorEl(null);
     };
 
+    // for(let i = 0; i < selected_tags.length; i++){
+    //   settag(tag.push(selected_tags[i].title))
+    // }
+
 
 
     const handleChange = (event: React.ChangeEvent<{}>, expanded: string[]) => {
-        console.log(expanded);
         setTreeInfo({...treeInfo, expanded, propagate_expand: false});
     };
 
@@ -232,8 +235,6 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
     const tree = treeInfo.fetched && treeInfo.ontology !== null ?
         createTree(treeInfo.ontology, -1, expanded, propagate_expand) : <CircularProgress/>;
 
-    console.log(tag)
-
     return (
       <div>
       <div>
@@ -249,9 +250,10 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-        {tag.map((tag) => (
-          <MenuItem onClick={handleClose}>{tag}</MenuItem>
+        {selected_tags.map((tag) => (
+          <MenuItem onClick={handleClose}>{tag.title}</MenuItem>
         ))}
+
         </Menu>
         <TreeView
             className={classes.root}
