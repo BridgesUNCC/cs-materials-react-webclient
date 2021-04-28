@@ -308,13 +308,19 @@ export const Analyze: FunctionComponent<Props> = (
             </ListItemIcon>
             <ListItemText primary="Search" />
           </ListItem>
+
+          {(false)?
           <ListItem button onClick={() => setIndex(7)} selected={selectedIndex === 7} component={Link} to={'/searchrelation?k=20&matID=1'}>
             <ListItemIcon>
               <BarChartIcon />
             </ListItemIcon>
             <ListItemText primary="Similarity" />
           </ListItem>
-          </div></List>
+          :
+          <div></div>}
+
+          </div>
+          </List>
 
         </Drawer>
         </div>

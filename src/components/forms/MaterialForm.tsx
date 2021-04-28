@@ -97,6 +97,10 @@ const useStyles = makeStyles((theme: Theme) =>
           marginTop: theme.spacing(3),
           marginLeft: theme.spacing(1),
         },
+        mapped: {
+          margin: theme.spacing(2),
+          align: 'center'
+        }
     }),
 );
 
@@ -876,7 +880,32 @@ export const MaterialForm: FunctionComponent<Props> = (
                          variant="contained" color="primary" onClick={() => {treeOpen("pdc_2012")}}>
                     PDC 2012
                 </Button>
+            </Grid>
+            <Grid container direction="column">
+            <Grid item >
+                            <Typography variant={"h5"}>
+                                Mapped Materials
+                            </Typography>
 
+                            <List>
+                                {
+                                    formInfo.data.materials.map((value, index) => {
+                                        return (
+                                            <div key={`${value.id}`}>
+
+                                                <Divider/>
+                                                <ListItemLink
+                                                    history={history}
+                                                    location={location}
+                                                    match={match}
+                                                    primary={value.title} to={"/material/" + value.id} key={value.id}
+                                                />
+                                            </div>
+                                        )
+                                    })
+                                }
+                            </List>
+                        </Grid>
             </Grid>
             </Grid>
             </Paper>
