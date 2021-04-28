@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme: Theme) =>
             fontWeight: "inherit",
         },
         tags: {
-          position: 'fixed',
+          // position: 'fixed',
           float: 'right',
           marginLeft: 1500,
         }

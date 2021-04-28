@@ -30,6 +30,9 @@ import {
     SnackbarBuilderProps
 } from "../../common/SnackbarBuilder";
 import { promises } from "dns";
+import Stepper from '@material-ui/core/Stepper';
+import Step from '@material-ui/core/Step';
+import StepLabel from '@material-ui/core/StepLabel';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -40,7 +43,7 @@ const useStyles = makeStyles((theme: Theme) =>
           marginLeft: 100,
         },
         margin: {
-            margin: theme.spacing(5),
+            margin: theme.spacing(0,0,0,0),
         },
         textField: {
             margin: theme.spacing(2),
@@ -58,7 +61,42 @@ const useStyles = makeStyles((theme: Theme) =>
         saveButton: {
             verticalAlign: 'middle',
             textAlign: 'right',
-        }
+        },
+        paper: {
+          marginTop: theme.spacing(3),
+          marginBottom: theme.spacing(3),
+          padding: theme.spacing(2),
+          [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
+            marginTop: theme.spacing(4),
+            marginBottom: theme.spacing(6),
+            padding: theme.spacing(1,0,5),
+          },
+        },
+        stepper: {
+          backgroundColor: 'transparent',
+          boxShadow: 'none'
+        },
+        appBar: {
+          position: 'relative',
+        },
+        layout: {
+          width: 'auto',
+          marginLeft: theme.spacing(2),
+          marginRight: theme.spacing(2),
+          [theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
+            width: 600,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          },
+        },
+        buttons: {
+          display: 'flex',
+          justifyContent: 'flex-end',
+        },
+        button: {
+          marginTop: theme.spacing(3),
+          marginLeft: theme.spacing(1),
+        },
     }),
 );
 
@@ -156,6 +194,19 @@ export const MaterialForm: FunctionComponent<Props> = (
     const [formInfo, setFormInfo] = React.useState(
         createEmptyEntity(location)
     );
+
+    const steps = ['Meta Data', 'Tag Fields', 'Classification'];
+
+
+    const [activeStep, setActiveStep] = React.useState(0);
+
+    const handleNext = () => {
+      setActiveStep(activeStep + 1);
+    };
+
+    const handleBack = () => {
+      setActiveStep(activeStep - 1);
+    };
 
 
     if (formInfo.is_dirty) {
@@ -537,7 +588,7 @@ export const MaterialForm: FunctionComponent<Props> = (
     }
 
 
-    let tags_fields;
+    let tags_fields: any;
 
     if (formInfo.fetched || (formInfo.tags_fetched && formInfo.new)) {
 
@@ -656,6 +707,186 @@ export const MaterialForm: FunctionComponent<Props> = (
 
     }
 
+    function getStepContent(step: Number) {
+      switch (step) {
+        case 0:
+          return (
+            <Paper className={classes.paper}>
+            <Grid container direction="column">
+                  <Grid item>
+                      <TextField
+                          label={"Title"}
+                          value={formInfo.data.title}
+                          className={classes.textField}
+                          onChange={onTextFieldChange("title")}
+                      />
+                  </Grid>
+
+                  <Grid item>
+
+                      <TextField
+                          id="standard-select-type"
+                          select
+                          label="Material Type"
+                          value={formInfo.data?.material_type}
+                          onChange={onTypeFieldChange("material_type")}
+                          helperText=""
+                          className={classes.textField}
+                      >
+                          {MaterialTypesArray.map((option) => (
+                              <MenuItem key={option.value} value={option.value}>
+                                  {option.label}
+                              </MenuItem>
+                          ))}
+                      </TextField>
+                  </Grid>
+
+                  <Grid item>
+
+                      <TextField
+                          id="standard-select-visibility"
+                          select
+                          label="Material Visibility"
+                          value={formInfo.data?.visibility}
+                          onChange={onTypeFieldChange("visibility")}
+                          helperText=""
+                          className={classes.textField}
+                      >
+                          {MaterialVisibilityArray.map((option) => (
+                              <MenuItem key={option.value} value={option.value}>
+                                  {option.label}
+                              </MenuItem>
+                          ))}
+                      </TextField>
+                  </Grid>
+                  <Grid item>
+                      <TextField
+                          label={"Upstream URL"}
+                          value={formInfo.data.upstream_url === null ? "" : formInfo.data.upstream_url}
+                          className={classes.textField}
+                          onChange={onTextFieldChange("upstream_url")}
+                      />
+                  </Grid>
+                  <Grid item>
+                    <TextField
+                        label={"Description"}
+                        value={formInfo.data.description === null ? "" : formInfo.data.description}
+                        className={classes.textArea}
+                        multiline
+                        rows={4}
+                        defaultValue="Default Value"
+                        variant="outlined"
+                        onChange={onTextFieldChange("description")}
+                    />
+                </Grid>
+                </Grid>
+              </Paper>)
+        case 1:
+          return (
+            <Paper className={classes.paper}>
+              <Grid container direction="column">
+                {tags_fields}
+                </Grid>
+            </Paper>)
+        case 2:
+          return(<Paper className={classes.paper}>
+            <Grid container spacing={3}>
+            <Grid item xs={12}>
+                {formInfo.posting &&
+                <LinearProgress/>
+                }
+                {
+                    formInfo.files.length !== 0 ?
+                        <div>
+                            <Typography variant="h5">
+                                Files
+                            </Typography>
+                            <Button
+                                startIcon={<EditIcon/>}
+                                onClick={() => {
+                                    setFormInfo({...formInfo, file_delete_mode: !formInfo.file_delete_mode})
+                                }}
+                            >
+                                Toggle Delete Files
+                            </Button>
+                            {formInfo.file_delete_mode ?
+                                <div>
+                                    {formInfo.files.map(file => {
+                                        if (formInfo.data.id)
+                                            return <DeleteDialog id={formInfo.data.id} name={file.name}
+                                                                 key={file.name}
+                                                                 endpoint={"/data/delete_file/material?id=" + formInfo.data.id + "&file_key=" + file.name}
+                                                                 on_success={() => {
+                                                                     fetchFileList().then(value => setFormInfo({...formInfo, files: value.files}));
+                                                                 }}
+                                                                 api_url={api_url}
+                                            />
+                                        return <div/>
+                                    })
+                                    }
+                                </div>
+                                :
+                                <div>
+                                    {formInfo.files.map(file => {
+                                        return <Button className={classes.margin}
+                                                       variant="contained"
+                                                       startIcon={<GetAppIcon/>}
+                                                       target={"_blank"}
+                                                       href={file.url}
+                                                       key={file.name}
+                                                       download={true}
+                                        >
+                                            {file.name}
+                                        </Button>
+                                    })}
+                                </div>
+                            }
+
+                            <Divider/>
+                        </div>
+                        :
+                        <div/>
+                }
+            </Grid>
+
+            <Grid  item xs={4}>
+                <Button
+                    variant="contained"
+                    color={"primary"}
+                    component="label"
+                    className={classes.margin}
+                >
+                    Upload File
+                    <input
+                        type="file"
+                        style={{ display: "none" }}
+                        onChange={onFileUpload}
+                    />
+                </Button>
+            </Grid>
+
+            <Grid item xs={4}>
+                <Button  className={classes.margin}
+                         variant="contained" color="primary" onClick={() => {treeOpen("acm_2013")}}>
+                    ACM CSC 2013
+                </Button>
+            </Grid>
+            <Grid item xs={4}>
+                <Button  className={classes.margin}
+                         variant="contained" color="primary" onClick={() => {treeOpen("pdc_2012")}}>
+                    PDC 2012
+                </Button>
+
+            </Grid>
+            </Grid>
+            </Paper>
+          )
+        default:
+          throw new Error('Unknown step');
+      }
+    }
+
+
     // @TODO, flash error messages for empty title
     // @TODO, styling
     console.log(formInfo.temp_tags)
@@ -677,6 +908,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                     `Are you sure you want to leave this form? Unsaved changes will be lost.`
                 }
             />
+
 
             <Button  className={classes.saveButton}
                      startIcon={<SaveIcon/>}
@@ -704,219 +936,53 @@ export const MaterialForm: FunctionComponent<Props> = (
                 :
                 <Author info={[]} currentLoc={"collection_form"}/>
             }
-            <Paper className={classes.root}>
-                {formInfo.posting &&
-                <LinearProgress/>
-                }
-                {(!formInfo.fetched) ?
-                    <CircularProgress/>
-                    :
-                    <Grid
-                        container
-                        direction="column"
-                    >
-                        <Grid item>
-                            <TextField
-                                label={"Title"}
-                                value={formInfo.data.title}
-                                className={classes.textField}
-                                onChange={onTextFieldChange("title")}
-                            />
-                        </Grid>
 
-                        <Grid item>
+            <Stepper activeStep={activeStep} className={classes.stepper}>
+              {steps.map((label) => (
+                <Step key={label}>
+                  <StepLabel>{label}</StepLabel>
+                </Step>
+              ))}
+            </Stepper>
 
-                            <TextField
-                                id="standard-select-type"
-                                select
-                                label="Material Type"
-                                value={formInfo.data?.material_type}
-                                onChange={onTypeFieldChange("material_type")}
-                                helperText=""
-                                className={classes.textField}
-                            >
-                                {MaterialTypesArray.map((option) => (
-                                    <MenuItem key={option.value} value={option.value}>
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                        </Grid>
-
-                        <Grid item>
-
-                            <TextField
-                                id="standard-select-visibility"
-                                select
-                                label="Material Visibility"
-                                value={formInfo.data?.visibility}
-                                onChange={onTypeFieldChange("visibility")}
-                                helperText=""
-                                className={classes.textField}
-                            >
-                                {MaterialVisibilityArray.map((option) => (
-                                    <MenuItem key={option.value} value={option.value}>
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                        </Grid>
-                        <Grid item>
-                            <TextField
-                                label={"Upstream URL"}
-                                value={formInfo.data.upstream_url === null ? "" : formInfo.data.upstream_url}
-                                className={classes.textField}
-                                onChange={onTextFieldChange("upstream_url")}
-                            />
-                        </Grid>
-
-                        <Grid item>
-                            <TextField
-                                label={"Description"}
-                                value={formInfo.data.description === null ? "" : formInfo.data.description}
-                                className={classes.textArea}
-                                multiline={true}
-                                onChange={onTextFieldChange("description")}
-                            />
-                        </Grid>
-
-                        {tags_fields}
-
-
-                        <Grid item>
-                            {formInfo.posting &&
-                            <LinearProgress/>
-                            }
-                            {
-                                formInfo.files.length !== 0 ?
-                                    <div>
-                                        <Typography variant="h5">
-                                            Files
-                                        </Typography>
-                                        <Button
-                                            startIcon={<EditIcon/>}
-                                            onClick={() => {
-                                                setFormInfo({...formInfo, file_delete_mode: !formInfo.file_delete_mode})
-                                            }}
-                                        >
-                                            Toggle Delete Files
-                                        </Button>
-                                        {formInfo.file_delete_mode ?
-                                            <div>
-                                                {formInfo.files.map(file => {
-                                                    if (formInfo.data.id)
-                                                        return <DeleteDialog id={formInfo.data.id} name={file.name}
-                                                                             key={file.name}
-                                                                             endpoint={"/data/delete_file/material?id=" + formInfo.data.id + "&file_key=" + file.name}
-                                                                             on_success={() => {
-                                                                                 fetchFileList().then(value => setFormInfo({...formInfo, files: value.files}));
-                                                                             }}
-                                                                             api_url={api_url}
-                                                        />
-                                                    return <div/>
-                                                })
-                                                }
-                                            </div>
-                                            :
-                                            <div>
-                                                {formInfo.files.map(file => {
-                                                    return <Button className={classes.margin}
-                                                                   variant="contained"
-                                                                   startIcon={<GetAppIcon/>}
-                                                                   target={"_blank"}
-                                                                   href={file.url}
-                                                                   key={file.name}
-                                                                   download={true}
-                                                    >
-                                                        {file.name}
-                                                    </Button>
-                                                })}
-                                            </div>
-                                        }
-
-                                        <Divider/>
-                                    </div>
-                                    :
-                                    <div/>
-                            }
-                        </Grid>
-
-                        <Grid  item>
-                            <Button
-                                variant="contained"
-                                color={"primary"}
-                                component="label"
-                            >
-                                Upload File
-                                <input
-                                    type="file"
-                                    style={{ display: "none" }}
-                                    onChange={onFileUpload}
-                                />
-                            </Button>
-                        </Grid>
-
-
-                        <Grid item>
-                            <Button  className={classes.margin}
-                                     variant="contained" color="primary" onClick={() => {treeOpen("acm_2013")}}>
-                                ACM CSC 2013
-                            </Button>
-                            <Button  className={classes.margin}
-                                     variant="contained" color="primary" onClick={() => {treeOpen("pdc_2012")}}>
-                                PDC 2012
-                            </Button>
-                        </Grid>
-
-                        <Grid item>
-                            <Typography variant={"h5"}>
-                                Mapped Materials
-                            </Typography>
-
-                            <List>
-                                {
-                                    formInfo.data.materials.map((value, index) => {
-                                        return (
-                                            <div key={`${value.id}`}>
-
-                                                <Divider/>
-                                                <ListItemLink
-                                                    history={history}
-                                                    location={location}
-                                                    match={match}
-                                                    primary={value.title} to={"/material/" + value.id} key={value.id}
-                                                />
-                                            </div>
-                                        )
-                                    })
+            <React.Fragment>
+                {getStepContent(activeStep)}
+                <div>
+                  {activeStep !== 0 && (
+                    <Button onClick={handleBack}>
+                      Back
+                    </Button>
+                  )}
+                  {activeStep === steps.length-1 && (
+                    <Button
+                             startIcon={<PublishIcon/>}
+                             variant="contained" color="primary" onClick={() =>
+                        onSubmit((id) => {
+                            window.onunload = () => {};
+                            setFormInfo({...formInfo, is_dirty: false});
+                            history.push({
+                                    pathname: "/material/" + id
                                 }
-                            </List>
-                        </Grid>
+                            );
+                            force_user_data_reload();
+                            return id;
+                        })}>
+                        Save and View
+                    </Button>
+                  )}
+                  {activeStep !== steps.length-1 && (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleNext}
 
-                        <Grid
-                            item
-                        >
-                            <Button  className={classes.margin}
-                                     startIcon={<PublishIcon/>}
-                                     variant="contained" color="primary" onClick={() =>
-                                onSubmit((id) => {
-                                    window.onunload = () => {};
-                                    setFormInfo({...formInfo, is_dirty: false});
-                                    history.push({
-                                            pathname: "/material/" + id
-                                        }
-                                    );
-                                    force_user_data_reload();
-                                    return id;
-                                })}>
-                                Submit
-                            </Button>
+                    >
+                      Next
+                    </Button>
+                  )}
 
-                        </Grid>
-
-                    </Grid>
-                }
-            </Paper>
+                  </div>
+              </React.Fragment>
 
 
 

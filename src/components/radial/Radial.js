@@ -77,7 +77,7 @@ class Radial extends Component {
     // let trimming         = false;
 
 
-    console.log(this.state.grayRemoval)
+    console.log(assignments)
 
     var trimming = this.state.trimming
 

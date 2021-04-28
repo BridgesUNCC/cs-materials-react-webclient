@@ -115,7 +115,7 @@ export const DeleteDialog: FunctionComponent<DeleteProps> = ({
     };
 
     return (
-        <div>
+        <div className={classes.margin}>
             <Button className={classes.margin} variant={"contained"} color={"secondary"} startIcon={<DeleteIcon/>} onClick={handleOpenClose}>
                 Delete {name}
             </Button>

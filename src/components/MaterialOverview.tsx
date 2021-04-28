@@ -21,6 +21,9 @@ const useStyles = makeStyles((theme: Theme) =>
             margin: theme.spacing(2),
             marginLeft: 'auto',
         },
+        topButton:{
+          display: 'inline-block'
+        },
         root: {
             margin: theme.spacing(3, 2),
             textAlign: 'center',
@@ -190,7 +193,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
         output = (
             <div>
                 <Divider/>
-                <Typography variant={"h5"}>
+                <Typography variant={"h5"} className={classes.content}>
                     Authors
                 </Typography>
                 <Typography variant="body1" component="ul" className={classes.content} >
@@ -204,7 +207,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                 </Typography>
 
                 <Divider/>
-                <Typography variant={"h5"}>
+                <Typography variant={"h5"} className={classes.content}>
                     Courses
                 </Typography>
                 <Typography variant="body1" component="ul" className={classes.content} >
@@ -217,7 +220,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                     })}
                 </Typography>
                 <Divider/>
-                 <Typography variant={"h5"}>
+                 <Typography variant={"h5"} className={classes.content}>
                     Topics
                 </Typography>
                 <Typography variant="body1" component="ul" className={classes.content} >
@@ -230,7 +233,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                     })}
                 </Typography>
                 <Divider/>
-                 <Typography variant={"h5"}>
+                 <Typography variant={"h5"} className={classes.content}>
                     Programming Languages
                 </Typography>
                 <Typography variant="body1" component="ul" className={classes.content} >
@@ -243,7 +246,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                     })}
                 </Typography>
                 <Divider/>
-                 <Typography variant={"h5"}>
+                 <Typography variant={"h5"} className={classes.content}>
                     Datasets
                 </Typography>
                 <Typography variant="body1" component="ul" className={classes.content} >
@@ -256,7 +259,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                     })}
                 </Typography>
                 <Divider/>
-                 <Typography variant={"h5"}>
+                 <Typography variant={"h5"} className={classes.content}>
                     Ontologies
                 </Typography>
                 <Typography variant="body1" component="ul" className={classes.content} >
@@ -269,7 +272,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                     })}
                 </Typography>
                 <Divider/>
-                <Typography variant={"h5"}>
+                <Typography variant={"h5"} className={classes.content}>
                     Mapped Materials
                 </Typography>
                 <List>
@@ -321,6 +324,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         </div>
                         :
                         <div>
+                        <div className={classes.topButton}>
                             {overviewInfo.can_edit &&
                             <Link to={overviewInfo.data.id + "/edit"}>
                                 <Button className={classes.margin} variant="contained" color="primary" startIcon={<EditIcon/>}>
@@ -335,31 +339,6 @@ export const MaterialOverview: FunctionComponent<Props> = (
                                 </Button>
                             </Link>
                             }
-                           <Typography variant={"h5"}>
-                                {MaterialTypesArray.find(e => e.value === overviewInfo.data?.material_type)?.label}
-                            </Typography>
-                            <Typography variant="h4" component="h3" className={classes.root}>
-                                {overviewInfo.data.title}
-                            </Typography>
-                            <Divider/>
-                            <Typography variant={"h5"}>
-                                Upstream URL
-                            </Typography>
-                            <a target={"_blank"} href={overviewInfo.data.upstream_url} className={classes.link}>
-                                {overviewInfo.data.upstream_url}
-                            </a>
-                            <Divider/>
-                            <Typography variant={"h5"}>
-                                Description
-                            </Typography>
-                            <Typography variant="body1" component="p" className={classes.content} >
-                                {overviewInfo.data.description}
-                            </Typography>
-                            <Divider/>
-                            {output}
-
-                            <Divider/>
-
                             {
                                 overviewInfo.files.length !== 0 ?
                                     <div>
@@ -394,6 +373,31 @@ export const MaterialOverview: FunctionComponent<Props> = (
                                           endpoint={"/data/delete/material?id=" + overviewInfo.data.id}
                             />
                             }
+                            </div>
+                            <Divider/>
+                           <Typography variant={"h3"}>
+                                {MaterialTypesArray.find(e => e.value === overviewInfo.data?.material_type)?.label}
+                            </Typography>
+                            <Typography variant="h4" component="h3" className={classes.root}>
+                                {overviewInfo.data.title}
+                            </Typography>
+                            <Divider/>
+                            <Typography variant={"h5"} className={classes.content}>
+                                Upstream URL
+                            </Typography>
+                            <a target={"_blank"} href={overviewInfo.data.upstream_url} className={classes.link}>
+                                {overviewInfo.data.upstream_url}
+                            </a>
+                            <Divider/>
+                            <Typography variant={"h5"} className={classes.content}>
+                                Description
+                            </Typography>
+                            <Typography variant="body1" component="p" className={classes.content} >
+                                {overviewInfo.data.description}
+                            </Typography>
+                            <Divider/>
+                            {output}
+                            <Divider/>
 
                         </div>
                     }
