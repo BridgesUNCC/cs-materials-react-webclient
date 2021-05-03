@@ -3,6 +3,9 @@ import {MaterialListData} from "../components/MaterialOverview";
 
 export interface MaterialListEntry {
     title: string;
+    description: string;
+    material_type: string;
+    upstream_url: string;
     id: number;
 }
 

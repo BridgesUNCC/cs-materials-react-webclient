@@ -37,7 +37,8 @@ const useStyles = makeStyles((theme: Theme) =>
         tags: {
           position: 'fixed',
           float: 'right',
-          marginLeft: 1500,
+          right: '100px'
+          // marginLeft: 1500,
         }
     }),
 );

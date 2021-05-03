@@ -3,31 +3,57 @@ import {getJSONData, parse_query_variable} from "../common/util";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import List from "@material-ui/core/List";
 import {ListItemLink} from "./ListItemLink";
-import {Checkbox, createStyles, Divider, Grid, Paper, Theme} from "@material-ui/core";
+import {Checkbox, createStyles, Grid, Paper, Theme} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import Typography from "@material-ui/core/Typography";
 import {RouteComponentProps} from "react-router";
 import Button from "@material-ui/core/Button";
 import {MaterialListEntry} from "../common/types";
 import {Analyze} from "./analyze/Analyze";
+import CardMedia from '@material-ui/core/CardMedia';
+import Pagination from '@material-ui/lab/Pagination';
+
 
 
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
-            padding: theme.spacing(3, 2, 0, 0),
+            padding: theme.spacing(3, 0, 0, 0),
             margin: theme.spacing(2, 0, 0, 0),
             align: 'center',
             marginLeft: 100,
+            flexGrow:1,
+        },
+        paper: {
+          padding: theme.spacing(0),
+          margin: 'auto',
+          maxWidth: 800,
+        },
+        image: {
+          width: 128,
+          height: 128,
+        },
+        img: {
+          margin: 'auto',
+          display: 'block',
+          maxWidth: '100%',
+          maxHeight: '100%',
         },
         titles:{
           align: 'center',
           marginLeft: 100,
         },
+        description:{
+          textAlign: 'left',
+        },
         margin: {
             margin: theme.spacing(5),
         },
+        paginator: {
+          align: 'center',
+          padding: "10px"
+        }
     }),
 );
 
@@ -73,18 +99,23 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     const classes = useStyles();
     let path = location.pathname;
     let search = location.search;
-
+    const itemsPerPage = 10;
+    let noOfPages = 1 //default value
     console.log(path)
 
     const [listInfo, setListInfo] = React.useState<ListEntity>(
         createEmptyEntity(path)
     );
 
+    const [page, setPage] = React.useState(1);
+    const handleChange = (event: any, value: any) => {
+      setPage(value);
+    };
+
     let reload = path !== listInfo.path || search !== listInfo.search;
 
 
     if (!listInfo.fetched || reload) {
-
         let ids = user_materials?.toString() || "";
         ids += parse_query_variable(location, "ids");
         let tags = parse_query_variable(location, "tags");
@@ -92,8 +123,12 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
         let keyword = parse_query_variable(location, "keyword");
         let material_types = parse_query_variable(location, "material_types");
 
-        const url = api_url + "/data/list/materials?ids=" + ids + "&tags=" + tags + "&sim_mats=" + sim_mats
+        const url = api_url + "/data/materials?ids=" + ids + "&tags=" + tags + "&sim_mats=" + sim_mats
             + "&keyword=" + keyword + "&material_types=" + material_types;
+        console.log(location)
+
+        // const url = api_url + "/data/materials?ids=" + ids + "&tags=" + tags
+        // console.log(location)
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
@@ -105,8 +140,8 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
             else {
                 if (resp['status'] === "OK") {
                     const data = resp['data'];
-                    console.log(data)
-                    setListInfo({...listInfo, fetched: true, materials: data, search: search, path})
+                    setPage(1)
+                    setListInfo({...listInfo, fetched: true, materials: data.materials, search: search, path})
                 }
             }
         })
@@ -116,33 +151,90 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     // user scrolls down?
     let output;
     let count = 0;
-    console.log(listInfo)
+    console.log(listInfo.materials)
+
+
+
     if (listInfo.materials !== null && !reload) {
-        output = listInfo.materials.map((value, index) => {
+        noOfPages = Math.ceil(listInfo.materials.length / itemsPerPage)
+        output = listInfo.materials.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((value, index) => {
             // @Hack @FIXME cull entries for speed
+            console.log(value)
+            // let image = require("../common/images/" + String(value.instance_of) + ".png")
+            console.log(value.hasOwnProperty('material_type'))
+            let image;
+            if(value.hasOwnProperty('material_type')){
+              image = require("../common/images/" + String(value.material_type) + ".png")
+            } else{
+              image = require("../common/images/assignment.png")
+            }
+            // let image = (value.hasOwnProperty('material_type')) ? require("../common/images/" + String(value.material_type) + ".png") : require("../common/images/assignment.png")
             if (count++ > 250)
                 return null;
             return (
-                <div key={`${value.id}`}>
+              <div className={classes.root} key={`${value.id}`}>
+                <Paper className={classes.paper}>
+                  <Grid container spacing={2}>
+                    <Grid item>
+                      <ListItemLink
+                              history={history}
+                              location={location}
+                              match={match}
+                              primary={""} to={"/material/" + value.id} key={value.id}
+                              icon={<CardMedia
+                                    className={classes.image}
+                                    image={image}
+                                    title="Image title"
+                                />}
 
-                    <Divider/>
-                    <ListItemLink
-                        history={history}
-                        location={location}
-                        match={match}
-                        primary={value.title} to={"/material/" + value.id} key={value.id}
-                        input={
-                            <Checkbox id={`checkbox-${value.id}`}
-                                      checked={listInfo.selected_materials.includes(value.id)}
-                                      onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                          event.stopPropagation();
-                                          handleCheck(event, value.id);
-                                      }}
-                                      onClick={e => (e.stopPropagation())}
-                            />
-                        }
-                    />
-                </div>
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm container>
+                      <Grid item xs container direction="column" spacing={2}>
+                        <Grid item xs>
+                          <Typography gutterBottom variant="subtitle1">
+                            {value.title}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary" className={classes.description} gutterBottom>
+                            {(value.description)?value.description.split(" ").splice(0,50).join(" ") + "...":""}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                      <Grid item>
+                      <Checkbox id={`checkbox-${value.id}`}
+                                            checked={listInfo.selected_materials.includes(value.id)}
+                                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                                event.stopPropagation();
+                                                handleCheck(event, value.id);
+                                            }}
+                                            onClick={e => (e.stopPropagation())}
+                                  />
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Paper>
+              </div>
+
+                // <div key={`${value.id}`}>
+                //
+                //     <Divider/>
+                //     <ListItemLink
+                //         history={history}
+                //         location={location}
+                //         match={match}
+                //         primary={value.title} to={"/material/" + value.id} key={value.id}
+                //         input={
+                //             <Checkbox id={`checkbox-${value.id}`}
+                //                       checked={listInfo.selected_materials.includes(value.id)}
+                //                       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                //                           event.stopPropagation();
+                //                           handleCheck(event, value.id);
+                //                       }}
+                //                       onClick={e => (e.stopPropagation())}
+                //             />
+                //         }
+                //     />
+                // </div>
             )
         });
     }
@@ -175,6 +267,8 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
         setListInfo({...listInfo, selected_materials});
     };
 
+
+
     return (
         <div>
         {/*load selected material to analyze comp for visualze*/}
@@ -193,7 +287,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                 Select Collections
             </Typography>
           }
-            <Paper className={classes.root}>
+            <div className={classes.root}>
                 <Grid container direction="column">
                     <Grid item>
                         <Button className={classes.margin} variant="contained" color="primary"
@@ -214,10 +308,25 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                 {(listInfo.materials === null || reload) &&
                 <CircularProgress/>
                 }
+                </div>
+
+
                 <List>
                     {output}
                 </List>
-            </Paper>
+                <Pagination
+                  count={noOfPages}
+                  page={page}
+                  onChange={handleChange}
+                  defaultPage={1}
+                  color="primary"
+                  size="large"
+                  showFirstButton
+                  showLastButton
+                  className={classes.root}
+                />
+
+
         </div>
 
     )
