@@ -5,21 +5,23 @@ import {getJSONData} from "../../common/util";
 
 
 
-class OntologyWrapper extends Component{
-    state = {
-        data: {},
-        assignment: {},
-        loading: true,
-        width: 700,
-        height: 500,
-        text: '',
-        tags: "",
-        radialdata: {data: {acm: {}, pdc: {}}},
-        visual: "",
-        temptags: "",
-    };
-
-
+class OntologyWrapper extends Component {
+    constructor() {
+        super()
+        this.state = {
+            data: {},
+            assignment: {},
+            loading: true,
+            width: 700,
+            height: 500,
+            text: '',
+            tags: "",
+            radialdata: {data: {acm: {}, pdc: {}}},
+            visual: "",
+            temptags: "",
+            dirty: false,
+        };
+    }
 
     async componentDidMount() {
         const api_url = this.props.api_url;
@@ -61,8 +63,6 @@ class OntologyWrapper extends Component{
         radialdata = radialdata.data[tree];
 
         let assignmentdata;
-        let assignmentresponse;
-
         //@TODO FIXME ALL OF THIS
         if (compare) {
             // comparison view is broken
@@ -75,16 +75,15 @@ class OntologyWrapper extends Component{
         }
     }
 
-    //oh my finally got this to work lol this looks funky but allows the user to switch back and forth from
-    //acm and pdc radial views without re-selecting the materials or collections.
-    //probably a better way of doing this because I had to go through the props.history.location to determine which page i am searching for.
-    //also this calls render again because it doenst recall Radial automatically.
-    shouldComponentUpdate(){
-      console.log(this.props.history.location.search.split("tree=")[1].split("&")[0])
-      this.state.data[0] = this.state.radialdata.data[this.props.history.location.search.split("tree=")[1].split("&")[0]]
-      this.render()
-      return true
-    }
+    // allows user to switch between acm and pdc views with same data
+    componentDidUpdate(prevProps) {
+        if (prevProps && this.props.location.search !== prevProps.location.search) {
+            let data = this.state.data;
+            data[0] = this.state.radialdata.data[this.props.history.location.search.split("tree=")[1].split("&")[0]]
+            this.setState({...this.state, data});
+        }
+      }
+
 
     onTextFieldChange = (e)=> {
       console.log(e)

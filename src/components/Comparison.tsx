@@ -3,7 +3,6 @@ import {MaterialListOne} from "./comparison/MaterialListOne";
 import {MaterialListTwo} from "./comparison/MaterialListTwo";
 import {Grid} from "@material-ui/core";
 import {RouteComponentProps} from "react-router";
-import {Analyze} from "./analyze/Analyze";
 
 interface MatchParams {
     id: string;

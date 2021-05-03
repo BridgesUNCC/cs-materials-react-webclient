@@ -29,7 +29,6 @@ import {
     emptySnackbarBuilderProps,
     SnackbarBuilderProps
 } from "../../common/SnackbarBuilder";
-import { promises } from "dns";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -425,11 +424,6 @@ export const MaterialForm: FunctionComponent<Props> = (
         setFormInfo({...formInfo, snackbar_info: emptySnackbarBuilderProps(formInfo.snackbar_info)})
     }
 
-    const addTextFieldValue = (field_id: string) => (e: React.ChangeEvent<HTMLInputElement>): void => {
-      onUpdateMaterialTextField(field_id, e.currentTarget.value)
-      // console.log(e.currentTarget.getAttribute('value'))
-    }
-
     const treeOpen = (tree: string) => {
         let info = formInfo;
         if (tree === "acm_2013")
@@ -618,7 +612,6 @@ export const MaterialForm: FunctionComponent<Props> = (
                         renderInput={params => {
                           Object.assign(params.inputProps, {onKeyDown: handleKeyDown})
                             // params.inputProps.onKeyDown = handleKeyDown;
-                            {console.log(params.inputProps)}
                             return(
                             <TextField
                                 {...params}

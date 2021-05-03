@@ -23,7 +23,6 @@ import {TutorialIndex} from "./components/tutorials/TutorialIndex";
 import {AnalyzeTutorial} from "./components/tutorials/AnalyzeTutorial";
 import {AuthorTutorial} from "./components/tutorials/AuthorTutorial";
 import {SearchTutorial} from "./components/tutorials/SearchTutorial";
-import {SearchRelation} from "./components/search/SearchRelation";
 import {SearchRelationView} from "./components/search/SearchRelationView";
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';

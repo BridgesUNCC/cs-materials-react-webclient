@@ -1,3 +1,4 @@
+/* eslint-disable */  
 import React, {FunctionComponent} from "react";
 import {Grid} from "@material-ui/core";
 import {RouteComponentProps} from "react-router";

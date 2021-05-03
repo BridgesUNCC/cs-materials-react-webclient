@@ -878,11 +878,11 @@ class Radial extends Component {
       </div>
           <div id={"App" + this.props.id}>
             <div id="tooltips">
-              <div id="tooltip" class="hidden">
+              <div id="tooltip" className="hidden">
                 <p><strong>Breadcrumbs: </strong></p>
                 <p><span id="value">100</span></p>
               </div>
-              <div id="assignmenttooltip" class="hidden">
+              <div id="assignmenttooltip" className="hidden">
                 <p><b>Materials: </b></p>
                 <p id="value"></p>
               </div>
