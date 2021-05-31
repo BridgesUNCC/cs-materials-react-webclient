@@ -1,5 +1,7 @@
-import {MaterialListData} from "../components/MaterialOverview";
-
+export interface MaterialListData {
+    title: string;
+    id: number;
+}
 
 export interface MaterialListEntry {
     title: string;

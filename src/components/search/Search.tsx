@@ -35,7 +35,10 @@ interface MatchParams {
 
 interface Props extends RouteComponentProps<MatchParams> {
     api_url: string;
-    redirect: (new_location: string) => void
+    redirect?: (new_location: string) => void;
+    on_submit?: (keyword: string, tags: TagData[]) => void;
+    init_keyword?: string;
+    init_tags?: number[];
 }
 
 
@@ -43,19 +46,21 @@ interface SearchEntity {
     keyword: string;
     selected_tags: TagData[];
     all_tags: TagData[];
+    init_tags: number[];
     tags_fetched: boolean;
     show_acm: boolean;
     show_pdc: boolean;
 }
 
-const createEmptyEntity = (): SearchEntity => {
+const createInitialEntity = (keyword: string | undefined, init_tags: number[] | undefined ): SearchEntity => {
     return {
-        keyword: '',
+        keyword: keyword || '',
         selected_tags: [],
         all_tags: [],
         tags_fetched: false,
         show_acm: false,
         show_pdc: false,
+        init_tags: init_tags || [],
     }
 };
 
@@ -66,12 +71,15 @@ export const Search: FunctionComponent<Props> = (
         match,
         api_url,
         redirect,
+        on_submit,
+        init_keyword,
+        init_tags,
     }
 ) => {
     const classes = useStyles();
 
     const [searchInfo, setSearchInfo] = React.useState(
-        createEmptyEntity()
+        createInitialEntity(init_keyword, init_tags)
     );
 
 
@@ -85,8 +93,17 @@ export const Search: FunctionComponent<Props> = (
                 console.log("API SERVER FAIL")
             } else {
                 if (resp['status'] === "OK") {
-                    const all_tags = resp['data'];
-                    setSearchInfo({...searchInfo, tags_fetched: true, all_tags})
+                    const all_tags: TagData[] = resp['data'];
+                    let selected_tags: TagData[] = [];
+                    if (searchInfo.init_tags.length > 0) {
+                        let tag_map: {[index: number]: TagData} = {};
+                        all_tags.forEach(tag => {
+                            tag_map[tag.id] = tag;
+                        })
+                        selected_tags = searchInfo.init_tags.map(index => tag_map[index]);
+                    }
+
+                    setSearchInfo({...searchInfo, tags_fetched: true, all_tags, selected_tags})
                 }
             }
         });
@@ -118,7 +135,16 @@ export const Search: FunctionComponent<Props> = (
     };
 
     const submit = (): void => {
-        redirect("/materials?keyword=" + searchInfo.keyword +"&selected_tags=" + searchInfo.selected_tags.map(e => e.id));
+        if (on_submit !== undefined) {
+            on_submit(searchInfo.keyword, searchInfo.selected_tags);
+        } else if (redirect !== undefined) {
+          redirect(
+            "/materials?keyword=" +
+              searchInfo.keyword +
+              "&selected_tags=" +
+              searchInfo.selected_tags.map((e) => e.id)
+          );
+        }
     };
 
     const onTextFieldChange = (field_id: string) => (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -128,8 +154,8 @@ export const Search: FunctionComponent<Props> = (
     };
 
     const onTagFieldChange = (e: React.ChangeEvent<{}>, v: TagData[], reason: AutocompleteChangeReason): void => {
-        let union = [...new Set([...searchInfo.selected_tags, ...v])]
-        setSearchInfo({...searchInfo, selected_tags: union})
+        //let union = [...new Set([...searchInfo.selected_tags, ...v])]
+        setSearchInfo({...searchInfo, selected_tags: v})
     };
 
     let tags_fields;
@@ -138,7 +164,7 @@ export const Search: FunctionComponent<Props> = (
            <Grid item>
             <Autocomplete
                 multiple
-                disableClearable={true}
+                disableClearable={false}
                 options={searchInfo.all_tags}
                 value={searchInfo.selected_tags}
                 onChange={onTagFieldChange}
@@ -172,65 +198,97 @@ export const Search: FunctionComponent<Props> = (
 
 
     return (
-        <div className={classes.root}>
-            <Paper>
-                <Grid
-                    container
-                    direction="column"
-                >
-                      <Grid item>
-                        <TextField
-                            label={"Keyword"}
-                            value={searchInfo.keyword}
-                            className={classes.textField}
-                            onChange={onTextFieldChange("keyword")}
-                            onKeyPress={(ev: React.KeyboardEvent<HTMLDivElement>) => {
-                                if (ev.key === 'Enter') {
-                                    ev.preventDefault();
-                                    ev.stopPropagation();
-                                    submit();
-                                }
-                            }}
-                        />
-                      </Grid>
+      <div className={classes.root}>
+        <Paper>
+          <Grid container direction="column">
+            <Grid item>
+              <TextField
+                label={"Keyword"}
+                value={searchInfo.keyword}
+                className={classes.textField}
+                onChange={onTextFieldChange("keyword")}
+                onKeyPress={(ev: React.KeyboardEvent<HTMLDivElement>) => {
+                  if (ev.key === "Enter") {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    submit();
+                  }
+                }}
+              />
+            </Grid>
 
-                    {tags_fields}
-                    <Grid
-                        item
-                    >
-                        <Button className={classes.margin}
-                                variant="contained" color="primary" onClick={() => {
-                            treeOpen("acm_2013")
-                        }}>
-                            ACM CSC 2013
-                        </Button>
-                        <Button className={classes.margin}
-                                variant="contained" color="primary" onClick={() => {
-                            treeOpen("pdc_2012")
-                        }}>
-                            PDC 2012
-                        </Button>
-                    </Grid>
-                    <Grid item
-                          >
-                        <Link to={"/materials?keyword=" + searchInfo.keyword +"&tags=" + searchInfo.selected_tags.map(e => e.id)}>
-                            <Button className={classes.margin} variant="contained" color="primary">
-                                Search
-                            </Button>
-                        </Link>
-                    </Grid>
-                </Grid>
-            </Paper>
-            <TreeDialog open={searchInfo.show_acm} title={"ACM CSC 2013"} onClose={treeClose} api_url={api_url}
-                        tree_name={"acm"}
-                        selected_tags={searchInfo.selected_tags}
-                        onCheck={onTreeCheckBoxClick}
-            />
-            <TreeDialog open={searchInfo.show_pdc} title={"PDC 2012"} onClose={treeClose} api_url={api_url}
-                        tree_name={"pdc"}
-                        selected_tags={searchInfo.selected_tags}
-                        onCheck={onTreeCheckBoxClick}
-            />
-        </div>
+            {tags_fields}
+            <Grid item>
+              <Button
+                className={classes.margin}
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                  treeOpen("acm_2013");
+                }}
+              >
+                ACM CSC 2013
+              </Button>
+              <Button
+                className={classes.margin}
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                  treeOpen("pdc_2012");
+                }}
+              >
+                PDC 2012
+              </Button>
+            </Grid>
+            <Grid item>
+              {on_submit !== undefined ? (
+                <Button
+                  className={classes.margin}
+                  variant="contained"
+                  color="primary"
+                  onClick={() => submit()}
+                >
+                  Search
+                </Button>
+              ) : (
+                <Link
+                  to={
+                    "/materials?keyword=" +
+                    searchInfo.keyword +
+                    "&tags=" +
+                    searchInfo.selected_tags.map((e) => e.id)
+                  }
+                >
+                  <Button
+                    className={classes.margin}
+                    variant="contained"
+                    color="primary"
+                  >
+                    Search
+                  </Button>
+                </Link>
+              )}
+            </Grid>
+          </Grid>
+        </Paper>
+        <TreeDialog
+          open={searchInfo.show_acm}
+          title={"ACM CSC 2013"}
+          onClose={treeClose}
+          api_url={api_url}
+          tree_name={"acm"}
+          selected_tags={searchInfo.selected_tags}
+          onCheck={onTreeCheckBoxClick}
+        />
+        <TreeDialog
+          open={searchInfo.show_pdc}
+          title={"PDC 2012"}
+          onClose={treeClose}
+          api_url={api_url}
+          tree_name={"pdc"}
+          selected_tags={searchInfo.selected_tags}
+          onCheck={onTreeCheckBoxClick}
+        />
+      </div>
     );
 };

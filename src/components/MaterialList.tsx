@@ -8,10 +8,11 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import Typography from "@material-ui/core/Typography";
 import {RouteComponentProps} from "react-router";
 import Button from "@material-ui/core/Button";
-import {MaterialListEntry} from "../common/types";
+import {MaterialListEntry, TagData, MaterialListData} from "../common/types";
 import {Analyze} from "./analyze/Analyze";
 import CardMedia from '@material-ui/core/CardMedia';
 import Pagination from '@material-ui/lab/Pagination';
+import { Search } from "./search/Search";
 
 
 
@@ -64,13 +65,15 @@ interface ListEntity {
     selected_materials: number[]
     fetched: boolean;
     search: string;
-    path: string
+    path: string;
+    keyword?: string;
+    tags?: string;
 }
 
-const createEmptyEntity = (path: string): ListEntity => {
+const createEmptyEntity = (path: string, selected_materials: number[] | undefined): ListEntity => {
     return {
         materials: null,
-        selected_materials: localStorage.getItem("checked_materials")?.split(",").map(e => Number(e)) || [],
+        selected_materials: selected_materials || (localStorage.getItem("checked_materials")?.split(",").map(e => Number(e)) || []),
         fetched: false,
         search: "N/A",
         path
@@ -85,7 +88,9 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     api_url: string;
     user_materials?: number[];
     user_id: any;
-    from: string;
+    selected_materials?: number[];
+    store_tags?: boolean;
+    material_update?: (material_list: MaterialListData[]) => void;
 }
 
 export const MaterialList: FunctionComponent<ListProps> = ({   history,
@@ -94,17 +99,18 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                                                                api_url,
                                                                user_materials,
                                                                user_id,
-                                                               from,
+                                                               selected_materials,
+                                                               store_tags,
+                                                               material_update,
                                                            }) => {
     const classes = useStyles();
     let path = location.pathname;
     let search = location.search;
     const itemsPerPage = 10;
     let noOfPages = 1 //default value
-    console.log(path)
 
     const [listInfo, setListInfo] = React.useState<ListEntity>(
-        createEmptyEntity(path)
+        createEmptyEntity(path, selected_materials)
     );
 
     const [page, setPage] = React.useState(1);
@@ -113,55 +119,98 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     };
 
     let reload = path !== listInfo.path || search !== listInfo.search;
+    let keyword = listInfo.keyword || parse_query_variable(location, "keyword");
+    let tags = listInfo.tags || parse_query_variable(location, "tags");
+    let init_tags = undefined;
+    if (tags.length > 0) {
+      init_tags = tags.split(",").map((s) => Number(s));
+    }
 
 
     if (!listInfo.fetched || reload) {
-        let ids = user_materials?.toString() || "";
-        ids += parse_query_variable(location, "ids");
-        let tags = parse_query_variable(location, "tags");
-        let sim_mats = parse_query_variable(location, "sim_mats");
-        let keyword = parse_query_variable(location, "keyword");
-        let material_types = parse_query_variable(location, "material_types");
+      let ids = user_materials?.toString() || ""; //listInfo.selected_materials.toString();
+      ids += parse_query_variable(location, "ids");
+      let sim_mats = parse_query_variable(location, "sim_mats");
+      let material_types = parse_query_variable(location, "material_types");
 
-        const url = api_url + "/data/materials?ids=" + ids + "&tags=" + tags + "&sim_mats=" + sim_mats
-            + "&keyword=" + keyword + "&material_types=" + material_types;
-        console.log(location)
+      const url =
+        api_url +
+        "/data/materials?ids=" +
+        ids +
+        "&tags=" +
+        tags +
+        "&sim_mats=" +
+        sim_mats +
+        "&keyword=" +
+        keyword +
+        "&material_types=" +
+        material_types;
 
-        // const url = api_url + "/data/materials?ids=" + ids + "&tags=" + tags
-        // console.log(location)
+      // const url = api_url + "/data/materials?ids=" + ids + "&tags=" + tags
+      // console.log(location)
 
-        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+      const auth = {
+        Authorization: "bearer " + localStorage.getItem("access_token"),
+      };
 
-        // @TODO pass in auth token
-        getJSONData(url, auth).then(resp => {
-            if (resp === undefined) {
-                console.log("API SERVER FAIL")
+      // @TODO pass in auth token
+      getJSONData(url, auth).then((resp) => {
+        if (resp === undefined) {
+          console.log("API SERVER FAIL");
+        } else {
+          if (resp["status"] === "OK") {
+            if (listInfo.selected_materials.length > 0) {
+              ids = listInfo.selected_materials.toString();
+              // force fetch selected materials to always show
+              const url = api_url + "/data/materials?ids=" + ids;
+              getJSONData(url, auth).then((selected_mats_resp) => {
+                let data: MaterialListEntry[] = resp["data"].materials;
+                let selected_materials: MaterialListEntry[] =
+                  selected_mats_resp["data"].materials;
+                let selected_map: { [index: number]: boolean } = {};
+                selected_materials.forEach((mat) => {
+                  selected_map[mat.id] = true;
+                });
+                let other_materials = data.filter(
+                  (mat) => !selected_map[mat.id]
+                );
+
+                let materials = [...selected_materials, ...other_materials];
+                setPage(1);
+                setListInfo({
+                  ...listInfo,
+                  fetched: true,
+                  materials: materials,
+                  search: search,
+                  path,
+                });
+              });
+            } else {
+              let materials = resp["data"].materials;
+              setPage(1);
+              setListInfo({
+                ...listInfo,
+                fetched: true,
+                materials: materials,
+                search: search,
+                path,
+              });
             }
-            else {
-                if (resp['status'] === "OK") {
-                    const data = resp['data'];
-                    setPage(1)
-                    setListInfo({...listInfo, fetched: true, materials: data.materials, search: search, path})
-                }
-            }
-        })
+          }
+        }
+      });
     }
 
     // @Speed @TODO, smart cull entries so rendering doesn't take too long, maybe have a callback that renders more as
     // user scrolls down?
     let output;
     let count = 0;
-    console.log(listInfo.materials)
-
-
 
     if (listInfo.materials !== null && !reload) {
         noOfPages = Math.ceil(listInfo.materials.length / itemsPerPage)
         output = listInfo.materials.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((value, index) => {
             // @Hack @FIXME cull entries for speed
-            console.log(value)
             // let image = require("../common/images/" + String(value.instance_of) + ".png")
-            console.log(value.hasOwnProperty('material_type'))
             let image;
             if(value.hasOwnProperty('material_type')){
               image = require("../common/images/" + String(value.material_type) + ".png")
@@ -247,7 +296,9 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
             selected = selected.filter(e => e !== id);
         }
 
-        localStorage.setItem("checked_materials", selected.toString());
+        if (store_tags) {
+          localStorage.setItem("checked_materials", selected.toString());
+        }
 
         setListInfo({...listInfo, selected_materials: selected});
     };
@@ -255,18 +306,44 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     const handleSelectAll = () => {
         let selected_materials = [...new Set(listInfo.selected_materials.concat(listInfo.materials?.map(e => e.id)
             || []))]
-        localStorage.setItem("checked_materials", selected_materials.toString());
+
+        if (store_tags) {
+          localStorage.setItem("checked_materials", selected_materials.toString());
+        }
 
         setListInfo({...listInfo, selected_materials});
     };
 
     const handleSelectNone = () => {
         let selected_materials: number[] = []
-        localStorage.setItem("checked_materials", selected_materials.toString());
+
+        if (store_tags) {
+          localStorage.setItem("checked_materials", selected_materials.toString());
+        }
 
         setListInfo({...listInfo, selected_materials});
     };
 
+
+    const handle_submit = (keyword: string, tags: TagData[]) => {
+      let tag_str = tags.map(tag => tag.id).join(',');
+      setListInfo({...listInfo, keyword, tags: tag_str, fetched: false, materials: null})
+    }
+
+    const build_material_list_data = (): MaterialListData[] => {
+      let populate_map: {[index: number]: boolean} = {};
+      listInfo.selected_materials.forEach(index => {populate_map[index] = true});
+      let to_return: MaterialListData[] = [];
+
+      listInfo.materials?.filter(mat => populate_map[mat.id]).forEach(mat => {
+        to_return.push({
+          id: mat.id,
+          title: mat.title
+        });
+      })
+
+      return to_return;
+    };
 
 
     return (
@@ -287,6 +364,17 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                 Select Collections
             </Typography>
           }
+          {
+            material_update !== undefined &&
+            <Button className={classes.margin} variant="contained" color="primary"
+                                onClick={() => {material_update(build_material_list_data());}}
+                        >
+                            Back to Material Form
+                        </Button>
+          }
+          <Search
+                history={history} location={location} match={match} api_url={api_url} init_keyword={keyword} init_tags={init_tags} on_submit={handle_submit}
+          />
             <div className={classes.root}>
                 <Grid container direction="column">
                     <Grid item>
@@ -305,7 +393,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                         </Button>
                     </Grid>
                 </Grid>
-                {(listInfo.materials === null || reload) &&
+                {(listInfo.materials === null || reload || !listInfo.fetched) &&
                 <CircularProgress/>
                 }
                 </div>

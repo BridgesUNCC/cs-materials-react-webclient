@@ -10,7 +10,7 @@ import {Link} from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import {ListItemLink} from "./ListItemLink";
 import {DeleteDialog} from "./forms/DeleteDialog";
-import {MaterialTypesArray} from "../common/types";
+import {MaterialListData, MaterialTypesArray} from "../common/types";
 import {Author} from "./author/Author";
 import EditIcon from '@material-ui/icons/Edit';
 import GetAppIcon from '@material-ui/icons/GetApp';
@@ -49,11 +49,6 @@ interface Props extends RouteComponentProps<MatchParams> {
     is_admin: boolean,
 }
 
-
-export interface MaterialListData {
-    title: string;
-    id: number;
-}
 
 // @TODO finish the rest of the fields
 interface MaterialData {

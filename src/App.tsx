@@ -459,7 +459,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/materials" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialList {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} from={"nav"}/>
+                            <MaterialList {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id}/>
                         </Container>
                     )}
                     />

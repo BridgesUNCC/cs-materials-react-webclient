@@ -15,7 +15,7 @@ import SaveIcon from '@material-ui/icons/Save';
 import Tooltip from '@material-ui/core/Tooltip';
 import HelpIcon from '@material-ui/icons/Help';
 import {TreeDialog} from "./TreeDialog";
-import {MaterialTypesArray, TagData, MaterialData, MaterialVisibilityArray, OntologyData} from "../../common/types";
+import {MaterialTypesArray, TagData, MaterialData, MaterialVisibilityArray, OntologyData, MaterialListData} from "../../common/types";
 import {ListItemLink} from "../ListItemLink";
 import Typography from "@material-ui/core/Typography";
 import {FileLink} from "../MaterialOverview";
@@ -31,6 +31,7 @@ import {
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
+import { MaterialList } from "../MaterialList";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -160,6 +161,7 @@ interface FormEntity {
     new: boolean;
     show_acm: boolean;
     show_pdc: boolean;
+    show_material_list: boolean;
     is_dirty: boolean;
 }
 
@@ -177,6 +179,7 @@ const createEmptyEntity = (location: any): FormEntity => {
         new: location.pathname.endsWith("/create"),
         show_acm: false,
         show_pdc: false,
+        show_material_list: false,
         is_dirty: false,
     };
 };
@@ -492,6 +495,12 @@ export const MaterialForm: FunctionComponent<Props> = (
         setFormInfo({...formInfo, show_acm: false, show_pdc: false});
     };
 
+    const handle_mapped_materials_update = (selected_materials: MaterialListData[]) => {
+        let data = formInfo.data;
+        data.materials = selected_materials;
+        setFormInfo({...formInfo, show_material_list: false, data});
+    }
+
     const onTreeCheckBoxClick = (event: React.ChangeEvent<HTMLInputElement>, node: OntologyData) => {
         let selected = formInfo.temp_tags.ontology;
         if (event.target.checked)
@@ -633,7 +642,6 @@ export const MaterialForm: FunctionComponent<Props> = (
                 case "Tab": {
                   event.preventDefault()
                   event.stopPropagation();
-                  console.log(event.target.value)
                   defaults[name].push(event.target.value)
                   event.target.value = ""
                   break;
@@ -641,6 +649,9 @@ export const MaterialForm: FunctionComponent<Props> = (
                 default:
               }
             };
+
+
+
             return (
               <Grid container spacing={0}>
                 <Grid item xs={11}>
@@ -708,346 +719,416 @@ export const MaterialForm: FunctionComponent<Props> = (
         case 0:
           return (
             <Paper className={classes.paper}>
-            <Grid container direction="column">
-                  <Grid item>
-                      <TextField
-                          label={"Title"}
-                          value={formInfo.data.title}
-                          className={classes.textField}
-                          onChange={onTextFieldChange("title")}
-                      />
-                  </Grid>
-
-                  <Grid item>
-
-                      <TextField
-                          id="standard-select-type"
-                          select
-                          label="Material Type"
-                          value={formInfo.data?.material_type}
-                          onChange={onTypeFieldChange("material_type")}
-                          helperText=""
-                          className={classes.textField}
-                      >
-                          {MaterialTypesArray.map((option) => (
-                              <MenuItem key={option.value} value={option.value}>
-                                  {option.label}
-                              </MenuItem>
-                          ))}
-                      </TextField>
-                  </Grid>
-
-                  <Grid item>
-
-                      <TextField
-                          id="standard-select-visibility"
-                          select
-                          label="Material Visibility"
-                          value={formInfo.data?.visibility}
-                          onChange={onTypeFieldChange("visibility")}
-                          helperText=""
-                          className={classes.textField}
-                      >
-                          {MaterialVisibilityArray.map((option) => (
-                              <MenuItem key={option.value} value={option.value}>
-                                  {option.label}
-                              </MenuItem>
-                          ))}
-                      </TextField>
-                  </Grid>
-                  <Grid item>
-                      <TextField
-                          label={"Upstream URL"}
-                          value={formInfo.data.upstream_url === null ? "" : formInfo.data.upstream_url}
-                          className={classes.textField}
-                          onChange={onTextFieldChange("upstream_url")}
-                      />
-                  </Grid>
-                  <Grid item>
-                    <TextField
-                        label={"Description"}
-                        value={formInfo.data.description === null ? "" : formInfo.data.description}
-                        className={classes.textArea}
-                        multiline
-                        rows={4}
-                        defaultValue="Default Value"
-                        variant="outlined"
-                        onChange={onTextFieldChange("description")}
-                    />
+              <Grid container direction="column">
+                <Grid item>
+                  <TextField
+                    label={"Title"}
+                    value={formInfo.data.title}
+                    className={classes.textField}
+                    onChange={onTextFieldChange("title")}
+                  />
                 </Grid>
+
+                <Grid item>
+                  <TextField
+                    id="standard-select-type"
+                    select
+                    label="Material Type"
+                    value={formInfo.data?.material_type}
+                    onChange={onTypeFieldChange("material_type")}
+                    helperText=""
+                    className={classes.textField}
+                  >
+                    {MaterialTypesArray.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 </Grid>
-              </Paper>)
+
+                <Grid item>
+                  <TextField
+                    id="standard-select-visibility"
+                    select
+                    label="Material Visibility"
+                    value={formInfo.data?.visibility}
+                    onChange={onTypeFieldChange("visibility")}
+                    helperText=""
+                    className={classes.textField}
+                  >
+                    {MaterialVisibilityArray.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item>
+                  <TextField
+                    label={"Upstream URL"}
+                    value={
+                      formInfo.data.upstream_url === null
+                        ? ""
+                        : formInfo.data.upstream_url
+                    }
+                    className={classes.textField}
+                    onChange={onTextFieldChange("upstream_url")}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    label={"Description"}
+                    value={
+                      formInfo.data.description === null
+                        ? ""
+                        : formInfo.data.description
+                    }
+                    className={classes.textArea}
+                    multiline
+                    rows={4}
+                    variant="outlined"
+                    onChange={onTextFieldChange("description")}
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+          );
         case 1:
           return (
             <Paper className={classes.paper}>
               <Grid container direction="column">
                 {tags_fields}
-                </Grid>
-            </Paper>)
+              </Grid>
+            </Paper>
+          );
         case 2:
-          return(<Paper className={classes.paper}>
-            <Grid container spacing={3}>
-            <Grid item xs={12}>
-                {formInfo.posting &&
-                <LinearProgress/>
-                }
-                {
-                    formInfo.files.length !== 0 ?
+          return (
+            <Paper className={classes.paper}>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  {formInfo.posting && <LinearProgress />}
+                  {formInfo.files.length !== 0 ? (
+                    <div>
+                      <Typography variant="h5">Files</Typography>
+                      <Button
+                        startIcon={<EditIcon />}
+                        onClick={() => {
+                          setFormInfo({
+                            ...formInfo,
+                            file_delete_mode: !formInfo.file_delete_mode,
+                          });
+                        }}
+                      >
+                        Toggle Delete Files
+                      </Button>
+                      {formInfo.file_delete_mode ? (
                         <div>
-                            <Typography variant="h5">
-                                Files
-                            </Typography>
-                            <Button
-                                startIcon={<EditIcon/>}
-                                onClick={() => {
-                                    setFormInfo({...formInfo, file_delete_mode: !formInfo.file_delete_mode})
-                                }}
-                            >
-                                Toggle Delete Files
-                            </Button>
-                            {formInfo.file_delete_mode ?
-                                <div>
-                                    {formInfo.files.map(file => {
-                                        if (formInfo.data.id)
-                                            return <DeleteDialog id={formInfo.data.id} name={file.name}
-                                                                 key={file.name}
-                                                                 endpoint={"/data/delete_file/material?id=" + formInfo.data.id + "&file_key=" + file.name}
-                                                                 on_success={() => {
-                                                                     fetchFileList().then(value => setFormInfo({...formInfo, files: value.files}));
-                                                                 }}
-                                                                 api_url={api_url}
-                                            />
-                                        return <div/>
-                                    })
-                                    }
-                                </div>
-                                :
-                                <div>
-                                    {formInfo.files.map(file => {
-                                        return <Button className={classes.margin}
-                                                       variant="contained"
-                                                       startIcon={<GetAppIcon/>}
-                                                       target={"_blank"}
-                                                       href={file.url}
-                                                       key={file.name}
-                                                       download={true}
-                                        >
-                                            {file.name}
-                                        </Button>
-                                    })}
-                                </div>
-                            }
-
-                            <Divider/>
+                          {formInfo.files.map((file) => {
+                            if (formInfo.data.id)
+                              return (
+                                <DeleteDialog
+                                  id={formInfo.data.id}
+                                  name={file.name}
+                                  key={file.name}
+                                  endpoint={
+                                    "/data/delete_file/material?id=" +
+                                    formInfo.data.id +
+                                    "&file_key=" +
+                                    file.name
+                                  }
+                                  on_success={() => {
+                                    fetchFileList().then((value) =>
+                                      setFormInfo({
+                                        ...formInfo,
+                                        files: value.files,
+                                      })
+                                    );
+                                  }}
+                                  api_url={api_url}
+                                />
+                              );
+                            return <div />;
+                          })}
                         </div>
-                        :
-                        <div/>
-                }
-            </Grid>
+                      ) : (
+                        <div>
+                          {formInfo.files.map((file) => {
+                            return (
+                              <Button
+                                className={classes.margin}
+                                variant="contained"
+                                startIcon={<GetAppIcon />}
+                                target={"_blank"}
+                                href={file.url}
+                                key={file.name}
+                                download={true}
+                              >
+                                {file.name}
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      )}
 
-            <Grid  item xs={4}>
-                <Button
+                      <Divider />
+                    </div>
+                  ) : (
+                    <div />
+                  )}
+                </Grid>
+
+                <Grid item xs={4}>
+                  <Button
                     variant="contained"
                     color={"primary"}
                     component="label"
                     className={classes.margin}
-                >
+                  >
                     Upload File
                     <input
-                        type="file"
-                        style={{ display: "none" }}
-                        onChange={onFileUpload}
+                      type="file"
+                      style={{ display: "none" }}
+                      onChange={onFileUpload}
                     />
-                </Button>
-            </Grid>
+                  </Button>
+                </Grid>
 
-            <Grid item xs={4}>
-                <Button  className={classes.margin}
-                         variant="contained" color="primary" onClick={() => {treeOpen("acm_2013")}}>
+                <Grid item xs={4}>
+                  <Button
+                    className={classes.margin}
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                      treeOpen("acm_2013");
+                    }}
+                  >
                     ACM CSC 2013
-                </Button>
-            </Grid>
-            <Grid item xs={4}>
-                <Button  className={classes.margin}
-                         variant="contained" color="primary" onClick={() => {treeOpen("pdc_2012")}}>
+                  </Button>
+                </Grid>
+                <Grid item xs={4}>
+                  <Button
+                    className={classes.margin}
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                      treeOpen("pdc_2012");
+                    }}
+                  >
                     PDC 2012
-                </Button>
-            </Grid>
-            <Grid container direction="column">
-            <Grid item >
-                            <Typography variant={"h5"}>
-                                Mapped Materials
-                            </Typography>
+                  </Button>
+                </Grid>
+                <Grid container direction="column">
+                  <Grid item>
+                    <Typography variant={"h5"}>Mapped Materials</Typography>
+                    <Button
+                      startIcon={<EditIcon />}
+                      onClick={() => {
+                        setFormInfo({ ...formInfo, show_material_list: true });
+                      }}
+                    >
+                      Edit Mapped Materials
+                    </Button>
 
-                            <List>
-                                {
-                                    formInfo.data.materials.map((value, index) => {
-                                        return (
-                                            <div key={`${value.id}`}>
-
-                                                <Divider/>
-                                                <ListItemLink
-                                                    history={history}
-                                                    location={location}
-                                                    match={match}
-                                                    primary={value.title} to={"/material/" + value.id} key={value.id}
-                                                />
-                                            </div>
-                                        )
-                                    })
-                                }
-                            </List>
-                        </Grid>
-            </Grid>
-            </Grid>
+                    <List>
+                      {formInfo.data.materials.map((value, index) => {
+                        return (
+                          <div key={`${value.id}`}>
+                            <Divider />
+                            <ListItemLink
+                              history={history}
+                              location={location}
+                              match={match}
+                              primary={value.title}
+                              to={"/material/" + value.id}
+                              key={value.id}
+                            />
+                          </div>
+                        );
+                      })}
+                    </List>
+                  </Grid>
+                </Grid>
+              </Grid>
             </Paper>
-          )
+          );
         default:
-          throw new Error('Unknown step');
+          throw new Error("Unknown step");
       }
     }
 
+    if (formInfo.show_material_list) {
+      let selected_materials = formInfo.data.materials.map((mat) => mat.id);
+      return (
+        <MaterialList
+          history={history}
+          location={location}
+          match={match}
+          api_url={api_url}
+          user_id={0}
+          store_tags={false}
+          selected_materials={selected_materials}
+          material_update={handle_mapped_materials_update}
+        />
+      );
+    }
 
     // @TODO, flash error messages for empty title
     // @TODO, styling
-    console.log(formInfo.temp_tags)
     return (
-        <div>
-            {(formInfo.data.material_type !== "collection")?
-                <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-                    Material Form
-                </Typography>
-                :
-                <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
-                    Collection Form
-                </Typography>
-            }
+      <div>
+        {formInfo.data.material_type !== "collection" ? (
+          <Typography
+            component="h1"
+            variant="h3"
+            align="center"
+            color="textPrimary"
+            gutterBottom
+          >
+            Material Form
+          </Typography>
+        ) : (
+          <Typography
+            component="h1"
+            variant="h3"
+            align="center"
+            color="textPrimary"
+            gutterBottom
+          >
+            Collection Form
+          </Typography>
+        )}
 
-            <Prompt
-                when={formInfo.is_dirty}
-                message={() =>
-                    `Are you sure you want to leave this form? Unsaved changes will be lost.`
+        <Prompt
+          when={formInfo.is_dirty}
+          message={() =>
+            `Are you sure you want to leave this form? Unsaved changes will be lost.`
+          }
+        />
+
+        <Button
+          className={classes.saveButton}
+          startIcon={<SaveIcon />}
+          variant="contained"
+          color="primary"
+          onClick={() =>
+            onSubmit((id) => {
+              if (formInfo.new) {
+                window.onbeforeunload = () => {};
+                setFormInfo({ ...formInfo, is_dirty: false });
+                history.push({
+                  pathname: "/material/" + id + "/edit",
+                });
+                force_user_data_reload();
+              }
+              let snackbar_info = buildSnackbarProps("success", "Saved");
+              setFormInfo({ ...formInfo, snackbar_info, is_dirty: false });
+              return id;
+            })
+          }
+        >
+          Save
+        </Button>
+
+        {formInfo.data.material_type !== "collection" ? (
+          <Author info={[]} currentLoc={"material_form"} />
+        ) : (
+          <Author info={[]} currentLoc={"collection_form"} />
+        )}
+
+        <Stepper activeStep={activeStep} className={classes.stepper}>
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+
+        <React.Fragment>
+          {getStepContent(activeStep)}
+          <div>
+            {activeStep !== 0 && <Button onClick={handleBack}>Back</Button>}
+            {activeStep === steps.length - 1 && (
+              <Button
+                startIcon={<PublishIcon />}
+                variant="contained"
+                color="primary"
+                onClick={() =>
+                  onSubmit((id) => {
+                    window.onunload = () => {};
+                    setFormInfo({ ...formInfo, is_dirty: false });
+                    history.push({
+                      pathname: "/material/" + id,
+                    });
+                    force_user_data_reload();
+                    return id;
+                  })
                 }
-            />
+              >
+                Save and View
+              </Button>
+            )}
+            {activeStep !== steps.length - 1 && (
+              <Button variant="contained" color="primary" onClick={handleNext}>
+                Next
+              </Button>
+            )}
+          </div>
+        </React.Fragment>
 
+        <TreeDialog
+          open={formInfo.show_acm}
+          title={"ACM CSC 2013"}
+          onClose={treeClose}
+          api_url={api_url}
+          tree_name={"acm"}
+          selected_tags={formInfo.temp_tags.ontology}
+          onCheck={onTreeCheckBoxClick}
+          save={() =>
+            onSubmit((id) => {
+              if (formInfo.new) {
+                window.onbeforeunload = () => {};
+                setFormInfo({ ...formInfo, is_dirty: false });
+                history.push({
+                  pathname: "/material/" + id + "/edit",
+                });
+                force_user_data_reload();
+              }
+              let snackbar_info = buildSnackbarProps("success", "Saved");
+              setFormInfo({ ...formInfo, snackbar_info, is_dirty: false });
+              return id;
+            })
+          }
+        />
+        <TreeDialog
+          open={formInfo.show_pdc}
+          title={"PDC 2012"}
+          onClose={treeClose}
+          api_url={api_url}
+          tree_name={"pdc"}
+          selected_tags={formInfo.temp_tags.ontology}
+          onCheck={onTreeCheckBoxClick}
+          save={() =>
+            onSubmit((id) => {
+              if (formInfo.new) {
+                window.onbeforeunload = () => {};
+                setFormInfo({ ...formInfo, is_dirty: false });
+                history.push({
+                  pathname: "/material/" + id + "/edit",
+                });
+                force_user_data_reload();
+              }
+              let snackbar_info = buildSnackbarProps("success", "Saved");
+              setFormInfo({ ...formInfo, snackbar_info, is_dirty: false });
+              return id;
+            })
+          }
+        />
 
-            <Button  className={classes.saveButton}
-                     startIcon={<SaveIcon/>}
-                     variant="contained" color="primary" onClick={() =>
-                onSubmit((id) => {
-
-                    if (formInfo.new) {
-                        window.onbeforeunload = () => { };
-                        setFormInfo({ ...formInfo, is_dirty: false });
-                        history.push({
-                                pathname: "/material/" + id + "/edit"
-                            }
-                        );
-                        force_user_data_reload();
-                    }
-                    let snackbar_info = buildSnackbarProps("success", "Saved");
-                    setFormInfo({...formInfo, snackbar_info, is_dirty: false})
-                    return id
-                })}>
-                Save
-            </Button>
-
-            {(formInfo.data.material_type !== "collection")?
-                <Author info={[]} currentLoc={"material_form"}/>
-                :
-                <Author info={[]} currentLoc={"collection_form"}/>
-            }
-
-            <Stepper activeStep={activeStep} className={classes.stepper}>
-              {steps.map((label) => (
-                <Step key={label}>
-                  <StepLabel>{label}</StepLabel>
-                </Step>
-              ))}
-            </Stepper>
-
-            <React.Fragment>
-                {getStepContent(activeStep)}
-                <div>
-                  {activeStep !== 0 && (
-                    <Button onClick={handleBack}>
-                      Back
-                    </Button>
-                  )}
-                  {activeStep === steps.length-1 && (
-                    <Button
-                             startIcon={<PublishIcon/>}
-                             variant="contained" color="primary" onClick={() =>
-                        onSubmit((id) => {
-                            window.onunload = () => {};
-                            setFormInfo({...formInfo, is_dirty: false});
-                            history.push({
-                                    pathname: "/material/" + id
-                                }
-                            );
-                            force_user_data_reload();
-                            return id;
-                        })}>
-                        Save and View
-                    </Button>
-                  )}
-                  {activeStep !== steps.length-1 && (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleNext}
-
-                    >
-                      Next
-                    </Button>
-                  )}
-
-                  </div>
-              </React.Fragment>
-
-
-
-            <TreeDialog open={formInfo.show_acm} title={"ACM CSC 2013"} onClose={treeClose} api_url={api_url}
-                        tree_name={"acm"}
-                        selected_tags={formInfo.temp_tags.ontology}
-                        onCheck={onTreeCheckBoxClick}
-                        save={() => onSubmit((id) => {
-                            if (formInfo.new) {
-                                window.onbeforeunload = () => { };
-                                setFormInfo({ ...formInfo, is_dirty: false });
-                                history.push({
-                                        pathname: "/material/" + id + "/edit"
-                                    }
-                                );
-                                force_user_data_reload();
-                            }
-                            let snackbar_info = buildSnackbarProps("success", "Saved");
-                            setFormInfo({...formInfo, snackbar_info, is_dirty: false})
-                            return id;
-                        })}
-            />
-            <TreeDialog open={formInfo.show_pdc} title={"PDC 2012"} onClose={treeClose} api_url={api_url}
-                        tree_name={"pdc"}
-                        selected_tags={formInfo.temp_tags.ontology}
-                        onCheck={onTreeCheckBoxClick}
-                        save={() => onSubmit((id) => {
-                            if (formInfo.new) {
-                                window.onbeforeunload = () => { };
-                                setFormInfo({ ...formInfo, is_dirty: false });
-                                history.push({
-                                        pathname: "/material/" + id + "/edit"
-                                    }
-                                );
-                                force_user_data_reload();
-                            }
-                            let snackbar_info = buildSnackbarProps("success", "Saved");
-                            setFormInfo({...formInfo, snackbar_info, is_dirty: false})
-                            return id;
-                        })}
-            />
-
-
-            <BuildSnackbar {...formInfo.snackbar_info} clearProps={clearSnackbarProps}/>
-        </div>
-    )
+        <BuildSnackbar
+          {...formInfo.snackbar_info}
+          clearProps={clearSnackbarProps}
+        />
+      </div>
+    );
 };
