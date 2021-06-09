@@ -112,6 +112,7 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
 
     console.log(selected_tags);
     console.log(search_term);
+
     let [treeInfo, setTreeInfo] = React.useState<TreeInfo>(
         createTreeInfo(selected_tags, search_term,)
     );
@@ -138,6 +139,8 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
         setTreeInfo({...treeInfo, expanded, propagate_expand: false});
     };
 
+    console.log(treeInfo.checked)
+
     const createTree = (node: OntologyData, parent_id: number, expanded: string[], propagate_expand: boolean):
         ReactNode => {
 
@@ -145,17 +148,38 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
         // @ts-ignore
         const font_weight = is_match ? "fontWeightBold" : "inherit";
         const font_style = is_match ? "italic" : "normal";
-        const color = is_match ? "secondary.main" : "text.primary";
+        let color = is_match ? "secondary.main" : "text.primary";
 
+        //change the color based on if it is saved or a new entry
+        if(is_match){
+          color = "secondary.main"
+        }else if(treeInfo.checked.find(e => Number(e) === node.id) !== undefined){
+          color = "green"
+        }else if(selected_tags.find(e => Number(e.id) === node.id) !== undefined){
+          color = "orange"
+        }else{
+          color = "text.primary"
+        }
+
+        //determine the checkbox state and the label for a tag within the tree
         const label = (
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Checkbox
                     id={`checkbox-${node.id}`}
                     color="default"
-                    defaultChecked={treeInfo.checked.find(e => Number(e) === node.id) !== undefined}
+                    //checks if the treeInfo contains newly selected tag to make sure
+                    //the checkbox doesn't get reversed when colapsing the tree to avoid
+                    //duplication of tags. may be easier to update treeinfo interface rather than this
+                    defaultChecked={treeInfo.checked.find(e => Number(e) === node.id) !== undefined || selected_tags.find(e => Number(e.id) === node.id) !== undefined}
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                         settag(tag.concat(node.title))
                         onCheck(event, node);
+                        // if(treeInfo.checked.includes(node.id.toString())){
+                        //   let index = treeInfo.checked.indexOf(node.id.toString())
+                        //   treeInfo.checked.splice(index,1)
+                        // }else{
+                        //   treeInfo.checked.push(node.id.toString());
+                        // }
                     }}
                     onClick={e => (e.stopPropagation())}
                 />

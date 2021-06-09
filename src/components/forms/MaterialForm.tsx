@@ -501,6 +501,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         setFormInfo({...formInfo, show_material_list: false, data});
     }
 
+    //function to handle when a entry in the ontology view is checked or unchecked
     const onTreeCheckBoxClick = (event: React.ChangeEvent<HTMLInputElement>, node: OntologyData) => {
         let selected = formInfo.temp_tags.ontology;
         if (event.target.checked)

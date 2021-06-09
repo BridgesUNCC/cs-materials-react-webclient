@@ -13,6 +13,8 @@ import {Analyze} from "./analyze/Analyze";
 import CardMedia from '@material-ui/core/CardMedia';
 import Pagination from '@material-ui/lab/Pagination';
 import { Search } from "./search/Search";
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
 
 
@@ -117,6 +119,19 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     const handleChange = (event: any, value: any) => {
       setPage(value);
     };
+
+    //states and functions for handling number of items per page
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const handleClick = (event:any) => {
+      setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+      setAnchorEl(null);
+    };
+    function handleSelect(value: number){
+      // @ts-ignore
+      noOfPages = Math.ceil(listInfo.materials.length / value)
+    }
 
     let reload = path !== listInfo.path || search !== listInfo.search;
     let keyword = listInfo.keyword || parse_query_variable(location, "keyword");
@@ -402,6 +417,23 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                 <List>
                     {output}
                 </List>
+                {
+                // <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
+                //   Open Menu
+                // </Button>
+
+                // <Menu
+                //   id="simple-menu"
+                //   anchorEl={anchorEl}
+                //   keepMounted
+                //   open={Boolean(anchorEl)}
+                //   onClose={handleClose}
+                // >
+                //   <MenuItem onClick={() => handleSelect(50)}>50</MenuItem>
+                //   <MenuItem onClick={handleClose}>My account</MenuItem>
+                //   <MenuItem onClick={handleClose}>Logout</MenuItem>
+                // </Menu>
+                }
                 <Pagination
                   count={noOfPages}
                   page={page}
@@ -413,8 +445,6 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                   showLastButton
                   className={classes.root}
                 />
-
-
         </div>
 
     )
