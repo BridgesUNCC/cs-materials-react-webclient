@@ -186,7 +186,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
 
 
 	//	var url = "https://cors-anywhere.herokuapp.com/https://csmaterials-search.herokuapp.com/search/?matID=254&k=20"
-	var url = "https://cors-anywhere.herokuapp.com/https://csmaterials-search.herokuapp.com/search?matID="+matID
+	var url = "https://csmaterials-search.herokuapp.com/search?matID="+matID
 	  +"&matchpool="+matchpool
 	  +"&k="+k;
         getJSONData(url, {}).then(resp => {
