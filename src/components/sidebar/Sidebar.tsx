@@ -262,7 +262,7 @@ export const Sidebar: FunctionComponent<Props> = (
           <Divider />
           <List><div>
           <ListSubheader inset className={classes.ListSubheader}>Analyzing</ListSubheader>
-            <ListItem button onClick={() => {setIndex(1); handleMaterialListClick()}} selected={selectedIndex === 1} component={Link} to='/materials'>
+            <ListItem button onClick={() => {setIndex(1); handleMaterialListClick()}} selected={selectedIndex === 1}>
               <ListItemIcon>
                 <PlaylistAddIcon />
               </ListItemIcon>
