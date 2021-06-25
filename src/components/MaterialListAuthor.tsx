@@ -49,6 +49,8 @@ interface MatchParams {
 interface ListProps extends RouteComponentProps<MatchParams> {
     api_url: string;
     user_materials?: number[];
+    listOneCallBack?(event: boolean, newElement: any) : any;//calback function to main app for navbar element list state
+
 }
 
 export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
@@ -56,6 +58,7 @@ export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
                                                                match,
                                                                api_url,
                                                                user_materials,
+                                                               listOneCallBack
                                                            }) => {
     const classes = useStyles();
     let path = location.pathname;
@@ -119,6 +122,10 @@ export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
                                       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                           event.stopPropagation();
                                           handleCheck(event, value.id);
+                                          if(listOneCallBack !== undefined){
+                                            listOneCallBack(event.target.checked, value.id);
+                                          }
+                                          
                                       }}
                                       onClick={e => (e.stopPropagation())}
                             />
@@ -140,14 +147,13 @@ export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
         setListInfo({...listInfo, selected_materials: selected});
     };
 
-
+    // {(path === '/my_materials')?
+    //     <Author info={listInfo.selected_materials} currentLoc={"my_materials"}/>
+    //     :
+    //     <Author info={listInfo.selected_materials} currentLoc={"create_collection"}/>
+    //   }
     return (
         <div>
-          {(path === '/my_materials')?
-            <Author info={listInfo.selected_materials} currentLoc={"my_materials"}/>
-            :
-            <Author info={listInfo.selected_materials} currentLoc={"create_collection"}/>
-          }
           {(path === '/my_materials')?
             <Typography component="h1" variant="h3" align="center" color="textPrimary" gutterBottom>
                 My Materials
@@ -172,14 +178,23 @@ export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
                     <Grid item>
                         <Button className={classes.margin} variant="contained" color="primary"
                                 onClick={() => {
-                                    if (listInfo.materials !== null)
-                                        setListInfo({...listInfo, selected_materials:listInfo.materials.map(e => e.id)})}
+                                    if (listInfo.materials !== null){
+                                        setListInfo({...listInfo, selected_materials:listInfo.materials.map(e => e.id)})
+                                        if(listOneCallBack !== undefined){
+                                          listOneCallBack(true, listInfo.materials.map(e=>e.id));
+                                        }
+                                    }                            
+                                    }
                                 }
                         >
                             Select All
                         </Button>
                         <Button className={classes.margin} variant="contained" color="primary"
-                                onClick={() => {setListInfo({...listInfo, selected_materials:[]})}}
+                                onClick={() => {setListInfo({...listInfo, selected_materials:[]})
+                                if(listOneCallBack !== undefined){
+                                  listOneCallBack(false, [])  
+                                }                              
+                            }}
                         >
                             Select None
                         </Button>

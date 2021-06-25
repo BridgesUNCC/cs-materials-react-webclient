@@ -257,10 +257,10 @@ export const HarmonizationView: FunctionComponent<Props> = ({
     };
 
     let listOne:any = viewInfo.ids.split(",").map(Number)
+    //<Analyze listOne={[listOne]} listTwo={[]} user_id={user_id} user_data={{}} currentLoc={"matrix"} from={"matrix"}/>
 
     return (
         <div>
-        <Analyze listOne={[listOne]} listTwo={[]} user_id={user_id} user_data={{}} currentLoc={"matrix"} from={"matrix"}/>
             {
                 <Paper className={classes.paper}>
                     <TextField

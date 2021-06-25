@@ -93,6 +93,7 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     selected_materials?: number[];
     store_tags?: boolean;
     material_update?: (material_list: MaterialListData[]) => void;
+    listOneCallBack?(event: boolean, newElement: any) : any;//calback function to main app for navbar element list state
 }
 
 export const MaterialList: FunctionComponent<ListProps> = ({   history,
@@ -104,6 +105,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                                                                selected_materials,
                                                                store_tags,
                                                                material_update,
+                                                               listOneCallBack
                                                            }) => {
     const classes = useStyles();
     let path = location.pathname;
@@ -270,6 +272,9 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                                 event.stopPropagation();
                                                 handleCheck(event, value.id);
+                                                if(listOneCallBack !== undefined){
+                                                  listOneCallBack(event.target.checked, value.id);
+                                                }                         
                                             }}
                                             onClick={e => (e.stopPropagation())}
                                   />
@@ -318,10 +323,13 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
         setListInfo({...listInfo, selected_materials: selected});
     };
 
+    //function to handle the action of selecting all the materials in the list
     const handleSelectAll = () => {
         let selected_materials = [...new Set(listInfo.selected_materials.concat(listInfo.materials?.map(e => e.id)
             || []))]
-
+        if(listOneCallBack !== undefined){
+          listOneCallBack(true, selected_materials);
+        }        
         if (store_tags) {
           localStorage.setItem("checked_materials", selected_materials.toString());
         }
@@ -332,6 +340,9 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     const handleSelectNone = () => {
         let selected_materials: number[] = []
 
+        if(listOneCallBack !== undefined){
+          listOneCallBack(false, selected_materials);
+        }
         if (store_tags) {
           localStorage.setItem("checked_materials", selected_materials.toString());
         }
@@ -364,10 +375,10 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     return (
         <div>
         {/*load selected material to analyze comp for visualze*/}
-        {(listInfo.search !== "?material_types=collection")?
-          <Analyze listOne={listInfo.selected_materials} listTwo={[]} user_id={user_id} user_data={{}} currentLoc="materials" from="materials"/>
-          :
-          <Analyze listOne={listInfo.selected_materials} listTwo={[]} user_id={user_id} user_data={{}} currentLoc="collection" from="collection"/>
+        {//(listInfo.search !== "?material_types=collection")?
+          //<Analyze listOne={listInfo.selected_materials} listTwo={[]} user_id={user_id} user_data={{}} currentLoc="materials" from="materials"/>
+          //:
+          //<Analyze listOne={listInfo.selected_materials} listTwo={[]} user_id={user_id} user_data={{}} currentLoc="collection" from="collection"/>
         }
         {/*uses the listinfor search variable to determine if on collections or not, could prob be done a better way*/}
           {(listInfo.search !== "?material_types=collection") ?

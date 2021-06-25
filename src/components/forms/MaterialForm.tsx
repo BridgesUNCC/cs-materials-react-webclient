@@ -974,6 +974,12 @@ export const MaterialForm: FunctionComponent<Props> = (
       );
     }
 
+    // {formInfo.data.material_type !== "collection" ? (
+    //       <Author info={[]} currentLoc={"material_form"} />
+    //     ) : (
+    //       <Author info={[]} currentLoc={"collection_form"} />
+    //     )}
+
     // @TODO, flash error messages for empty title
     // @TODO, styling
     return (
@@ -1030,12 +1036,6 @@ export const MaterialForm: FunctionComponent<Props> = (
         >
           Save
         </Button>
-
-        {formInfo.data.material_type !== "collection" ? (
-          <Author info={[]} currentLoc={"material_form"} />
-        ) : (
-          <Author info={[]} currentLoc={"collection_form"} />
-        )}
 
         <Stepper activeStep={activeStep} className={classes.stepper}>
           {steps.map((label) => (

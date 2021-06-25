@@ -24,6 +24,7 @@ import {AnalyzeTutorial} from "./components/tutorials/AnalyzeTutorial";
 import {AuthorTutorial} from "./components/tutorials/AuthorTutorial";
 import {SearchTutorial} from "./components/tutorials/SearchTutorial";
 import {SearchRelationView} from "./components/search/SearchRelationView";
+import {Sidebar} from "./components/sidebar/Sidebar";
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
@@ -53,7 +54,9 @@ const useStyles = makeStyles((theme: Theme) =>
       },
       heroContent: {
         // backgroundColor: theme.palette.background.paper,
-        padding: theme.spacing(8, 0, 6),
+        padding: theme.spacing(8, 18, 6),
+        positon: 'relative',
+        display: 'flex',
       },
       heroButtons: {
         marginTop: theme.spacing(4),
@@ -78,6 +81,12 @@ const useStyles = makeStyles((theme: Theme) =>
         backgroundColor: theme.palette.background.paper,
         padding: theme.spacing(6),
       },
+      sidebar:{
+          position: 'absolute',
+          display: 'flex',
+          paddingRight: '200px',
+
+      }
   }),
 );
 
@@ -153,6 +162,83 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
     let [appInfo, setAppInfo] = React.useState(
         createInitialAppEntity()
     );
+
+
+    //update the state of the material id lists for sending to sidebar
+    //so we can render the radial and matrix view 
+    //this gets the updated material id selected from material list and
+    //comparison views
+    let [listOne, setListOne] = React.useState<any[]>([]);
+    let [clistOne, setcListOne] = React.useState<any[]>([]);
+    let [listTwo, setListTwo] = React.useState<any[]>([]);
+    //takes the event of a checkbox to determine if a value should be removed or
+    //appended to the list
+    //first checks if it is getting a list by checking the length of the new newElement
+    //if its a list we can append all elements individualy or remove all knowing that
+    //deselect all was pressed
+    //we have to check if newElement is an array or not because u can check a single material
+    //or selectall/deselectall
+    const handleListUpdate = (event: boolean, newElement: any) => {
+        if(event){
+            if(newElement.length === undefined){
+                setListOne(listOne => [...listOne, newElement]);
+            }else{
+                for(let i = 0; i < newElement.length; i++){
+                    setListOne(listOne => [...listOne, newElement[i]]);
+                }
+            }
+            console.log(listOne)
+        }else{
+            if(newElement.length === undefined){
+                const newList = listOne.filter((item) => item !== newElement)
+                setListOne(newList)
+            }else{
+                setListOne([]);
+            }
+            
+        }   
+    }
+    //function same as above but for material list one in comparison view
+    const handleListOneUpdate = (event: boolean, newElement: any) => {
+        if(event){
+            if(newElement.length === undefined){
+                setcListOne(clistOne => [...clistOne, newElement]);
+            }else{
+                for(let i = 0; i < newElement.length; i++){
+                    setcListOne(clistOne => [...clistOne, newElement[i]]);
+                }
+            }
+            console.log(clistOne)
+        }else{
+            if(newElement.length === undefined){
+                const newList = clistOne.filter((item) => item !== newElement)
+                setcListOne(newList)
+            }else{
+                setcListOne([]);
+            }
+            
+        }   
+    }
+
+    const handleListTwoUpdate = (event: boolean, newElement: any) => {
+        if(event){
+            if(newElement.length === undefined){
+                setListTwo(listTwo => [...listTwo, newElement]);
+            }else{
+                for(let i = 0; i < newElement.length; i++){
+                    setListTwo(listTwo => [...listTwo, newElement[i]]);
+                }
+            }
+        }else{
+            if(newElement.length === undefined){
+                const newList = listTwo.filter((item) => item !== newElement)
+                setListTwo(newList)
+            }else{
+                setListTwo([]);
+            }
+            
+        }
+    }
 
 
     const updateUserId = (id: number, fromStorage?: boolean, fromRegister?: boolean) => {
@@ -352,7 +438,15 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 </Route>
             </Switch>
 
-            <Container maxWidth="lg" className={classes.heroContent}>
+            <Grid container spacing={3}>
+            <Grid item xs={2}>
+            <Container className={classes.sidebar}>
+                <Sidebar listOne={listOne} compareListOne={clistOne} listTwo={listTwo} user_id={appInfo.user_id} user_data={appInfo} currentLoc="materials" from="materials"/>
+            </Container>
+            </Grid>
+
+            <Grid item xs={10} >
+            <Container maxWidth="lg" className={classes.heroContent} >
                 <Switch>
                     <Route exact path="/" render={() => (
                         <div>
@@ -441,7 +535,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/comparison" render={(route_props) => (
                         <Container maxWidth="lg">
-                            <Comparison {...route_props} api_url={appInfo.api_url} user_data={appInfo.user_data} user_id={appInfo.user_id}/>
+                            <Comparison {...route_props} api_url={appInfo.api_url} user_data={appInfo.user_data} user_id={appInfo.user_id} listOneCallBack = {handleListOneUpdate} listTwoCallBack={handleListTwoUpdate}/>
                         </Container>
                     )}
                     />
@@ -459,7 +553,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/materials" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialList {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id}/>
+                            <MaterialList {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} listOneCallBack = {handleListUpdate}/>
                         </Container>
                     )}
                     />
@@ -476,6 +570,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 {...route_props}
                                 api_url={appInfo.api_url}
                                 user_materials={appInfo.user_data.owned_materials}
+                                listOneCallBack = {handleListUpdate}
                             />
                         </Container>
                     )}
@@ -563,6 +658,8 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     <Route component={NotFound} />
                 </Switch>
             </Container>
+            </Grid>
+            </Grid>
 
             {/*handles cards for navigation*/}
 

@@ -55,7 +55,7 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     user_id: any;
     user_data: any;
     from: string;
-    onGetList(list: any, from: string): void; // lol this actually works for call back values from child component
+    selectedListTwo(event: boolean, list: any): void; // lol this actually works for call back values from child component
     listOne: number[];
 }
 
@@ -87,7 +87,7 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
                                                                user_id,
                                                                user_data,
                                                                from,
-                                                               onGetList,
+                                                               selectedListTwo,
                                                                listOne,
                                                            }) => {
     let title;
@@ -192,6 +192,7 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
                                       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                           event.stopPropagation();
                                           handleCheck(event, value.id);
+                                          selectedListTwo(event.target.checked, value.id)
                                       }}
                                       onClick={e => (e.stopPropagation())}
                             />
@@ -215,10 +216,10 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
     };
 
     console.log(listInfo.selected_materials)
-    let analyze = <Analyze listOne={listOne} listTwo={listInfo.selected_materials} user_id={user_id} user_data={user_data}
-                             currentLoc="compare" from="listTwo"/>;
+    //let analyze = <Analyze listOne={listOne} listTwo={listInfo.selected_materials} user_id={user_id} user_data={user_data}
+                             //currentLoc="compare" from="listTwo"/>;
     // var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={{user_data}} currentLoc="compare" from="listTwo"/>
-    onGetList(listInfo.selected_materials, "listTwo")
+    //onGetList(listInfo.selected_materials, "listTwo")
     return (
         <div>
         <AppBar position="static">
@@ -238,7 +239,8 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
         Item Three
       </TabPanel>
         {/*load selected material to analyze comp for visualze*/}
-        {analyze}
+        {//analyze
+        }
         {/*uses the listinfor search variable to determine if on collections or not, could prob be done a better way*/}
           {title}
             <Paper className={classes.root}>
@@ -246,14 +248,19 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
                     <Grid item>
                         <Button className={classes.margin} variant="contained" color="primary"
                                 onClick={() => {
-                                    if (listInfo.materials !== null)
-                                        setListInfo({...listInfo, selected_materials:listInfo.materials.map(e => e.id)})}
+                                    if (listInfo.materials !== null){
+                                        setListInfo({...listInfo, selected_materials:listInfo.materials.map(e => e.id)})
+                                        selectedListTwo(true, listInfo.materials.map(e=>e.id))
+                                    }
+                                    }
                                 }
                         >
                             Select All
                         </Button>
                         <Button className={classes.margin} variant="contained" color="primary"
-                                onClick={() => {setListInfo({...listInfo, selected_materials:[]})}}
+                                onClick={() => {setListInfo({...listInfo, selected_materials:[]})
+                                selectedListTwo(false, [])
+                              }}
                         >
                             Select None
                         </Button>

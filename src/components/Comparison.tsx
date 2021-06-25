@@ -13,6 +13,10 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     user_materials?: number[];
     user_id: any;
     user_data: any;
+    //calback functions to modify the state of the two list of material ids for 
+    //radial comparison view
+    listOneCallBack?(event: boolean, newElement:any):any;
+    listTwoCallBack?(event: boolean, newElement:any):any;
 }
 
 export const Comparison: FunctionComponent<ListProps> = ({   history,
@@ -22,6 +26,8 @@ export const Comparison: FunctionComponent<ListProps> = ({   history,
                                                                user_materials,
                                                                user_id,
                                                                user_data,
+                                                               listOneCallBack,
+                                                               listTwoCallBack
                                                            }) => {
 
     let listOne: number[] = [];
@@ -39,16 +45,28 @@ export const Comparison: FunctionComponent<ListProps> = ({   history,
       }
     }
 
+    const selectedListOne=(event: boolean, element: any) => {
+      if(listOneCallBack !== undefined){
+        listOneCallBack(event, element);
+      }      
+    }
+
+    const selectedListTwo = (event: boolean, element: any) => {
+      if(listTwoCallBack !== undefined){
+        listTwoCallBack(event, element)
+      }
+    }
+
     // let analyze = <Analyze listOne={listOne} listTwo={listTwo} user_id={user_id} user_data={user_data}
     //                          currentLoc="compare" from="listOne"/>;
 
     return (
       <Grid container spacing={2}>
       <Grid item xs={12} md={6}>
-        <MaterialListOne history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listOne"} onGetList={getList} listTwo={listTwo}/>
+        <MaterialListOne history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listOne"} selectedListOne={selectedListOne} listTwo={listTwo}/>
       </Grid>
       <Grid item xs={12} md={6}>
-        <MaterialListTwo history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listTwo"} onGetList={getList} listOne={listOne}/>
+        <MaterialListTwo history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listTwo"} selectedListTwo={selectedListTwo} listOne={listOne}/>
       </Grid>
     </Grid>
     )

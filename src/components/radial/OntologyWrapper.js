@@ -92,15 +92,15 @@ class OntologyWrapper extends Component {
         console.log(this.state)
     };
 
-
+    // {(this.props.location.search.split("tree=")[1].split("&")[0] === "acm")?
+    // <Analyze listOne={this.props.location.search.split("ids=")[1].split("&")[0]} user_id={this.props.user_id} currentLoc="radial" from="radial"/>
+    // :
+    // <Analyze listOne={this.props.location.search.split("ids=")[1].split("&")[0]} user_id={this.props.user_id} currentLoc="radialpdc" from="radial"/>
+    // }
     render() {
         return (
             <div>
-            {(this.props.location.search.split("tree=")[1].split("&")[0] === "acm")?
-            <Analyze listOne={this.props.location.search.split("ids=")[1].split("&")[0]} user_id={this.props.user_id} currentLoc="radial" from="radial"/>
-            :
-            <Analyze listOne={this.props.location.search.split("ids=")[1].split("&")[0]} user_id={this.props.user_id} currentLoc="radialpdc" from="radial"/>
-            }
+            
                 {this.state.loading ? (
                     <div>loading...</div>
                     ) :
