@@ -75,7 +75,8 @@ interface ListEntity {
 const createEmptyEntity = (path: string, selected_materials: number[] | undefined): ListEntity => {
     return {
         materials: null,
-        selected_materials: selected_materials || (localStorage.getItem("checked_materials")?.split(",").map(e => Number(e)) || []),
+        //selected_materials: selected_materials || (localStorage.getItem("checked_materials")?.split(",").map(e => Number(e)) || []),
+        selected_materials: selected_materials || [],
         fetched: false,
         search: "N/A",
         path
@@ -345,9 +346,9 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
         if(listOneCallBack !== undefined){
           listOneCallBack(false, selected_materials);
         }
-        if (store_tags) {
-          localStorage.setItem("checked_materials", selected_materials.toString());
-        }
+        // if (store_tags) {
+        //   localStorage.setItem("checked_materials", selected_materials.toString());
+        // }
 
         setListInfo({...listInfo, selected_materials});
     };
