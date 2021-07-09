@@ -318,9 +318,9 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
             selected = selected.filter(e => e !== id);
         }
 
-        if (store_tags) {
-          localStorage.setItem("checked_materials", selected.toString());
-        }
+        // if (store_tags) {
+        //   localStorage.setItem("checked_materials", selected.toString());
+        // }
 
         setListInfo({...listInfo, selected_materials: selected});
     };
@@ -332,9 +332,9 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
         if(listOneCallBack !== undefined){
           listOneCallBack(true, selected_materials);
         }
-        if (store_tags) {
-          localStorage.setItem("checked_materials", selected_materials.toString());
-        }
+        // if (store_tags) {
+        //   localStorage.setItem("checked_materials", selected_materials.toString());
+        // }
 
         setListInfo({...listInfo, selected_materials});
     };
