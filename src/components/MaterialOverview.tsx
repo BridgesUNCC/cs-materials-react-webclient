@@ -299,10 +299,6 @@ export const MaterialOverview: FunctionComponent<Props> = (
     return (
         <div>
             {
-                localStorage.getItem("access_token") &&
-                <Author info={[]} currentLoc={"material_overview"}/>
-            }
-            {
                 typeof localStorage.getItem("access_token") === "string" &&
                 <Link to={"/material/create?source=" + overviewInfo.data?.id}>
                     <Button className={classes.margin} variant="contained" color="primary">
