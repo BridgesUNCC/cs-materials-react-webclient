@@ -13,10 +13,12 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     user_materials?: number[];
     user_id: any;
     user_data: any;
-    //calback functions to modify the state of the two list of material ids for 
+    //calback functions to modify the state of the two list of material ids for
     //radial comparison view
     listOneCallBack?(event: boolean, newElement:any):any;
     listTwoCallBack?(event: boolean, newElement:any):any;
+    listOne: number[];
+    listTwo: number[];
 }
 
 export const Comparison: FunctionComponent<ListProps> = ({   history,
@@ -27,28 +29,29 @@ export const Comparison: FunctionComponent<ListProps> = ({   history,
                                                                user_id,
                                                                user_data,
                                                                listOneCallBack,
-                                                               listTwoCallBack
+                                                               listTwoCallBack,
+                                                               listOne,
+                                                               listTwo
                                                            }) => {
 
-    let listOne: number[] = [];
-    let listTwo: number[] = [];
+
 
     // lol this actually works for call back values from child component
-    const getList = (list: any, from: string) => {
-      if(from === "listOne"){
-        listOne = list
-        console.log(list, from);
-      }
-      if(from === "listTwo"){
-        listTwo = list
-        console.log(list, from);
-      }
-    }
+    // const getList = (list: any, from: string) => {
+    //   if(from === "listOne"){
+    //     listOne = list
+    //     console.log(list, from);
+    //   }
+    //   if(from === "listTwo"){
+    //     listTwo = list
+    //     console.log(list, from);
+    //   }
+    // }
 
     const selectedListOne=(event: boolean, element: any) => {
       if(listOneCallBack !== undefined){
         listOneCallBack(event, element);
-      }      
+      }
     }
 
     const selectedListTwo = (event: boolean, element: any) => {
@@ -63,10 +66,10 @@ export const Comparison: FunctionComponent<ListProps> = ({   history,
     return (
       <Grid container spacing={2}>
       <Grid item xs={12} md={6}>
-        <MaterialListOne history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listOne"} selectedListOne={selectedListOne} listTwo={listTwo}/>
+        <MaterialListOne history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listOne"} selectedListOne={selectedListOne} listOne={listOne}/>
       </Grid>
       <Grid item xs={12} md={6}>
-        <MaterialListTwo history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listTwo"} selectedListTwo={selectedListTwo} listOne={listOne}/>
+        <MaterialListTwo history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listTwo"} selectedListTwo={selectedListTwo} listTwo={listTwo}/>
       </Grid>
     </Grid>
     )

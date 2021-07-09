@@ -56,7 +56,7 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     user_data: any;
     from: string;
     selectedListOne(event: boolean, list: any): void; // lol this actually works for call back values from child component
-    listTwo: number[];
+    listOne: number[];
 }
 
 function TabPanel(props: any) {
@@ -88,7 +88,7 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
                                                                user_data,
                                                                from,
                                                                selectedListOne,
-                                                               listTwo,
+                                                               listOne,
                                                            }) => {
     let title;
     const classes = useStyles();
@@ -185,7 +185,7 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
                         primary={value.title} to={"/material/" + value.id} key={value.id}
                         input={
                             <Checkbox id={`checkbox-${value.id}`}
-                                      checked={listInfo.selected_materials.includes(value.id)}
+                                      checked={listInfo.selected_materials.includes(value.id) || listOne.includes(value.id)}
                                       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                           event.stopPropagation();
                                           handleCheck(event, value.id);
@@ -248,7 +248,7 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
                                         setListInfo({...listInfo, selected_materials:listInfo.materials.map(e => e.id)})
                                         selectedListOne(true, listInfo.materials.map(e=>e.id))
                                     }
-                                    
+
                                 }
                                 }
                         >

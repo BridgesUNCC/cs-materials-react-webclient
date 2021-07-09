@@ -56,7 +56,7 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     user_data: any;
     from: string;
     selectedListTwo(event: boolean, list: any): void; // lol this actually works for call back values from child component
-    listOne: number[];
+    listTwo: number[];
 }
 
 function TabPanel(props: any) {
@@ -88,7 +88,7 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
                                                                user_data,
                                                                from,
                                                                selectedListTwo,
-                                                               listOne,
+                                                               listTwo,
                                                            }) => {
     let title;
     const classes = useStyles();
@@ -188,7 +188,7 @@ export const MaterialListTwo: FunctionComponent<ListProps> = ({   history,
                         primary={value.title} to={"/material/" + value.id} key={value.id}
                         input={
                             <Checkbox id={`checkbox-${value.id}`}
-                                      checked={listInfo.selected_materials.includes(value.id)}
+                                      checked={listInfo.selected_materials.includes(value.id) || listTwo.includes(value.id)}
                                       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                           event.stopPropagation();
                                           handleCheck(event, value.id);

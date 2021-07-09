@@ -7,6 +7,8 @@ import {Comparison} from "./components/Comparison";
 import {MaterialListAuthor} from "./components/MaterialListAuthor";
 import {AppBar, createStyles, Grid, Theme} from "@material-ui/core";
 import {AppBarUserMenu} from "./components/user/AppBarUserMenu";
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 import {Route, RouteComponentProps, Switch} from "react-router";
 import Container from "@material-ui/core/Container";
 import {MaterialOverview} from "./components/MaterialOverview";
@@ -86,7 +88,13 @@ const useStyles = makeStyles((theme: Theme) =>
           display: 'flex',
           paddingRight: '200px',
 
-      }
+      },
+      frame: {
+        paddingTop: 0,
+        marginBottom: '5%',
+        width: '100%',
+        height: '700px',
+      },
   }),
 );
 
@@ -165,7 +173,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
 
     //update the state of the material id lists for sending to sidebar
-    //so we can render the radial and matrix view 
+    //so we can render the radial and matrix view
     //this gets the updated material id selected from material list and
     //comparison views
     let [listOne, setListOne] = React.useState<any[]>([]);
@@ -195,8 +203,8 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
             }else{
                 setListOne([]);
             }
-            
-        }   
+
+        }
     }
     //function same as above but for material list one in comparison view
     const handleListOneUpdate = (event: boolean, newElement: any) => {
@@ -216,8 +224,8 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
             }else{
                 setcListOne([]);
             }
-            
-        }   
+
+        }
     }
 
     const handleListTwoUpdate = (event: boolean, newElement: any) => {
@@ -236,9 +244,21 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
             }else{
                 setListTwo([]);
             }
-            
+
         }
     }
+
+    const [anchorEl, setAnchorEl] = React.useState(null);
+
+    const handleGlobalListClick = (event: any) => {
+      setAnchorEl(event.currentTarget);
+    };
+
+    const handleGlobalListClose = () => {
+      setAnchorEl(null);
+    };
+
+
 
 
     const updateUserId = (id: number, fromStorage?: boolean, fromRegister?: boolean) => {
@@ -417,6 +437,25 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                             </Grid>
 
                             <Grid item className={classes.toolbarButtons}>
+                            <Button variant="contained" color="primary" aria-haspopup="true" className={classes.margin} onClick={handleGlobalListClick} style={{zIndex:1}}>
+                              View Selected Materials
+                            </Button>
+
+                              <Menu
+                                id="simple-menu"
+                                anchorEl={anchorEl}
+                                keepMounted
+                                open={Boolean(anchorEl)}
+                                onClose={handleGlobalListClose}
+                              >
+                              {listOne.map((tag) => (
+                                <MenuItem onClick={handleGlobalListClose}>{tag}</MenuItem>
+                              ))}
+                              </Menu>
+                            </Grid>
+
+                            <Grid item className={classes.toolbarButtons}>
+
                                 {
                                     /**
                                      If no user id set, show login button, else show user buttons
@@ -467,50 +506,14 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 </Grid>
                             </div>
                             {/* End hero unit */}
-                            <Grid container spacing={4}>
-                                {cards.map((card) => (
-                                    <Grid item key={card.id} xs={12} sm={6} md={4}>
-                                        <Card className={classes.card}>
-                                            <CardMedia
-                                                className={classes.cardMedia}
-                                                image={card.image}
-                                                title="Image title"
-                                            />
-                                            <CardContent className={classes.cardContent}>
-                                                <Typography gutterBottom variant="h5" component="h2">
-                                                    {card.title}
-                                                </Typography>
-                                                <Typography>
-                                                    {card.text}
-                                                </Typography>
-                                            </CardContent>
-                                            <CardActions>
-                                                <Route exact path="/" render={() => (
-                                                    card.title === 'Author' ?
-                                                        appInfo.user_id === null ?
-                                                            <Route render={(props) => (
-                                                                <LoginDialog {...props} updateId={updateUserId} api_url={appInfo.api_url}/>
-                                                            )}
-                                                            />
-                                                            :
-                                                            <Link to={card.link}>
-                                                                <Button variant="contained" size="small" color="primary">
-                                                                    Begin
-                                                                </Button>
-                                                            </Link>
-                                                        :
-                                                        <Link to={card.link}>
-                                                            <Button variant="contained" size="small" color="primary">
-                                                                Begin
-                                                            </Button>
-                                                        </Link>
-                                                )}
-                                                />
-                                            </CardActions>
-                                        </Card>
-                                    </Grid>
-                                ))}
-                            </Grid>
+                            <iframe src='https://www.youtube.com/embed/IyEMcpXYUKU'
+                                    className={classes.frame}
+                                    frameBorder='1'
+                                    allow='autoplay; encrypted-media'
+                                    allowFullScreen
+                                    title='video'
+                            />
+
                         </div>
                     )}
                     />
@@ -535,7 +538,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/comparison" render={(route_props) => (
                         <Container maxWidth="lg">
-                            <Comparison {...route_props} api_url={appInfo.api_url} user_data={appInfo.user_data} user_id={appInfo.user_id} listOneCallBack = {handleListOneUpdate} listTwoCallBack={handleListTwoUpdate}/>
+                            <Comparison {...route_props} api_url={appInfo.api_url} user_data={appInfo.user_data} user_id={appInfo.user_id} listOneCallBack = {handleListOneUpdate} listTwoCallBack={handleListTwoUpdate} listOne={clistOne} listTwo={listTwo}/>
                         </Container>
                     )}
                     />
@@ -553,13 +556,13 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/materials" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialList {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} listOneCallBack = {handleListUpdate}/>
+                            <MaterialList {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} listOneCallBack = {handleListUpdate} currentSelected={listOne}/>
                         </Container>
                     )}
                     />
                     <Route path="/materials_author" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialListAuthor {...route_props} api_url={appInfo.api_url}/>
+                            <MaterialListAuthor {...route_props} api_url={appInfo.api_url} listOne={[]}/>
                         </Container>
                     )}
                     />
@@ -571,6 +574,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 api_url={appInfo.api_url}
                                 user_materials={appInfo.user_data.owned_materials}
                                 listOneCallBack = {handleListUpdate}
+                                listOne={listOne}
                             />
                         </Container>
                     )}

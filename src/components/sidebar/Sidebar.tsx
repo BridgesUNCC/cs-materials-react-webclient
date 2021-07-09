@@ -1,4 +1,5 @@
 import React, {FunctionComponent} from "react";
+import { useEffect } from 'react';
 import {createStyles, Theme} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import {Link} from "react-router-dom";
@@ -29,7 +30,6 @@ const useStyles = makeStyles((theme: Theme) =>
         root: {
             display: 'flex',
             paddingRight: 100,
-            overflowY: 'scroll',
         },
         toolbar: {
           paddingRight: 24, // keep right padding when drawer closed
@@ -113,6 +113,7 @@ const useStyles = makeStyles((theme: Theme) =>
         nested: {
           paddingLeft: theme.spacing(4),
         },
+
     }),
 );
 
@@ -169,29 +170,12 @@ export const Sidebar: FunctionComponent<Props> = (
     };
 
 
-    switch(currentLoc) {
-      case "materials":
-        selectedIndex = 1;
-        break;
-      case "collection":
-        selectedIndex = 2;
-        break;
-      case "compare":
-        selectedIndex = 3;
-        break;
-      case "radial":
-        selectedIndex = 4;
-        break;
-      case "radialpdc":
-        selectedIndex = 5;
-        break;
-      case "matrix":
-        selectedIndex = 6;
-        break;
-      case "similarity":
-        selectedIndex = 7;
-        break;
-    }
+    // useEffect(() => {
+    //     console.log("hello")
+    //     return () => {
+    //         console.log("hello")
+    //     }
+    // }, [])
 
 
     if (from === "listOne") {
@@ -262,7 +246,7 @@ export const Sidebar: FunctionComponent<Props> = (
           <Divider />
           <List><div>
           <ListSubheader inset className={classes.ListSubheader}>Analyzing</ListSubheader>
-            <ListItem button onClick={() => {setIndex(1); handleMaterialListClick()}} selected={selectedIndex === 1}>
+            <ListItem button onClick={() => {handleMaterialListClick()}} selected={selectedIndex === 1}>
               <ListItemIcon>
                 <PlaylistAddIcon />
               </ListItemIcon>
@@ -293,16 +277,16 @@ export const Sidebar: FunctionComponent<Props> = (
                   </ListItem>
                 </List>
               </Collapse>
-            <ListItem button onClick={() => {setIndex(3); handleClick()}}>
+            <ListItem button onClick={() => {handleClick()}}>
               <ListItemIcon>
                 <AccountTreeIcon />
               </ListItemIcon>
               <ListItemText primary="Comparison" />
               {comparisonOpen ? <ExpandLess /> : <ExpandMore />}
-            </ListItem>          
+            </ListItem>
             <Collapse in={comparisonOpen} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
-                  <ListItem className={classes.nested} button onClick={() => {setIndex(3)}} selected={selectedIndex === 3} component={Link} to='/comparison'>                
+                  <ListItem className={classes.nested} button onClick={() => {setIndex(3)}} selected={selectedIndex === 3} component={Link} to='/comparison'>
                     <ListItemIcon>
                       <AccountTreeIcon />
                     </ListItemIcon>
@@ -313,13 +297,13 @@ export const Sidebar: FunctionComponent<Props> = (
                         <PeopleIcon />
                     </ListItemIcon>
                     <ListItemText primary="Radial Comparison View" />
-                  </ListItem>            
+                  </ListItem>
               </List>
             </Collapse>
 
-            
-            
-            
+
+
+
 
           </div></List>
           {(user_id !== null) ?
@@ -331,19 +315,19 @@ export const Sidebar: FunctionComponent<Props> = (
           {(user_id !== null) ?
             <div>
             <ListSubheader inset className={classes.ListSubheader}>Authoring</ListSubheader>
-            <ListItem button component={Link} to='/material/create'>
+            <ListItem button onClick={() => setIndex(7)} selected={selectedIndex === 7} component={Link} to='/material/create'>
               <ListItemIcon>
                 <DashboardIcon />
               </ListItemIcon>
               <ListItemText primary="Create Materials" />
             </ListItem>
-            <ListItem button component={Link} to='/materials_author'>
+            <ListItem button onClick={() => setIndex(8)} selected={selectedIndex === 8} component={Link} to='/materials_author'>
               <ListItemIcon>
                 <AccountTreeIcon />
               </ListItemIcon>
               <ListItemText primary="Create Collections" />
             </ListItem>
-            <ListItem button component={Link} to='/my_materials'>
+            <ListItem button onClick={() => setIndex(9)} selected={selectedIndex === 9} component={Link} to='/my_materials'>
               <ListItemIcon>
                 <PeopleIcon />
               </ListItemIcon>
@@ -359,7 +343,7 @@ export const Sidebar: FunctionComponent<Props> = (
           <Divider />
           <List><div>
           <ListSubheader inset className={classes.ListSubheader}>Searching</ListSubheader>
-          <ListItem button component={Link} to='/search'>
+          <ListItem button onClick={() => setIndex(10)} selected={selectedIndex === 10} component={Link} to='/search'>
             <ListItemIcon>
               <DashboardIcon />
             </ListItemIcon>

@@ -50,7 +50,7 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     api_url: string;
     user_materials?: number[];
     listOneCallBack?(event: boolean, newElement: any) : any;//calback function to main app for navbar element list state
-
+    listOne: number[];
 }
 
 export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
@@ -58,7 +58,8 @@ export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
                                                                match,
                                                                api_url,
                                                                user_materials,
-                                                               listOneCallBack
+                                                               listOneCallBack,
+                                                               listOne
                                                            }) => {
     const classes = useStyles();
     let path = location.pathname;
@@ -118,14 +119,14 @@ export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
                         primary={value.title} to={"/material/" + value.id} key={value.id}
                         input={
                             <Checkbox id={`checkbox-${value.id}`}
-                                      checked={listInfo.selected_materials.includes(value.id)}
+                                      checked={listInfo.selected_materials.includes(value.id) || listOne.includes(value.id)}
                                       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                           event.stopPropagation();
                                           handleCheck(event, value.id);
                                           if(listOneCallBack !== undefined){
                                             listOneCallBack(event.target.checked, value.id);
                                           }
-                                          
+
                                       }}
                                       onClick={e => (e.stopPropagation())}
                             />
@@ -183,7 +184,7 @@ export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
                                         if(listOneCallBack !== undefined){
                                           listOneCallBack(true, listInfo.materials.map(e=>e.id));
                                         }
-                                    }                            
+                                    }
                                     }
                                 }
                         >
@@ -192,8 +193,8 @@ export const MaterialListAuthor: FunctionComponent<ListProps> = ({   history,
                         <Button className={classes.margin} variant="contained" color="primary"
                                 onClick={() => {setListInfo({...listInfo, selected_materials:[]})
                                 if(listOneCallBack !== undefined){
-                                  listOneCallBack(false, [])  
-                                }                              
+                                  listOneCallBack(false, [])
+                                }
                             }}
                         >
                             Select None

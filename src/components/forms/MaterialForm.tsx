@@ -970,6 +970,7 @@ export const MaterialForm: FunctionComponent<Props> = (
           store_tags={false}
           selected_materials={selected_materials}
           material_update={handle_mapped_materials_update}
+          currentSelected={[]}
         />
       );
     }
