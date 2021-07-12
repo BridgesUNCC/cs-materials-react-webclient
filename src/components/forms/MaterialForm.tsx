@@ -302,7 +302,6 @@ export const MaterialForm: FunctionComponent<Props> = (
         let promises: Promise<FormEntity>[] = [];
         let promise;
 
-
         let material_type = parse_query_variable(location, "type");
 
         let mapped_ids = parse_query_variable(location, "ids");
@@ -638,18 +637,7 @@ export const MaterialForm: FunctionComponent<Props> = (
 
 
         const MyAutocomplete: FunctionComponent<KeyProp> = ({name}) => {
-            const handleKeyDown = (event: any) => {
-              switch (event.key) {
-                case "Tab": {
-                  event.preventDefault()
-                  event.stopPropagation();
-                  defaults[name].push(event.target.value)
-                  event.target.value = ""
-                  break;
-                }
-                default:
-              }
-            };
+
 
 
 
@@ -676,8 +664,7 @@ export const MaterialForm: FunctionComponent<Props> = (
                         freeSolo
                         onChange={onTagTextFieldChange(name)}
                         renderInput={params => {
-                          Object.assign(params.inputProps, {onKeyDown: handleKeyDown})
-                            // params.inputProps.onKeyDown = handleKeyDown;
+                          Object.assign(params.inputProps)
                             return(
                             <TextField
                                 {...params}
