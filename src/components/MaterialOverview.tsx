@@ -14,6 +14,7 @@ import {MaterialListData, MaterialTypesArray} from "../common/types";
 import {Author} from "./author/Author";
 import EditIcon from '@material-ui/icons/Edit';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import {NotFound} from "./NotFound";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -114,6 +115,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
         setOverviewInfo({...overviewInfo, data: null, fetched: false})
     }
 
+    console.log(overviewInfo.not_found);
     if (!overviewInfo.fetched || force_fetch_data) {
         const url = api_url + "/data/material/meta?id=" + match.params.id;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
@@ -299,6 +301,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
     return (
         <div>
             {
+                !overviewInfo.not_found &&
                 typeof localStorage.getItem("access_token") === "string" &&
                 <Link to={"/material/create?source=" + overviewInfo.data?.id}>
                     <Button className={classes.margin} variant="contained" color="primary">
@@ -308,6 +311,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
             }
             <div className={classes.root}>
 
+                {overviewInfo.not_found && <NotFound/>}
                 <Paper>
                     {overviewInfo.data === null ?
                         <div>
@@ -315,81 +319,80 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         </div>
                         :
                         <div>
-                        <div className={classes.topButton}>
-                            {overviewInfo.can_edit &&
-                            <Link to={overviewInfo.data.id + "/edit"}>
-                                <Button className={classes.margin} variant="contained" color="primary" startIcon={<EditIcon/>}>
-                                    edit
-                                </Button>
-                            </Link>
-                            }
-                            {is_admin &&
-                            <Link to={overviewInfo.data.id + "/edit"}>
-                                <Button className={classes.margin} variant="contained" color="secondary">
-                                    edit as admin
-                                </Button>
-                            </Link>
-                            }
-                            {
-                                overviewInfo.files.length !== 0 ?
-                                    <div>
-                                        <Typography variant="h5">
-                                            Files
-                                        </Typography>
-                                        {overviewInfo.files.map(file => {
-                                            return <Button className={classes.margin}
-                                                           variant="contained"
-                                                           startIcon={<GetAppIcon/>}
-                                                           target={"_blank"}
-                                                           href={file.url}
-                                                           key={file.name}
-                                                           download={true}
-                                            >
-                                                {file.name}
+                                    <div className={classes.topButton}>
+                                        {overviewInfo.can_edit &&
+                                        <Link to={overviewInfo.data.id + "/edit"}>
+                                            <Button className={classes.margin} variant="contained" color="primary" startIcon={<EditIcon/>}>
+                                                edit
                                             </Button>
-                                        })}
+                                        </Link>
+                                        }
+                                        {is_admin &&
+                                        <Link to={overviewInfo.data.id + "/edit"}>
+                                            <Button className={classes.margin} variant="contained" color="secondary">
+                                                edit as admin
+                                            </Button>
+                                        </Link>
+                                        }
+                                        {
+                                            overviewInfo.files.length !== 0 ?
+                                                <div>
+                                                    <Typography variant="h5">
+                                                        Files
+                                                    </Typography>
+                                                    {overviewInfo.files.map(file => {
+                                                        return <Button className={classes.margin}
+                                                                       variant="contained"
+                                                                       startIcon={<GetAppIcon/>}
+                                                                       target={"_blank"}
+                                                                       href={file.url}
+                                                                       key={file.name}
+                                                                       download={true}
+                                                        >
+                                                            {file.name}
+                                                        </Button>
+                                                    })}
 
-                                        <Divider/>
+                                                    <Divider/>
+                                                </div>
+                                                :
+                                                <div/>
+                                        }
+
+                                        {overviewInfo.can_delete &&
+                                        <DeleteDialog id={overviewInfo.data.id} name={overviewInfo.data.title} api_url={api_url}
+                                                      on_success={() => {
+                                                          history.push({
+                                                              pathname: "/my_materials",
+                                                          });}}
+                                                      endpoint={"/data/delete/material?id=" + overviewInfo.data.id}
+                                        />
+                                        }
                                     </div>
-                                    :
-                                    <div/>
-                            }
-
-                            {overviewInfo.can_delete &&
-                            <DeleteDialog id={overviewInfo.data.id} name={overviewInfo.data.title} api_url={api_url}
-                                          on_success={() => {
-                                              history.push({
-                                                  pathname: "/my_materials",
-                                              });}}
-                                          endpoint={"/data/delete/material?id=" + overviewInfo.data.id}
-                            />
-                            }
-                            </div>
-                            <Divider/>
-                           <Typography variant={"h3"}>
-                                {MaterialTypesArray.find(e => e.value === overviewInfo.data?.material_type)?.label}
-                            </Typography>
-                            <Typography variant="h4" component="h3" className={classes.root}>
-                                {overviewInfo.data.title}
-                            </Typography>
-                            <Divider/>
-                            <Typography variant={"h5"} className={classes.content}>
-                                Upstream URL
-                            </Typography>
-                            <a target={"_blank"} href={overviewInfo.data.upstream_url} className={classes.link}>
-                                {overviewInfo.data.upstream_url}
-                            </a>
-                            <Divider/>
-                            <Typography variant={"h5"} className={classes.content}>
-                                Description
-                            </Typography>
-                            <Typography variant="body1" component="p" className={classes.content} >
-                                {overviewInfo.data.description}
-                            </Typography>
-                            <Divider/>
-                            {output}
-                            <Divider/>
-
+                                    <Divider/>
+                                    <Typography variant={"h3"}>
+                                        {MaterialTypesArray.find(e => e.value === overviewInfo.data?.material_type)?.label}
+                                    </Typography>
+                                    <Typography variant="h4" component="h3" className={classes.root}>
+                                        {overviewInfo.data.title}
+                                    </Typography>
+                                    <Divider/>
+                                    <Typography variant={"h5"} className={classes.content}>
+                                        Upstream URL
+                                    </Typography>
+                                    <a target={"_blank"} href={overviewInfo.data.upstream_url} className={classes.link}>
+                                        {overviewInfo.data.upstream_url}
+                                    </a>
+                                    <Divider/>
+                                    <Typography variant={"h5"} className={classes.content}>
+                                        Description
+                                    </Typography>
+                                    <Typography variant="body1" component="p" className={classes.content} >
+                                        {overviewInfo.data.description}
+                                    </Typography>
+                                    <Divider/>
+                                    {output}
+                                    <Divider/>
                         </div>
                     }
                 </Paper>

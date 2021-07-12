@@ -156,6 +156,7 @@ interface FormEntity {
     snackbar_info: SnackbarBuilderProps;
     tags_fetched: boolean;
     fetched: boolean;
+    not_found: boolean;
     posting: boolean;
     file_delete_mode: boolean;
     new: boolean;
@@ -174,6 +175,7 @@ const createEmptyEntity = (location: any): FormEntity => {
         files: [],
         tags_fetched: false,
         fetched: false,
+        not_found: false,
         posting: false,
         file_delete_mode: false,
         new: location.pathname.endsWith("/create"),
@@ -232,7 +234,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         match_id = Number(match.params.id);
     }
     // check if route has changed from another instance of this Form, if so clear data and re render.
-    if (formInfo.fetched && match_id !== formInfo.data.id) {
+    if (!formInfo.not_found && formInfo.fetched && match_id !== formInfo.data.id) {
         setFormInfo(createEmptyEntity(location));
     }
 
@@ -379,7 +381,7 @@ export const MaterialForm: FunctionComponent<Props> = (
 
                         return {...formInfo, fetched: true, data}
                     } else {
-                        return {...formInfo, fetched: true}
+                        return {...formInfo, fetched: true, not_found: true}
                     }
                 }
             })
