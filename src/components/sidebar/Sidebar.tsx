@@ -269,12 +269,15 @@ export const Sidebar: FunctionComponent<Props> = (
                   </ListItem>
                   {radialacm}
                   {radialpdc}
+                  {(false)?
                   <ListItem className={classes.nested} button onClick={() => setIndex(6)} selected={selectedIndex === 6} component={Link} to={'/matrix?ids='+ listOne}>
                     <ListItemIcon>
                       <BarChartIcon />
                     </ListItemIcon>
                     <ListItemText primary="Harmonization View" />
                   </ListItem>
+                  :
+                  <div></div>}
                 </List>
               </Collapse>
             <ListItem button onClick={() => {handleClick()}}>
