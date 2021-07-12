@@ -257,7 +257,6 @@ export const HarmonizationView: FunctionComponent<Props> = ({
     };
 
     let listOne:any = viewInfo.ids.split(",").map(Number)
-    //<Analyze listOne={[listOne]} listTwo={[]} user_id={user_id} user_data={{}} currentLoc={"matrix"} from={"matrix"}/>
 
     return (
         <div>
@@ -269,14 +268,15 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                         className={classes.textField}
                         onChange={onTextFieldChange("ids")}
                     />
-
-                    <Button
-                        className={classes.margin}
-                        variant={"contained"}
-                        onClick={onSubmit}
-                    >
-                        Submit Matrix
-                    </Button>
+                    {
+                    // <Button
+                    //     className={classes.margin}
+                    //     variant={"contained"}
+                    //     onClick={onSubmit}
+                    // >
+                    //     Submit Matrix
+                    // </Button>
+                  }
                 </Paper>
             }
             {
