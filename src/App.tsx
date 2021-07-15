@@ -26,6 +26,7 @@ import {AnalyzeTutorial} from "./components/tutorials/AnalyzeTutorial";
 import {AuthorTutorial} from "./components/tutorials/AuthorTutorial";
 import {SearchTutorial} from "./components/tutorials/SearchTutorial";
 import {SearchRelationView} from "./components/search/SearchRelationView";
+import Divider from '@material-ui/core/Divider';
 import {Sidebar} from "./components/sidebar/Sidebar";
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
@@ -94,6 +95,13 @@ const useStyles = makeStyles((theme: Theme) =>
         marginBottom: '5%',
         width: '100%',
         height: '700px',
+      },
+      dividerFullWidth: {
+        margin: `5px 0 0 ${theme.spacing(2)}px`,
+        minWidth: '200px',
+      },
+      menu:{
+          minWidth: '100px',
       },
   }),
 );
@@ -447,8 +455,49 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 keepMounted
                                 open={Boolean(anchorEl)}
                                 onClose={handleGlobalListClose}
+                                className={classes.menu}
                               >
+                              <Divider component="li" />
+                                  <li>
+                                    <Typography
+                                      className={classes.dividerFullWidth}
+                                      color="textSecondary"
+                                      display="block"
+                                      variant="caption"
+                                    >
+                                      Selected Materials
+                                    </Typography>
+                                  </li>
                               {listOne.map((tag) => (
+                                <MenuItem onClick={handleGlobalListClose}>{tag.name}</MenuItem>
+                              ))}
+                              <Divider component="li" />
+                                  <li>
+                                    <Typography
+                                      className={classes.dividerFullWidth}
+                                      color="textSecondary"
+                                      display="block"
+                                      variant="caption"
+                                    >
+                                      Comparison List One
+                                    </Typography>
+                                  </li>
+                              {clistOne.map((tag) => (
+                                <MenuItem onClick={handleGlobalListClose}>{tag.name}</MenuItem>
+                              ))}
+                              <Divider component="li" />
+                                  <li>
+                                    <Typography
+                                      className={classes.dividerFullWidth}
+                                      color="textSecondary"
+                                      display="block"
+                                      variant="caption"
+                                    >
+                                      Comparison List Two
+                                    </Typography>
+                                  </li>
+
+                              {listTwo.map((tag) => (
                                 <MenuItem onClick={handleGlobalListClose}>{tag.name}</MenuItem>
                               ))}
                               </Menu>
