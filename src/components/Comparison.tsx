@@ -66,10 +66,10 @@ export const Comparison: FunctionComponent<ListProps> = ({   history,
     return (
       <Grid container spacing={2}>
       <Grid item xs={12} md={6}>
-        <MaterialListOne history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listOne"} selectedListOne={selectedListOne} listOne={listOne}/>
+        <MaterialListOne history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listOne"} selectedListOne={selectedListOne} listOne={listOne} currentSelected={listOne}/>
       </Grid>
       <Grid item xs={12} md={6}>
-        <MaterialListTwo history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listTwo"} selectedListTwo={selectedListTwo} listTwo={listTwo}/>
+        <MaterialListTwo history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listTwo"} selectedListTwo={selectedListTwo} listTwo={listTwo} currentSelected={listTwo}/>
       </Grid>
     </Grid>
     )

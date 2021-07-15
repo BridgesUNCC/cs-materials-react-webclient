@@ -57,7 +57,8 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     from: string;
     selectedListOne(event: boolean, list: any): void; // lol this actually works for call back values from child component
     listOne: number[];
-}
+    currentSelected: number[];
+} 
 
 function TabPanel(props: any) {
   const { children, value, index, ...other } = props;
@@ -89,6 +90,7 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
                                                                from,
                                                                selectedListOne,
                                                                listOne,
+                                                               currentSelected
                                                            }) => {
     let title;
     const classes = useStyles();
@@ -185,11 +187,11 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
                         primary={value.title} to={"/material/" + value.id} key={value.id}
                         input={
                             <Checkbox id={`checkbox-${value.id}`}
-                                      checked={listInfo.selected_materials.includes(value.id) || listOne.includes(value.id)}
+                                      checked={listInfo.selected_materials.includes(value.id) || currentSelected.includes(value.id)}
                                       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                           event.stopPropagation();
                                           handleCheck(event, value.id);
-                                          selectedListOne(event.target.checked, value.id)
+                                          selectedListOne(event.target.checked, {name:value.title, id: value.id})
                                       }}
                                       onClick={e => (e.stopPropagation())}
                             />
@@ -246,7 +248,7 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
                                 onClick={() => {
                                     if (listInfo.materials !== null){
                                         setListInfo({...listInfo, selected_materials:listInfo.materials.map(e => e.id)})
-                                        selectedListOne(true, listInfo.materials.map(e=>e.id))
+                                        selectedListOne(true, listInfo.materials.map(function(a) {return {name: a.title, id: a.id};}))
                                     }
 
                                 }

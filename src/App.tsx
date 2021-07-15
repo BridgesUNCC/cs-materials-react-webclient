@@ -449,7 +449,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 onClose={handleGlobalListClose}
                               >
                               {listOne.map((tag) => (
-                                <MenuItem onClick={handleGlobalListClose}>{tag}</MenuItem>
+                                <MenuItem onClick={handleGlobalListClose}>{tag.name}</MenuItem>
                               ))}
                               </Menu>
                             </Grid>
@@ -480,7 +480,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
             <Grid container spacing={3}>
             <Grid item xs={2}>
             <Container className={classes.sidebar}>
-                <Sidebar listOne={listOne} compareListOne={clistOne} listTwo={listTwo} user_id={appInfo.user_id} user_data={appInfo} currentLoc="materials" from="materials"/>
+                <Sidebar listOne={listOne.map(function(a) {return a.id;})} compareListOne={clistOne.map(function(a) {return a.id;})} listTwo={listTwo.map(function(a) {return a.id;})} user_id={appInfo.user_id} user_data={appInfo} currentLoc="materials" from="materials"/>
             </Container>
             </Grid>
 
@@ -538,7 +538,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/comparison" render={(route_props) => (
                         <Container maxWidth="lg">
-                            <Comparison {...route_props} api_url={appInfo.api_url} user_data={appInfo.user_data} user_id={appInfo.user_id} listOneCallBack = {handleListOneUpdate} listTwoCallBack={handleListTwoUpdate} listOne={clistOne} listTwo={listTwo}/>
+                            <Comparison {...route_props} api_url={appInfo.api_url} user_data={appInfo.user_data} user_id={appInfo.user_id} listOneCallBack = {handleListOneUpdate} listTwoCallBack={handleListTwoUpdate} listOne={clistOne.map(function(a) {return a.id;})} listTwo={listTwo.map(function(a) {return a.id;})}/>
                         </Container>
                     )}
                     />
@@ -556,13 +556,13 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/materials" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialList {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} listOneCallBack = {handleListUpdate} currentSelected={listOne}/>
+                            <MaterialList {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} listOneCallBack = {handleListUpdate} currentSelected={listOne.map(function(a) {return a.id;})}/>
                         </Container>
                     )}
                     />
                     <Route path="/materials_author" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialListAuthor {...route_props} api_url={appInfo.api_url} listOne={[]}/>
+                            <MaterialListAuthor {...route_props} api_url={appInfo.api_url} listOne={[]} currentSelected={[]}/>
                         </Container>
                     )}
                     />
@@ -575,6 +575,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 user_materials={appInfo.user_data.owned_materials}
                                 listOneCallBack = {handleListUpdate}
                                 listOne={listOne}
+                                currentSelected={listOne.map(function(a) {return a.id;})}
                             />
                         </Container>
                     )}

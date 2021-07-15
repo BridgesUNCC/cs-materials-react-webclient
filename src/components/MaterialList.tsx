@@ -276,7 +276,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                                                 event.stopPropagation();
                                                 handleCheck(event, value.id);
                                                 if(listOneCallBack !== undefined){
-                                                  listOneCallBack(event.target.checked, value.id);
+                                                  listOneCallBack(event.target.checked, {name: value.title, id: value.id});
                                                 }
                                             }}
                                             onClick={e => (e.stopPropagation())}
@@ -330,8 +330,9 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     const handleSelectAll = () => {
         let selected_materials = [...new Set(listInfo.selected_materials.concat(listInfo.materials?.map(e => e.id)
             || []))]
+        let selected_objects = listInfo.materials?.map(function(a) {return {name: a.title, id: a.id};})
         if(listOneCallBack !== undefined){
-          listOneCallBack(true, selected_materials);
+          listOneCallBack(true, selected_objects);
         }
         // if (store_tags) {
         //   localStorage.setItem("checked_materials", selected_materials.toString());
