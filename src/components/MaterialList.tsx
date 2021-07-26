@@ -116,14 +116,42 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     const itemsPerPage = 10;
     let noOfPages = 1 //default value
 
+
+
     const [listInfo, setListInfo] = React.useState<ListEntity>(
         createEmptyEntity(path, selected_materials)
     );
 
-    const [page, setPage] = React.useState(1);
+    console.log(path)
+    console.log(parseInt(history.location.hash.split("#",2)[1]))
+    let startingPage = parseInt(history.location.hash.split("#",2)[1]);
+
+    const [page, setPage] = React.useState(startingPage);
     const handleChange = (event: any, value: any) => {
       setPage(value);
+      //check if materials is being added to a collection from creat materials list
+      //to decide the route to use
+      if(material_update !== undefined){
+        history.push("/material/create" + "/materials#"+value)
+      }else{
+        history.push("/materials#"+value)
+      }
+      
     };
+
+    //when first coming to the selected_materials page, designate the loading of the first
+    //page of materials while also checking which list we are looking at 
+    // could me mapped materials page or select materials page
+    if(isNaN(startingPage)){
+      startingPage = 1
+      setPage(startingPage);
+      if(material_update !== undefined){
+        history.push("/material/create" + "/materials#"+startingPage)
+      }else{
+        history.push("/materials#"+startingPage)
+      }
+    }
+
 
     //states and functions for handling number of items per page
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -196,7 +224,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                 );
 
                 let materials = [...selected_materials, ...other_materials];
-                setPage(1);
+                setPage(parseInt(history.location.hash.split("#",2)[1]));
                 setListInfo({
                   ...listInfo,
                   fetched: true,
@@ -207,7 +235,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
               });
             } else {
               let materials = resp["data"].materials;
-              setPage(1);
+              setPage(parseInt(history.location.hash.split("#",2)[1]));
               setListInfo({
                 ...listInfo,
                 fetched: true,
@@ -402,10 +430,11 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                             Back to Material Form
                         </Button>
           }
+          <div className={classes.root}>
           <Search
                 history={history} location={location} match={match} api_url={api_url} init_keyword={keyword} init_tags={init_tags} on_submit={handle_submit}
           />
-            <div className={classes.root}>
+            
                 <Grid container direction="column">
                     <Grid item>
                         <Button className={classes.margin} variant="contained" color="primary"
@@ -453,7 +482,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                   count={noOfPages}
                   page={page}
                   onChange={handleChange}
-                  defaultPage={1}
+                  defaultPage={parseInt(history.location.hash.split("#",2)[1])}
                   color="primary"
                   size="large"
                   showFirstButton
