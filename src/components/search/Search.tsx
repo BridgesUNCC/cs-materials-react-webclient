@@ -12,18 +12,18 @@ import Autocomplete, {AutocompleteChangeReason} from "@material-ui/lab/Autocompl
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
-            padding: theme.spacing(3, 2),
-            margin: theme.spacing(3, 2),
+            padding: theme.spacing(1, 1),
+            margin: theme.spacing(1, 1),
         },
         margin: {
             margin: theme.spacing(1),
         },
         textField: {
-            margin: theme.spacing(2),
+            margin: theme.spacing(1),
             width: '70%',
         },
         textArea: {
-            margin: theme.spacing(4),
+            margin: theme.spacing(1),
             width: '80%',
         }
     }),
