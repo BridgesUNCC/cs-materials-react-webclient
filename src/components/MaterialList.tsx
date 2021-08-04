@@ -155,7 +155,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
 
       const url =
         api_url +
-        "/data/materials?ids=" +
+        "/data/materials/full?ids=" +
         ids +
         "&tags=" +
         tags +
