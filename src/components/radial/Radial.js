@@ -84,9 +84,11 @@ class Radial extends Component {
     var removeGray = this.state.grayRemoval
     var formatAfter = this.state.formatAfter
 
-    // if(temp1[0] != ""){
-    //   trimming = true;
-    // }
+    if(temp1[0] != ""){
+      trimming = true;
+    }
+
+    console.log(trimming)
 
 
 

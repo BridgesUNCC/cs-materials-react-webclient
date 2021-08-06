@@ -126,29 +126,31 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     console.log(parseInt(history.location.hash.split("#",2)[1]))
     let startingPage = parseInt(history.location.hash.split("#",2)[1]);
 
+    console.log(location)
+
     const [page, setPage] = React.useState(startingPage);
     const handleChange = (event: any, value: any) => {
       setPage(value);
       //check if materials is being added to a collection from creat materials list
       //to decide the route to use
       if(material_update !== undefined){
-        history.push("/material/create" + "/materials#"+value)
+        history.push(location.pathname + location.search + "#" +value)
       }else{
-        history.push("/materials#"+value)
+        history.push(location.pathname + location.search + "#" +value)
       }
-      
+
     };
 
     //when first coming to the selected_materials page, designate the loading of the first
-    //page of materials while also checking which list we are looking at 
+    //page of materials while also checking which list we are looking at
     // could me mapped materials page or select materials page
     if(isNaN(startingPage)){
       startingPage = 1
       setPage(startingPage);
       if(material_update !== undefined){
-        history.push("/material/create" + "/materials#"+startingPage)
+        history.push(location.pathname + location.search + "#" + startingPage)
       }else{
-        history.push("/materials#"+startingPage)
+        history.push(location.pathname + location.search + "#" + startingPage)
       }
     }
 
@@ -434,7 +436,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
           <Search
                 history={history} location={location} match={match} api_url={api_url} init_keyword={keyword} init_tags={init_tags} on_submit={handle_submit}
           />
-            
+
                 <Grid container direction="column">
                     <Grid item>
                         <Button className={classes.margin} variant="contained" color="primary"
