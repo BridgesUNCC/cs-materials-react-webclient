@@ -206,7 +206,8 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
             console.log(listOne)
         }else{
             if(newElement.length === undefined){
-                const newList = listOne.filter((item) => item !== newElement)
+                const newList = listOne.filter((item) => item.id !== newElement.id)
+                console.log(newList)
                 setListOne(newList)
             }else{
                 setListOne([]);
@@ -227,7 +228,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
             console.log(clistOne)
         }else{
             if(newElement.length === undefined){
-                const newList = clistOne.filter((item) => item !== newElement)
+                const newList = clistOne.filter((item) => item.id !== newElement.id)
                 setcListOne(newList)
             }else{
                 setcListOne([]);
@@ -247,7 +248,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
             }
         }else{
             if(newElement.length === undefined){
-                const newList = listTwo.filter((item) => item !== newElement)
+                const newList = listTwo.filter((item) => item.id !== newElement.id)
                 setListTwo(newList)
             }else{
                 setListTwo([]);

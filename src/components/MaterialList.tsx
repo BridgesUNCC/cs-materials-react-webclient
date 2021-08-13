@@ -279,7 +279,9 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                               history={history}
                               location={location}
                               match={match}
-                              primary={""} to={"/material/" + value.id} key={value.id}
+                              primary={""}
+                              to={"/material/" + value.id}
+                              key={value.id}
                               icon={<CardMedia
                                     className={classes.image}
                                     image={image}
@@ -343,6 +345,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
 
     const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, id: number) => {
         let selected = listInfo.selected_materials;
+
         if (event.target.checked) {
             selected.push(id);
         } else {
@@ -463,23 +466,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                 <List>
                     {output}
                 </List>
-                {
-                // <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
-                //   Open Menu
-                // </Button>
 
-                // <Menu
-                //   id="simple-menu"
-                //   anchorEl={anchorEl}
-                //   keepMounted
-                //   open={Boolean(anchorEl)}
-                //   onClose={handleClose}
-                // >
-                //   <MenuItem onClick={() => handleSelect(50)}>50</MenuItem>
-                //   <MenuItem onClick={handleClose}>My account</MenuItem>
-                //   <MenuItem onClick={handleClose}>Logout</MenuItem>
-                // </Menu>
-                }
                 <Pagination
                   count={noOfPages}
                   page={page}
