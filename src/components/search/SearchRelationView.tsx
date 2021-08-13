@@ -134,6 +134,8 @@ export const SearchRelationView: FunctionComponent<Props> = ({
       setOpen(true);
     };
 
+    var viewg;
+
     if (!listInfo.fetched) {
 
         let ids = "";
@@ -169,92 +171,132 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     if (!viewInfo.fetched) {
         console.log("pinging");
 
-	//Erik says: there must be a better way to parse GET parameters?
-	var k = "20"
-	if (location.search.split("k=")[1])
-              k = location.search.split("k=")[1].split("&")[0];
+      	//Erik says: there must be a better way to parse GET parameters?
+      	var k = "20"
+      	if (location.search.split("k=")[1])
+                    k = location.search.split("k=")[1].split("&")[0];
 
-	var matchpool = "all"
-	if (location.search.split("matchpool=")[1])
-              matchpool = location.search.split("matchpool=")[1].split("&")[0];
+      	var matchpool = "all"
+      	if (location.search.split("matchpool=")[1])
+                    matchpool = location.search.split("matchpool=")[1].split("&")[0];
 
-	var matID = "1"
-	if (location.search.split("matID=")[1])
-              matID = location.search.split("matID=")[1].split("&")[0];
-  console.log(matID, k, matchpool)
+      	var matID = "1"
+      	if (location.search.split("matID=")[1])
+                    matID = location.search.split("matID=")[1].split("&")[0];
+
+        var type = "similarity"
+        if (location.search.split("type=")[1])
+                    type = location.search.split("type=")[1].split("&")[0];
+
+        var algo = "pagerank"
+        if (location.search.split("algo=")[1])
+                    algo = location.search.split("algo=")[1].split("&")[0];
+        console.log(matID, k, matchpool, type, algo)
 
 
+        if(type === "search"){
+          var url = "https://csmaterials-search.herokuapp.com/search?matID="+matID
+      	  +"&matchpool="+matchpool
+      	  +"&k="+k
+          +"&algo="+algo;
 
-	//	var url = "https://cors-anywhere.herokuapp.com/https://csmaterials-search.herokuapp.com/search/?matID=254&k=20"
-	//http://127.0.0.1:3000/searchrelation?k=20&matID=100
-    var url = "https://csmaterials-search.herokuapp.com/similarity?matID="+matID
-	  +"&matchpool="+matchpool
-	  +"&k="+k;
-        getJSONData(url, {}).then(resp => {
-            if (resp === undefined) {
-                console.log("API SERVER FAIL")
-            }
-            else {
-                if (resp['status'] === "OK") {
-                    const data = resp['data'];
-                    console.log(data)
-                    setViewInfo({...viewInfo, init_fetched: true, fetched: true, data})
-                }
-            }
-        })
+          viewg = <div></div>
+        }else if(type === "similarity"){
+          var url = "https://csmaterials-search.herokuapp.com/similarity?matID="+matID
+      	  +"&matchpool="+matchpool
+      	  +"&k="+k;
+
+          viewg = <div>
+          <FormControl className={classes.formControl}>
+            <InputLabel id="demo-controlled-open-select-label" className={classes.label}>Selected Material</InputLabel>
+            <Select
+              labelId="demo-controlled-open-select-label"
+              id="demo-controlled-open-select"
+              open={open}
+              onClose={handleClose}
+              onOpen={handleOpen}
+              value={age}
+              onChange={handleChange}
+              className={classes.select}
+            >
+            {listInfo.materials === null ? <MenuItem value=""><em>None</em></MenuItem> : listInfo.materials.map((mat) => (
+              <MenuItem value={mat.id}>{mat.title}</MenuItem>
+            ))}
+            </Select>
+            <TextField id="filled-basic" label="Number of Matches" variant="filled" />
+          </FormControl>
+          <Paper>
+              <Grid container direction="column">
+                    <Grid item>
+
+                    </Grid>
+                  <Grid item>
+
+                  </Grid>
+                  <Grid item
+                        >
+                      <Link to={""}>
+                          <Button className={classes.margin} variant="contained" color="primary">
+                              Search
+                          </Button>
+                      </Link>
+                  </Grid>
+              </Grid>
+          </Paper>
+              {
+                  // viewInfo.fetched && viewInfo.data !== null? (
+                  //     <div id={"matrix-container"}>
+                  //         <SearchRelation data={viewInfo.data}/>
+                  //     </div>
+                  //     ):
+                  //     <CircularProgress/>
+              }
+
+          </div>
+        }else{
+          var url = ""
+          viewg = <div></div>
+        }
+
+
+      	//	var url = "https://cors-anywhere.herokuapp.com/https://csmaterials-search.herokuapp.com/search/?matID=254&k=20"
+      	//http://127.0.0.1:3000/searchrelation?k=20&matID=100
+          // var url = "https://csmaterials-search.herokuapp.com/similarity?matID="+matID
+      	  // +"&matchpool="+matchpool
+      	  // +"&k="+k;
+              getJSONData(url, {}).then(resp => {
+                  if (resp === undefined) {
+                      console.log("API SERVER FAIL")
+                  }
+                  else {
+                      if (resp['status'] === "OK") {
+                          const data = resp['data'];
+                          console.log(data)
+                          setViewInfo({...viewInfo, init_fetched: true, fetched: true, data})
+                      }
+                  }
+              })
 
 
     }
 
 
-    console.log(viewInfo.data)
+    if(viewInfo.data !== null && location.search.split("type=")[1]){
+      if(location.search.split("type=")[1].split("&")[0] === "search"){
+        let results: any[] = []
+        for(let i = 0; i < viewInfo.data.results.length; i++){
+          results.push(viewInfo.data.results[i].id)
+        }
+        history.push('/materials?ids=' + results.toString())
+      }
+    }
+
+
+    console.log(viewInfo)
 
     return (
-        <div>
-        <FormControl className={classes.formControl}>
-          <InputLabel id="demo-controlled-open-select-label" className={classes.label}>Selected Material</InputLabel>
-          <Select
-            labelId="demo-controlled-open-select-label"
-            id="demo-controlled-open-select"
-            open={open}
-            onClose={handleClose}
-            onOpen={handleOpen}
-            value={age}
-            onChange={handleChange}
-            className={classes.select}
-          >
-          {listInfo.materials === null ? <MenuItem value=""><em>None</em></MenuItem> : listInfo.materials.map((mat) => (
-            <MenuItem value={mat.id}>{mat.title}</MenuItem>
-          ))}
-          </Select>
-          <TextField id="filled-basic" label="Number of Matches" variant="filled" />
-        </FormControl>
-        <Paper>
-            <Grid container direction="column">
-                  <Grid item>
-
-                  </Grid>
-                <Grid item>
-
-                </Grid>
-                <Grid item
-                      >
-                    <Link to={""}>
-                        <Button className={classes.margin} variant="contained" color="primary">
-                            Search
-                        </Button>
-                    </Link>
-                </Grid>
-            </Grid>
-        </Paper>
-            {
-                viewInfo.fetched && viewInfo.data !== null? (
-                    <div id={"matrix-container"}>
-                        <SearchRelation data={viewInfo.data}/>
-                    </div>
-                    ):
-                    <CircularProgress/>
-            }
-        </div>
+      <div>
+        {viewg}
+      </div>
     )
 };

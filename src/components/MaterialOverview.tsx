@@ -15,6 +15,15 @@ import {Author} from "./author/Author";
 import EditIcon from '@material-ui/icons/Edit';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import {NotFound} from "./NotFound";
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import InputLabel from '@material-ui/core/InputLabel';
+import Input from '@material-ui/core/Input';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -35,7 +44,15 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         link: {
             color: 'cyan',
-        }
+        },
+        container: {
+         display: 'flex',
+         flexWrap: 'wrap',
+       },
+       formControl: {
+         margin: theme.spacing(1),
+         minWidth: 120,
+       },
     }),
 );
 
@@ -110,6 +127,27 @@ export const MaterialOverview: FunctionComponent<Props> = (
     const [overviewInfo, setOverviewInfo] = React.useState(
         createEmptyEntity()
     );
+
+    //states for opening the dialog for similar material
+    const [open, setOpen] = React.useState(false);
+    const [numberOfSearches, setK] = React.useState('');
+    const [searchAlgo, setAlgo] = React.useState('pagerank');
+
+    const handleChange = (event: any) => {
+      setK(event.target.value || '');
+    };
+
+    const handleAlgoChange = (event: any) => {
+      setAlgo(event.target.value || '');
+    };
+
+    const handleClickOpen = () => {
+      setOpen(true);
+    };
+
+    const handleClose = () => {
+      setOpen(false);
+    };
 
     if (overviewInfo.fetched && overviewInfo.data !== null && Number(match.params.id) !== overviewInfo.data.id) {
         setOverviewInfo({...overviewInfo, data: null, fetched: false})
@@ -334,6 +372,49 @@ export const MaterialOverview: FunctionComponent<Props> = (
                                             </Button>
                                         </Link>
                                         }
+                                        <Button variant="contained" color="primary" onClick={handleClickOpen}>Search For Similar Material</Button>
+                                          <Dialog disableBackdropClick disableEscapeKeyDown open={open} onClose={handleClose}>
+                                            <DialogTitle>Fill the form</DialogTitle>
+                                            <DialogContent>
+                                              <form className={classes.container}>
+                                                <FormControl className={classes.formControl}>
+                                                  <InputLabel htmlFor="demo-dialog-native">Algorithm</InputLabel>
+                                                  <Select
+                                                    native
+                                                    value={searchAlgo}
+                                                    onChange={handleAlgoChange}
+                                                    input={<Input id="demo-dialog-native" />}
+                                                  >
+                                                    <option value={'pagerank'}>PageRank</option>
+                                                    <option value={'matching'}>Matching</option>
+                                                    <option value={'jaccard'}>Jaccard</option>
+                                                  </Select>
+                                                </FormControl>
+                                                <FormControl className={classes.formControl}>
+                                                  <InputLabel id="demo-dialog-select-label"># of Results</InputLabel>
+                                                  <Select
+                                                    labelId="demo-dialog-select-label"
+                                                    id="demo-dialog-select"
+                                                    value={numberOfSearches}
+                                                    onChange={handleChange}
+                                                    input={<Input />}
+                                                  >
+                                                    <MenuItem value={10}>10</MenuItem>
+                                                    <MenuItem value={20}>20</MenuItem>
+                                                    <MenuItem value={30}>30</MenuItem>
+                                                  </Select>
+                                                </FormControl>
+                                              </form>
+                                            </DialogContent>
+                                            <DialogActions>
+                                              <Button onClick={handleClose} color="primary">
+                                                Cancel
+                                              </Button>
+                                              <Button color="primary" component={ Link } to={"/searchrelation?type=search&algo=" + searchAlgo + "&k=" + numberOfSearches + "&matID="+overviewInfo.data.id}>
+                                                Submit
+                                              </Button>
+                                            </DialogActions>
+                                          </Dialog>
                                         {
                                             overviewInfo.files.length !== 0 ?
                                                 <div>
