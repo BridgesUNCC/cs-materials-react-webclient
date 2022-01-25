@@ -58,7 +58,7 @@ interface ListProps extends RouteComponentProps<MatchParams> {
     selectedListOne(event: boolean, list: any): void; // lol this actually works for call back values from child component
     listOne: number[];
     currentSelected: number[];
-} 
+}
 
 function TabPanel(props: any) {
   const { children, value, index, ...other } = props;
@@ -160,7 +160,6 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
             else {
                 if (resp['status'] === "OK") {
                     const data = resp['data'];
-                    console.log(data)
                     setListInfo({...listInfo, fetched: true, materials: data, search: search, path})
                 }
             }
@@ -212,8 +211,6 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
         setListInfo({...listInfo, selected_materials: selected});
     };
 
-    console.log(listInfo.selected_materials)
-    console.log(reload)
     // let analyze = <Analyze listOne={listInfo.selected_materials} listTwo={listTwo} user_id={user_id} user_data={user_data}
                              // currentLoc="compare" from="listOne"/>;
     // var analyze = <Analyze info={listInfo.selected_materials} user_id={user_id} user_data={user_data} currentLoc="compare" from="listOne"/>
@@ -221,21 +218,13 @@ export const MaterialListOne: FunctionComponent<ListProps> = ({   history,
     return (
         <div>
           <AppBar position="static">
-          <Tabs value={""} onChange={handleChange} aria-label="wrapped label tabs example">
+          <Tabs value={tabState} onChange={handleChange} aria-label="wrapped label tabs example">
             <Tab value="" label="All Materials"/>
             <Tab value="?material_types=collection" label="Collections" />
             <Tab value="/my_materials" label="My Materials" />
           </Tabs>
         </AppBar>
-        <TabPanel value={""} index="one">
-          Item One
-        </TabPanel>
-        <TabPanel value={"?material_types=collection"} index="two">
-          Item Two
-        </TabPanel>
-        <TabPanel value={"/my_materials"} index="three">
-          Item Three
-        </TabPanel>
+
         {/*load selected material to analyze comp for visualze*/}
         {//analyze
         }

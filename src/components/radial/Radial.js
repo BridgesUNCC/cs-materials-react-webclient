@@ -38,13 +38,11 @@ class Radial extends Component {
     //this is updated from ontologywrapper so it clears all svg draws for a new render
     this.svg.selectAll("*").remove()
     this.drawRadial()
-    console.log("here")
     return true
   }
 
   handleClickOpen = () => {
     this.setState({...this.state, open: true})
-    console.log(this.state.open)
   };
 
   handleClose = () => {
@@ -53,13 +51,11 @@ class Radial extends Component {
 
   handleChange = (event) => {
     this.setState({...this.state, grayRemoval: event.target.value})
-    console.log(this.state)
     // setAge(Number(event.target.value) || '');
   };
 
   handle2Change = (event) => {
     this.setState({...this.state, formatAfter: event.target.value})
-    console.log(this.state)
     // setAge(Number(event.target.value) || '');
   };
 
@@ -77,7 +73,6 @@ class Radial extends Component {
     // let trimming         = false;
 
 
-    console.log(assignments)
 
     var trimming = this.state.trimming
 
@@ -88,7 +83,6 @@ class Radial extends Component {
       trimming = true;
     }
 
-    console.log(trimming)
 
 
 
@@ -119,7 +113,6 @@ class Radial extends Component {
           // If the element is not at the root level, add it to its parent array of children.
           if(trimming){
             if (mappedElem.parent && mappedElem.hide == false) {
-              console.log(mappedElem)
               if(mappedArr[mappedElem['parent']]['children']){}
               mappedArr[mappedElem['parent']]['children'].push(mappedElem);
               mappedElem = mappedArr[mappedElem.parent]
@@ -500,7 +493,6 @@ class Radial extends Component {
 
             if(secondTreeRatio/firstTreeRatio > 1){
               c = 0.5 + (0.5 * secondTreeRatio) - (0.5 * firstTreeRatio)
-              console.log(c)
             }else if(secondTreeRatio/firstTreeRatio < 1){
               c = 0.5 - (0.5 * firstTreeRatio) + (0.5 * secondTreeRatio)
             }else{
@@ -619,7 +611,6 @@ class Radial extends Component {
         // data                 = JSON.parse(JSON.stringify(data)) //deep clone the data
         let secondAssignments = this.props.data[2];
         var secondAssignmentsArray = secondAssignments.assignments;
-        console.log(assignmentsArray.length)
         secondClassificationSet = parseClassification(secondAssignmentsArray, "2");
         secondClassificationTree = buildClassificationTree(secondClassificationSet);
       }
@@ -682,7 +673,6 @@ class Radial extends Component {
       for(let i = 0; i < vNodes.length; i++){
         if(vNodes[i].data.hide != true){
           newNodes.push(vNodes[i])
-          console.log(removeGray)
 
         }
       }
@@ -743,7 +733,6 @@ class Radial extends Component {
             return d3.rgb(d.data.color[0], d.data.color[1], d.data.color[2])
           }else{
             let inter = d3.interpolate("purple", "orange")
-            console.log(d.data.color)
             return colorDivergent(d.data.color)
           }
         })

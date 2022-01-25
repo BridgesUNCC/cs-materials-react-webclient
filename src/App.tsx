@@ -203,11 +203,9 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     setListOne(listOne => [...listOne, newElement[i]]);
                 }
             }
-            console.log(listOne)
         }else{
             if(newElement.length === undefined){
                 const newList = listOne.filter((item) => item.id !== newElement.id)
-                console.log(newList)
                 setListOne(newList)
             }else{
                 setListOne([]);
@@ -225,7 +223,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     setcListOne(clistOne => [...clistOne, newElement[i]]);
                 }
             }
-            console.log(clistOne)
         }else{
             if(newElement.length === undefined){
                 const newList = clistOne.filter((item) => item.id !== newElement.id)
@@ -237,6 +234,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
         }
     }
 
+    //handle the editing of the global list of selected materials from list two in comparison
     const handleListTwoUpdate = (event: boolean, newElement: any) => {
         if(event){
             if(newElement.length === undefined){

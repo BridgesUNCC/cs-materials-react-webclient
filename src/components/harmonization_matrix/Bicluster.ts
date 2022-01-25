@@ -211,4 +211,3 @@ export const Bicluster = (data: HarmonizationData): HarmonizationData => {
     }
     return data;
 };
-

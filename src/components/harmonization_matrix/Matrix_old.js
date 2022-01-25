@@ -109,7 +109,6 @@ class Matrix_old extends Component {
       }
     }
 
-    console.log("matrix: ", matrix)
 
     this.svg = this.svg
       .append("svg")
@@ -193,8 +192,6 @@ class Matrix_old extends Component {
   }
 
   onSubmit() {
-    console.log(this.props.data.materials);
-    console.log(materials);
 
     const url = this.props.api_url + "/data/post/material";
 
@@ -202,9 +199,7 @@ class Matrix_old extends Component {
     const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
     materials.forEach((entry, index) => {
       //bad form all around
-      console.log(entry);
       const data = {"data": [entry]};
-      console.log(data);
 
       postJSONData(url, data, auth).then(resp => {
         console.log(resp);

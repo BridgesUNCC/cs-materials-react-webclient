@@ -122,11 +122,8 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
         createEmptyEntity(path, selected_materials)
     );
 
-    console.log(path)
-    console.log(parseInt(history.location.hash.split("#",2)[1]))
     let startingPage = parseInt(history.location.hash.split("#",2)[1]);
 
-    console.log(location)
 
     const [page, setPage] = React.useState(startingPage);
     const handleChange = (event: any, value: any) => {
@@ -183,9 +180,14 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
       let sim_mats = parse_query_variable(location, "sim_mats");
       let material_types = parse_query_variable(location, "material_types");
 
+      // other api endpoint options with different outputs:
+      // api_url + /data/list/materials?ids= ... etc -> outputs all materials/collections in list format that are not private
+      // api_url + /data/materials?ids= ... etc -> outputs all materials/collections with authros and other fields filled out meaning some get dropped if not filled out completely
+      // api_url + /data/materials/full?ids= ... etc -> outputs a complete dump of all materials even if private or not owned
+      // these other routes JSON is formatted differently requiring adding .materials at the end of a response: resp["data"].material
       const url =
         api_url +
-        "/data/materials/full?ids=" +
+        "/data/list/materials?ids=" +
         ids +
         "&tags=" +
         tags +
@@ -202,7 +204,6 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
       const auth = {
         Authorization: "bearer " + localStorage.getItem("access_token"),
       };
-
       // @TODO pass in auth token
       getJSONData(url, auth).then((resp) => {
         if (resp === undefined) {
@@ -212,11 +213,11 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
             if (listInfo.selected_materials.length > 0) {
               ids = listInfo.selected_materials.toString();
               // force fetch selected materials to always show
-              const url = api_url + "/data/materials?ids=" + ids;
+              const url = api_url + "/data/list/materials?ids=" + ids;
               getJSONData(url, auth).then((selected_mats_resp) => {
-                let data: MaterialListEntry[] = resp["data"].materials;
+                let data: MaterialListEntry[] = resp["data"];
                 let selected_materials: MaterialListEntry[] =
-                  selected_mats_resp["data"].materials;
+                  selected_mats_resp["data"];
                 let selected_map: { [index: number]: boolean } = {};
                 selected_materials.forEach((mat) => {
                   selected_map[mat.id] = true;
@@ -236,7 +237,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                 });
               });
             } else {
-              let materials = resp["data"].materials;
+              let materials = resp["data"];
               setPage(parseInt(history.location.hash.split("#",2)[1]));
               setListInfo({
                 ...listInfo,

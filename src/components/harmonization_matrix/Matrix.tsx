@@ -113,7 +113,6 @@ export const Matrix: FunctionComponent<Props> = ({
         }
 
         let tag_range = data.tag_axis.map((ele, index) => index * 25 + 12.5);
-        console.log(data.tag_axis)
         let tag_scale = d3.scaleOrdinal().domain(data.tag_axis.map(e => e.id.toString() + "> " + e.new_title)).range(tag_range);
 
         //@ts-ignore
