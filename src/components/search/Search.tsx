@@ -84,7 +84,7 @@ export const Search: FunctionComponent<Props> = (
 
 
     if (!searchInfo.tags_fetched) {
-        const url = api_url + "/data/meta_tags/compressed";
+        let url = api_url + "/data/meta_tags/compressed";
 
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 

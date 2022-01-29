@@ -344,13 +344,22 @@ export const Sidebar: FunctionComponent<Props> = (
           </div></List>
           <Divider />
           <List><div>
+
+          {(false)?
           <ListSubheader inset className={classes.ListSubheader}>Searching</ListSubheader>
+          :
+          <div></div>}
+
+          {(false)?
           <ListItem button onClick={() => setIndex(10)} selected={selectedIndex === 10} component={Link} to='/search'>
             <ListItemIcon>
               <DashboardIcon />
             </ListItemIcon>
             <ListItemText primary="Search" />
           </ListItem>
+          :
+          <div></div>}
+
 
           {(false)?
           <ListItem button onClick={() => setIndex(7)} selected={selectedIndex === 7} component={Link} to={'/searchrelation?k=20&matID=1'}>

@@ -168,6 +168,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     let reload = path !== listInfo.path || search !== listInfo.search;
     let keyword = listInfo.keyword || parse_query_variable(location, "keyword");
     let tags = listInfo.tags || parse_query_variable(location, "tags");
+    console.log(tags)
     let init_tags = undefined;
     if (tags.length > 0) {
       init_tags = tags.split(",").map((s) => Number(s));
@@ -390,6 +391,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
 
 
     const handle_submit = (keyword: string, tags: TagData[]) => {
+      console.log(tags)
       let tag_str = tags.map(tag => tag.id).join(',');
       setListInfo({...listInfo, keyword, tags: tag_str, fetched: false, materials: null})
     }
