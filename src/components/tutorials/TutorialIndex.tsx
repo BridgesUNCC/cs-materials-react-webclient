@@ -26,12 +26,14 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 0,
     marginBottom: '5%',
     width: '100%',
-    height: '700px',
+    height: '500px',
   },
   paper: {
     padding: theme.spacing(2),
     textAlign: 'center',
     color: theme.palette.text.secondary,
+    height: 350,
+    flexGrow: 1,
   },
 }));
 
@@ -42,9 +44,7 @@ export const TutorialIndex: FunctionComponent = ({ }) => {
 
     return (
       <div className={classes.root}>
-        <Typography gutterBottom variant="h2" component="h2">
-          CS Materials Full Tutorial
-        </Typography>
+ 
         <iframe src='https://www.youtube.com/embed/IyEMcpXYUKU'
                 className={classes.frame}
                 frameBorder='1'

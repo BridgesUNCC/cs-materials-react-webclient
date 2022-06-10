@@ -554,13 +554,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 </Grid>
                             </div>
                             {/* End hero unit */}
-                            <iframe src='https://www.youtube.com/embed/IyEMcpXYUKU'
-                                    className={classes.frame}
-                                    frameBorder='1'
-                                    allow='autoplay; encrypted-media'
-                                    allowFullScreen
-                                    title='video'
-                            />
+                            <TutorialIndex/>
 
                         </div>
                     )}

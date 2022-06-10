@@ -199,7 +199,7 @@ export const Search: FunctionComponent<Props> = (
 
     return (
       <div className={classes.root}>
-        <Paper>
+        
           <Grid container direction="column">
             <Grid item>
               <TextField
@@ -270,7 +270,7 @@ export const Search: FunctionComponent<Props> = (
               )}
             </Grid>
           </Grid>
-        </Paper>
+        
         <TreeDialog
           open={searchInfo.show_acm}
           title={"ACM CSC 2013"}
