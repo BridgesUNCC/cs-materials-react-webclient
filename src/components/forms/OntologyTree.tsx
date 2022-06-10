@@ -183,9 +183,10 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
                     }}
                     onClick={e => (e.stopPropagation())}
                 />
-                <Box fontWeight={font_weight} fontStyle={font_style} color={color}>
+                <div>
                     <Typography variant={"body1"} className={classes.inheritTypography}>{node.title}</Typography>
-                </Box>
+                    
+                </div>
             </div>
         );
 
