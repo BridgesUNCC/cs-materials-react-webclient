@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) =>
             padding: theme.spacing(3, 0, 0, 0),
             margin: theme.spacing(2, 0, 0, 0),
             align: 'center',
-            marginLeft: 100,
+            marginLeft: 0,
             flexGrow:1,
         },
         paper: {
@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         titles:{
           align: 'center',
-          marginLeft: 100,
+          marginLeft: 0,
         },
         description:{
           textAlign: 'left',
@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         paginator: {
           align: 'center',
-          padding: "10px"
+          padding: "10px",
         }
     }),
 );

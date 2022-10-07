@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
         formControl: {
           margin: theme.spacing(5),
           display: 'inline-block',
-          minWidth: 520,
+          minWidth: 500,
         },
         formMargin:{
           paddingLeft: 100
@@ -119,11 +119,21 @@ export const SearchRelationView: FunctionComponent<Props> = ({
       createEmptyEntity(path)
     );
 
-    const [age, setAge] = React.useState('');
+    const [materialChoice, setMaterialChoice] = React.useState('');
+    const [matchpoolChoice, setMatchpoolChoice] = React.useState('');
+    const [algorithmChoice, setAlgorithmChoice] = React.useState('');
     const [open, setOpen] = React.useState(false);
+    const [openMatchpool, setOpenMatchpool] = React.useState(false);
+    const [openAlgo, setOpenAlgo] = React.useState(false);
 
-    const handleChange = (event: any) => {
-      setAge(event.target.value);
+    const handleChangeMaterial = (event: any) => {
+      setMaterialChoice(event.target.value);
+    };
+    const handleChangeMatchpool = (event: any) => {
+      setMatchpoolChoice(event.target.value);
+    };
+    const handleChangeAlgorithm = (event: any) => {
+      setAlgorithmChoice(event.target.value);
     };
 
     const handleClose = () => {
@@ -134,6 +144,21 @@ export const SearchRelationView: FunctionComponent<Props> = ({
       setOpen(true);
     };
 
+    const handleMatchpoolClose = () => {
+      setOpenMatchpool(false);
+    };
+
+    const handleMatchpoolOpen = () => {
+      setOpenMatchpool(true);
+    };
+
+    const handleAlgoClose = () => {
+      setOpenAlgo(false);
+    };
+
+    const handleAlgoOpen = () => {
+      setOpenAlgo(true);
+    };
     var viewg;
 
     if (!listInfo.fetched) {
@@ -207,24 +232,74 @@ export const SearchRelationView: FunctionComponent<Props> = ({
       	  +"&k="+k;
 
           viewg = <div>
+          {/* This form is what you would use to select the material that you want to search for */}
           <FormControl className={classes.formControl}>
-            <InputLabel id="demo-controlled-open-select-label" className={classes.label}>Selected Material</InputLabel>
+            <InputLabel id="material-select-label" className={classes.label}>Selected Material</InputLabel>
             <Select
-              labelId="demo-controlled-open-select-label"
+              autoWidth
+              labelId="material-select-label"
               id="demo-controlled-open-select"
               open={open}
               onClose={handleClose}
               onOpen={handleOpen}
-              value={age}
-              onChange={handleChange}
+              value={materialChoice}
+              onChange={handleChangeMaterial}
               className={classes.select}
             >
             {listInfo.materials === null ? <MenuItem value=""><em>None</em></MenuItem> : listInfo.materials.map((mat) => (
               <MenuItem value={mat.id}>{mat.title}</MenuItem>
             ))}
             </Select>
+            {/* This form is what you would use to seelct the number of things you are comparing*/}
             <TextField id="filled-basic" label="Number of Matches" variant="filled" />
           </FormControl>
+
+            {/* This form is what you would use to select the matchpool that you want to search for */}
+          <FormControl className={classes.formControl}>
+            <InputLabel id="matchpool-select-label" className={classes.label}>Matchpool</InputLabel>
+            <Select
+              autoWidth
+              labelId="matchpool-select-label"
+              id="matchpool-select"
+              open={openMatchpool}
+              onClose={handleMatchpoolClose}
+              onOpen={handleMatchpoolOpen}
+              value={matchpoolChoice}
+              onChange={handleChangeMatchpool}
+              className={classes.select}
+            >
+            <MenuItem value="">
+            <em>None</em>
+            </MenuItem>
+            <MenuItem value={10}>Ten</MenuItem>
+            <MenuItem value={20}>Twenty</MenuItem>
+            <MenuItem value={30}>Thirty</MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* This form is what you would use to select the algorithm that you want to search for */}
+          <FormControl className={classes.formControl}>
+            <InputLabel id="algo-select-label" className={classes.label}>Algorithm</InputLabel>
+            <Select
+              autoWidth
+              labelId="algo-select-label"
+              id="algo-select"
+              open={openAlgo}
+              onClose={handleAlgoClose}
+              onOpen={handleAlgoOpen}
+              value={algorithmChoice}
+              onChange={handleChangeAlgorithm}
+              className={classes.select}
+            >
+            <MenuItem value="">
+            <em>None</em>
+            </MenuItem>
+            <MenuItem value={10}>Ten</MenuItem>
+            <MenuItem value={20}>Twenty</MenuItem>
+            <MenuItem value={30}>Thirty</MenuItem>
+            </Select>
+          </FormControl>
+          
           <Paper>
               <Grid container direction="column">
                     <Grid item>
@@ -258,7 +333,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           viewg = <div></div>
         }
 
-
+        
       	//	var url = "https://cors-anywhere.herokuapp.com/https://csmaterials-search.herokuapp.com/search/?matID=254&k=20"
       	//http://127.0.0.1:3000/searchrelation?k=20&matID=100
           // var url = "https://csmaterials-search.herokuapp.com/similarity?matID="+matID

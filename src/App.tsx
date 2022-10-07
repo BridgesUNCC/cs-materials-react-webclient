@@ -44,7 +44,7 @@ import {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
       margin: {
-          margin: theme.spacing(1),
+          margin: theme.spacing(1),  
       },
       extendedIcon: {
           marginRight: theme.spacing(1),
@@ -60,6 +60,7 @@ const useStyles = makeStyles((theme: Theme) =>
         padding: theme.spacing(8, 18, 6),
         positon: 'relative',
         display: 'flex',
+        marginLeft: theme.spacing(4),
       },
       heroButtons: {
         marginTop: theme.spacing(4),
