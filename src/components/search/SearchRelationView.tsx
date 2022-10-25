@@ -15,7 +15,6 @@ import Select from '@material-ui/core/Select';
 
 
 
-
 const useStyles = makeStyles((theme: Theme) =>
     createStyles ( {
         textField: {
@@ -119,9 +118,11 @@ export const SearchRelationView: FunctionComponent<Props> = ({
       createEmptyEntity(path)
     );
 
+    //This is just setting up a lot of the state variables used in this component
     const [materialChoice, setMaterialChoice] = React.useState('');
-    const [matchpoolChoice, setMatchpoolChoice] = React.useState('');
-    const [algorithmChoice, setAlgorithmChoice] = React.useState('');
+    const [matchpoolChoice, setMatchpoolChoice] = React.useState('All');
+    const [algorithmChoice, setAlgorithmChoice] = React.useState('jaccard');
+    const [searchAmount, setSearchAmount] = React.useState(0);
     const [open, setOpen] = React.useState(false);
     const [openMatchpool, setOpenMatchpool] = React.useState(false);
     const [openAlgo, setOpenAlgo] = React.useState(false);
@@ -129,13 +130,19 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     const handleChangeMaterial = (event: any) => {
       setMaterialChoice(event.target.value);
     };
+
     const handleChangeMatchpool = (event: any) => {
       setMatchpoolChoice(event.target.value);
     };
+
     const handleChangeAlgorithm = (event: any) => {
       setAlgorithmChoice(event.target.value);
     };
 
+    const handleChangeAmount = (event: any) => {
+      setSearchAmount(event.target.value);
+    };
+    
     const handleClose = () => {
       setOpen(false);
     };
@@ -192,7 +199,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
 
 
     const classes = useStyles();
-
+    
     if (!viewInfo.fetched) {
         console.log("pinging");
 
@@ -227,10 +234,11 @@ export const SearchRelationView: FunctionComponent<Props> = ({
 
           viewg = <div></div>
         }else if(type === "similarity"){
+          
           var url = "https://csmaterials-search.herokuapp.com/similarity?matID="+matID
       	  +"&matchpool="+matchpool
       	  +"&k="+k;
-
+          
           viewg = <div>
           {/* This form is what you would use to select the material that you want to search for */}
           <FormControl className={classes.formControl}>
@@ -250,8 +258,8 @@ export const SearchRelationView: FunctionComponent<Props> = ({
               <MenuItem value={mat.id}>{mat.title}</MenuItem>
             ))}
             </Select>
-            {/* This form is what you would use to seelct the number of things you are comparing*/}
-            <TextField id="filled-basic" label="Number of Matches" variant="filled" />
+            {/* This form is what you would use to select the number of things you are comparing*/}
+            <TextField id="filled-basic" label="Number of Matches" variant="filled" value={searchAmount} onChange={handleChangeAmount}/>
           </FormControl>
 
             {/* This form is what you would use to select the matchpool that you want to search for */}
@@ -268,12 +276,9 @@ export const SearchRelationView: FunctionComponent<Props> = ({
               onChange={handleChangeMatchpool}
               className={classes.select}
             >
-            <MenuItem value="">
-            <em>None</em>
-            </MenuItem>
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
+              {/* This just lists the different options that we have, might be better to like get them from a source rather than hardcoded */}
+            <MenuItem value={"All"}>All</MenuItem>
+            <MenuItem value={"PDC"}>PDC</MenuItem>
             </Select>
           </FormControl>
 
@@ -291,12 +296,9 @@ export const SearchRelationView: FunctionComponent<Props> = ({
               onChange={handleChangeAlgorithm}
               className={classes.select}
             >
-            <MenuItem value="">
-            <em>None</em>
-            </MenuItem>
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
+            <MenuItem value={'jaccard'}>Jaccard</MenuItem>
+            <MenuItem value={'matching'}>Matching</MenuItem>
+            <MenuItem value={'pagerank'}>Pagerank</MenuItem>
             </Select>
           </FormControl>
           
@@ -333,12 +335,13 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           viewg = <div></div>
         }
 
-        
       	//	var url = "https://cors-anywhere.herokuapp.com/https://csmaterials-search.herokuapp.com/search/?matID=254&k=20"
       	//http://127.0.0.1:3000/searchrelation?k=20&matID=100
+
           // var url = "https://csmaterials-search.herokuapp.com/similarity?matID="+matID
       	  // +"&matchpool="+matchpool
       	  // +"&k="+k;
+
               getJSONData(url, {}).then(resp => {
                   if (resp === undefined) {
                       console.log("API SERVER FAIL")
