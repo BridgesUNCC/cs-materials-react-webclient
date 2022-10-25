@@ -87,7 +87,7 @@ const createEmptyInfo = (): ViewInfo => {
         fetched: false,
         init_fetched: false,
         transform: "translate(150, 150)"
-    };
+    }
 };
 
 const createEmptyEntity = (path: string): ListEntity => {
@@ -161,6 +161,9 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     };
     var viewg;
 
+
+    //Needs to fetch only materials from the smart search. This is currently getting all
+    //Materials in the database
     if (!listInfo.fetched) {
 
         let ids = "";
@@ -170,10 +173,10 @@ export const SearchRelationView: FunctionComponent<Props> = ({
         let keyword = parse_query_variable(location, "keyword");
         let material_types = parse_query_variable(location, "material_types");
 
-        const url = api_url + "/data/list/materials?ids=" + ids + "&tags=" + tags + "&sim_mats=" + sim_mats
+        let url = api_url + "/data/list/materials?ids=" + ids + "&tags=" + tags + "&sim_mats=" + sim_mats
             + "&keyword=" + keyword + "&material_types=" + material_types;
 
-        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+        let auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         // @TODO pass in auth token
         getJSONData(url, auth).then(resp => {
@@ -182,7 +185,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             }
             else {
                 if (resp['status'] === "OK") {
-                    const data = resp['data'];
+                    let data = resp['data'];
                     console.log(data)
                     setListInfo({...listInfo, fetched: true, materials: data, path})
                 }
@@ -193,43 +196,73 @@ export const SearchRelationView: FunctionComponent<Props> = ({
 
     const classes = useStyles();
 
+
+    //TODO:
+    //This is currently running automatically when the page loads
+    //Need to run this when someone submits from the form
+
+    //TODO:
+    //in the form we need for choose between regular search and similarity search
+
+    //TODO:
+    //searching searches for top similar materials based on an imput Material
+    //similarity scores the similarity between a set of materials passed in
+    //for both you should pass in ids
     if (!viewInfo.fetched) {
         console.log("pinging");
 
       	//Erik says: there must be a better way to parse GET parameters?
-      	var k = "20"
+        //K is the number of matches
+      	let k = "20"
       	if (location.search.split("k=")[1])
                     k = location.search.split("k=")[1].split("&")[0];
-
-      	var matchpool = "all"
+        //to figure out
+      	let matchpool = "all"
       	if (location.search.split("matchpool=")[1])
                     matchpool = location.search.split("matchpool=")[1].split("&")[0];
 
-      	var matID = "1"
+        //TODO:
+        //similarity takes more than 1 material as input
+        //so change the material component based on searchtype
+      	let matID = "1"
       	if (location.search.split("matID=")[1])
                     matID = location.search.split("matID=")[1].split("&")[0];
 
-        var type = "similarity"
+        let type = "search"//or similarity
         if (location.search.split("type=")[1])
                     type = location.search.split("type=")[1].split("&")[0];
 
-        var algo = "pagerank"
+        //TODO: search only takes algorithm
+        let algo = "pagerank"
         if (location.search.split("algo=")[1])
                     algo = location.search.split("algo=")[1].split("&")[0];
         console.log(matID, k, matchpool, type, algo)
 
+        let url = "https://csmaterials-search.herokuapp.com/"+type+"?matID="+matID
+        +"&matchpool="+matchpool
+        +"&k="+k
+        +"&algo="+algo;
 
-        if(type === "search"){
-          var url = "https://csmaterials-search.herokuapp.com/search?matID="+matID
-      	  +"&matchpool="+matchpool
-      	  +"&k="+k
-          +"&algo="+algo;
+        //TODO: move to onclick function
+        //	var url = "https://cors-anywhere.herokuapp.com/https://csmaterials-search.herokuapp.com/search/?matID=254&k=20"
+        //http://127.0.0.1:3000/searchrelation?k=20&matID=100
+          // var url = "https://csmaterials-search.herokuapp.com/similarity?matID="+matID
+          // +"&matchpool="+matchpool
+          // +"&k="+k;
+          getJSONData(url, {}).then(resp => {
+            console.log(resp)
+              if (resp === undefined) {
+                  console.log("API SERVER FAIL")
+              }
+              else {
 
-          viewg = <div></div>
-        }else if(type === "similarity"){
-          var url = "https://csmaterials-search.herokuapp.com/similarity?matID="+matID
-      	  +"&matchpool="+matchpool
-      	  +"&k="+k;
+                  if (resp['status'] === "OK") {
+                      let data = resp['data'];
+                      console.log(data)
+                      setViewInfo({...viewInfo, init_fetched: true, fetched: true, data})
+                  }
+              }
+          })
 
           viewg = <div>
           {/* This form is what you would use to select the material that you want to search for */}
@@ -299,7 +332,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             <MenuItem value={30}>Thirty</MenuItem>
             </Select>
           </FormControl>
-          
+
           <Paper>
               <Grid container direction="column">
                     <Grid item>
@@ -328,43 +361,18 @@ export const SearchRelationView: FunctionComponent<Props> = ({
               }
 
           </div>
-        }else{
-          var url = ""
-          viewg = <div></div>
-        }
-
-        
-      	//	var url = "https://cors-anywhere.herokuapp.com/https://csmaterials-search.herokuapp.com/search/?matID=254&k=20"
-      	//http://127.0.0.1:3000/searchrelation?k=20&matID=100
-          // var url = "https://csmaterials-search.herokuapp.com/similarity?matID="+matID
-      	  // +"&matchpool="+matchpool
-      	  // +"&k="+k;
-              getJSONData(url, {}).then(resp => {
-                  if (resp === undefined) {
-                      console.log("API SERVER FAIL")
-                  }
-                  else {
-                      if (resp['status'] === "OK") {
-                          const data = resp['data'];
-                          console.log(data)
-                          setViewInfo({...viewInfo, init_fetched: true, fetched: true, data})
-                      }
-                  }
-              })
-
-
     }
 
-
-    if(viewInfo.data !== null && location.search.split("type=")[1]){
-      if(location.search.split("type=")[1].split("&")[0] === "search"){
-        let results: any[] = []
-        for(let i = 0; i < viewInfo.data.results.length; i++){
-          results.push(viewInfo.data.results[i].id)
-        }
-        history.push('/materials?ids=' + results.toString())
-      }
-    }
+    //to use later??
+    // if(viewInfo.data !== null && location.search.split("type=")[1]){
+    //   if(location.search.split("type=")[1].split("&")[0] === "search"){
+    //     let results: any[] = []
+    //     for(let i = 0; i < viewInfo.data.results.length; i++){
+    //       results.push(viewInfo.data.results[i].id)
+    //     }
+    //     history.push('/materials?ids=' + results.toString())
+    //   }
+    // }
 
 
     console.log(viewInfo)
