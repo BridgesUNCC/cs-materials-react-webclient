@@ -53,6 +53,7 @@ const useStyles = makeStyles((theme: Theme) =>
         margin: {
             margin: theme.spacing(5),
         },
+        //I think this is what changes the style of the page list at the bottom of the material list page but no matter what I change is does nothing
         paginator: {
           align: 'center',
           padding: "10px",
@@ -469,7 +470,6 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                 <List>
                     {output}
                 </List>
-
                 <Pagination
                   count={noOfPages}
                   page={page}
@@ -481,6 +481,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                   showLastButton
                   className={classes.root}
                 />
+                
         </div>
 
     )
