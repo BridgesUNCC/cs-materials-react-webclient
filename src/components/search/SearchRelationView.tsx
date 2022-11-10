@@ -1,7 +1,6 @@
-import React, {FunctionComponent} from "react";
-
+import React, {FunctionComponent, useEffect} from "react";
 import {getJSONData, parse_query_variable} from "../../common/util";
-import {Button, CircularProgress, createStyles, Paper, TextField, Theme} from "@material-ui/core";
+import {Button, Card, CardContent, CircularProgress, createStyles, Paper, TextField, Theme, Typography} from "@material-ui/core";
 import {Grid} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import {RouteComponentProps} from "react-router";
@@ -12,6 +11,9 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import { Autocomplete, ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
+import { EqualizerSharp, Label } from "@material-ui/icons";
+import { Console } from "console";
 
 
 
@@ -54,8 +56,6 @@ const useStyles = makeStyles((theme: Theme) =>
         },
     }));
 
-
-
 interface MatchParams {
     id: string;
 }
@@ -72,8 +72,14 @@ interface ViewInfo {
     transform: string;
 }
 
+interface ResultData {
+  id: number;
+  score: number;
+  title: string;
+}
+
 interface ListEntity {
-    materials: MaterialListEntry[] | null;
+    materials: MaterialListEntry[];
     selected_materials: number[]
     fetched: boolean;
     search: string;
@@ -91,7 +97,7 @@ const createEmptyInfo = (): ViewInfo => {
 
 const createEmptyEntity = (path: string): ListEntity => {
     return {
-        materials: null,
+        materials: [],
         selected_materials: localStorage.getItem("checked_materials")?.split(",").map(e => Number(e)) || [],
         fetched: false,
         search: "N/A",
@@ -119,29 +125,35 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     );
 
     //This is just setting up a lot of the state variables used in this component
-    const [materialChoice, setMaterialChoice] = React.useState('');
-    const [matchpoolChoice, setMatchpoolChoice] = React.useState('All');
+    const [materialChoice, setMaterialChoice] = React.useState<Array<number> | number>([]);
+    const [matchpoolChoice, setMatchpoolChoice] = React.useState('all');
     const [algorithmChoice, setAlgorithmChoice] = React.useState('jaccard');
+    const [searchType, setSearchType] = React.useState('search');
     const [searchAmount, setSearchAmount] = React.useState(0);
     const [open, setOpen] = React.useState(false);
     const [openMatchpool, setOpenMatchpool] = React.useState(false);
     const [openAlgo, setOpenAlgo] = React.useState(false);
-
-    const handleChangeMaterial = (event: any) => {
-      setMaterialChoice(event.target.value);
+    const [resultDisplay, setResultDisplay] = React.useState<Array<ResultData> | null>();
+    const [resultSimilarityDisplay, setResultSimilarityDisplay] = React.useState<Array<any> | null>(null); 
+    const [resultSimilarityDisplayKeys, setResultSimilarityDisplayKeys] = React.useState<Array<string> | null>(null);
+    const [multipleChoice,setMultipleChoice] = React.useState(false);
+    
+    //This function makes sure that at least one of the toggles is selected
+    const handleChangeSearchType = (
+      event: React.MouseEvent<HTMLElement>,
+      newSearchType: string | null,
+    ) => {
+      if (newSearchType !== null) {
+        setSearchType(newSearchType);
+        setMaterialChoice([]);
+        setResultSimilarityDisplay(null);
+        setResultDisplay(null);
+      }
     };
-
-    const handleChangeMatchpool = (event: any) => {
-      setMatchpoolChoice(event.target.value);
-    };
-
-    const handleChangeAlgorithm = (event: any) => {
-      setAlgorithmChoice(event.target.value);
-    };
-
-    const handleChangeAmount = (event: any) => {
-      setSearchAmount(event.target.value);
-    };
+    //I need this to correctly update the multipleChoice variable correctly I believe (the useEffect hook operates async)
+    useEffect(() => {
+      searchType === 'search' ?   setMultipleChoice(false) : setMultipleChoice(true);
+    }, [searchType]);
 
     const handleClose = () => {
       setOpen(false);
@@ -166,6 +178,77 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     const handleAlgoOpen = () => {
       setOpenAlgo(true);
     };
+
+    const handleSearchClick = () => {
+      //Some examples of API calls
+
+      //	var url = "https://cors-anywhere.herokuapp.com/https://csmaterials-search.herokuapp.com/search/?matID=254&k=20"
+      //http://127.0.0.1:3000/searchrelation?k=20&matID=100
+
+      // var url = "https://csmaterials-search.herokuapp.com/similarity?matID="+matID
+      // +"&matchpool="+matchpool
+      // +"&k="+k;
+      multipleChoice ? handleSimilarity() : handleSearch();
+      
+    };
+    const handleSearch = () => {
+      var url = "https://csmaterials-search.herokuapp.com/search"
+          + "?matID="+materialChoice
+          +"&matchpool="+matchpoolChoice
+          +"&algorithm="+algorithmChoice
+          +"&k="+searchAmount;
+      console.log(url)
+      getJSONData(url, {}).then(resp => {
+        console.log(resp)
+          if (resp === undefined) {
+              console.log("API SERVER FAIL")
+          }
+          else {
+
+              if (resp['status'] === "OK") {
+                  let data = resp['data'];
+
+                  handleData(data.results);
+              }
+          }
+      })
+    };
+    //Similarity data is split in to 2 arrays (since it won't let me print information from an object)
+    // the keys are sent to resultSimilarityDisplayKeys, and the actual 
+    // data is sent to resultSimilarityDisplay. The keys are used to retrieve the name of the material when displaying the results
+    // and the data is used to hold the ID's and corresponding similarity value
+    const handleSimilarity = () => {
+      var url = "https://csmaterials-search.herokuapp.com/similarity"
+          + "?matID="+materialChoice
+          +"&matchpool="+matchpoolChoice;
+      getJSONData(url, {}).then(resp => {
+        console.log(resp)
+          if (resp === undefined) {
+              console.log("API SERVER FAIL")
+          }
+          else {
+
+              if (resp['status'] === "OK") {
+                //I'm sure there is a better way of doing this, but I am just convering this information to an array of strings to be displayed
+                  let data = resp['data'];
+                  let dataArray = [];
+                  data = data.similarity; //This is the portion of the response that contains the similarity data
+                  setResultSimilarityDisplayKeys(Object.keys(data))
+                  data = Object.values(data)
+                  for(let i = 0; i < data.length; i++){
+                    dataArray.push(Object.entries(data[i]))
+                  }
+                  //console.log("This is the data" + dataArray)
+                  
+                  handleData(dataArray)
+              }
+          }
+      })
+    };
+    const handleData = (data: any) => { //Just selecting where the data is sent basically
+      multipleChoice ? setResultSimilarityDisplay(data) : setResultDisplay(data);
+    };
+
     var viewg;
 
 
@@ -193,7 +276,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             else {
                 if (resp['status'] === "OK") {
                     let data = resp['data'];
-                    console.log(data)
+                    //console.log(data)
                     setListInfo({...listInfo, fetched: true, materials: data, path})
                 }
             }
@@ -215,63 +298,60 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     //searching searches for top similar materials based on an imput Material
     //similarity scores the similarity between a set of materials passed in
     //for both you should pass in ids
+    // I have been intructed to commend this stuff out
     if (!viewInfo.fetched) {
-        console.log("pinging");
+        // console.log("pinging");
 
-      	//Erik says: there must be a better way to parse GET parameters?
-        //K is the number of matches
-      	let k = "20"
-      	if (location.search.split("k=")[1])
-                    k = location.search.split("k=")[1].split("&")[0];
-        //to figure out
-      	let matchpool = "all"
-      	if (location.search.split("matchpool=")[1])
-                    matchpool = location.search.split("matchpool=")[1].split("&")[0];
+      	// //Erik says: there must be a better way to parse GET parameters?
+        // //K is the number of matches
+      	// let k = "20"
+      	// if (location.search.split("k=")[1])
+        //             k = location.search.split("k=")[1].split("&")[0];
+        // //to figure out
+      	// let matchpool = "all"
+      	// if (location.search.split("matchpool=")[1])
+        //             matchpool = location.search.split("matchpool=")[1].split("&")[0];
 
-        //TODO:
-        //similarity takes more than 1 material as input
-        //so change the material component based on searchtype
-      	let matID = "1"
-      	if (location.search.split("matID=")[1])
-                    matID = location.search.split("matID=")[1].split("&")[0];
+        // //TODO:
+        // //similarity takes more than 1 material as input
+        // //so change the material component based on searchtype
+      	// let matID = "1"
+      	// if (location.search.split("matID=")[1])
+        //             matID = location.search.split("matID=")[1].split("&")[0];
 
-        let type = "search"//or similarity
-        if (location.search.split("type=")[1])
-                    type = location.search.split("type=")[1].split("&")[0];
+        // let type = "search"//or similarity
+        // if (location.search.split("type=")[1])
+        //             type = location.search.split("type=")[1].split("&")[0];
 
-        //TODO: search only takes algorithm
-        let algo = "pagerank"
-        if (location.search.split("algo=")[1])
-                    algo = location.search.split("algo=")[1].split("&")[0];
-        console.log(matID, k, matchpool, type, algo)
+        // //TODO: search only takes algorithm
+        // let algo = "pagerank"
+        // if (location.search.split("algo=")[1])
+        //             algo = location.search.split("algo=")[1].split("&")[0];
+        // console.log(matID, k, matchpool, type, algo)
 
-        let url = "https://csmaterials-search.herokuapp.com/"+type+"?matID="+matID
-        +"&matchpool="+matchpool
-        +"&k="+k
-        +"&algo="+algo;
+        // let url = "https://csmaterials-search.herokuapp.com/"+type+"?matID="+matID
+        // +"&matchpool="+matchpool
+        // +"&k="+k
+        // +"&algo="+algo;
 
-        //TODO: move to onclick function
-        //	var url = "https://cors-anywhere.herokuapp.com/https://csmaterials-search.herokuapp.com/search/?matID=254&k=20"
-        //http://127.0.0.1:3000/searchrelation?k=20&matID=100
-          // var url = "https://csmaterials-search.herokuapp.com/similarity?matID="+matID
-          // +"&matchpool="+matchpool
-          // +"&k="+k;
-          getJSONData(url, {}).then(resp => {
-            console.log(resp)
-              if (resp === undefined) {
-                  console.log("API SERVER FAIL")
-              }
-              else {
-
-                  if (resp['status'] === "OK") {
-                      let data = resp['data'];
-                      console.log(data)
-                      setViewInfo({...viewInfo, init_fetched: true, fetched: true, data})
-                  }
-              }
-          })
+        //TODO: Done! There was some stuff down here but I removed it
+        //move to onclick function
 
           viewg = <div>
+            {/* This autocomplete could be a really cool way of replacing the current dropdown menu with something easier to use */}
+          {/* <Autocomplete
+            disablePortal
+            id="combo-box-demo"
+            multiple = {multipleChoice}
+            getOptionLabel={(option) => option.title}
+            onChange={(event: any, value: MaterialListEntry | MaterialListEntry[] | null) => {
+              
+              setMaterialChoice(value!.id);
+            
+            }}
+            options={listInfo.materials}
+            renderInput={(params) => <TextField {...params} label="Select Material" />}
+          /> */}
           {/* This form is what you would use to select the material that you want to search for */}
           <FormControl className={classes.formControl}>
             <InputLabel id="material-select-label" className={classes.label}>Selected Material</InputLabel>
@@ -282,18 +362,27 @@ export const SearchRelationView: FunctionComponent<Props> = ({
               open={open}
               onClose={handleClose}
               onOpen={handleOpen}
+              
               value={materialChoice}
-              onChange={handleChangeMaterial}
+              multiple = {multipleChoice}
+              onChange={(event: any) => setMaterialChoice(event.target.value)}
               className={classes.select}
+              
             >
             {listInfo.materials === null ? <MenuItem value=""><em>None</em></MenuItem> : listInfo.materials.map((mat) => (
               <MenuItem value={mat.id}>{mat.title}</MenuItem>
             ))}
             </Select>
             {/* This form is what you would use to select the number of things you are comparing*/}
-            <TextField id="filled-basic" label="Number of Matches" variant="filled" value={searchAmount} onChange={handleChangeAmount}/>
+            <TextField id="filled-basic" 
+            label="Number of Matches" 
+            variant="filled" 
+            value={searchAmount} 
+            disabled={multipleChoice}
+            onChange={(event: any) => setSearchAmount(event.target.value)}/>
           </FormControl>
-
+          
+         
             {/* This form is what you would use to select the matchpool that you want to search for */}
           <FormControl className={classes.formControl}>
             <InputLabel id="matchpool-select-label" className={classes.label}>Matchpool</InputLabel>
@@ -305,12 +394,12 @@ export const SearchRelationView: FunctionComponent<Props> = ({
               onClose={handleMatchpoolClose}
               onOpen={handleMatchpoolOpen}
               value={matchpoolChoice}
-              onChange={handleChangeMatchpool}
+              onChange={(event: any) => setMatchpoolChoice(event.target.value)}
               className={classes.select}
             >
               {/* This just lists the different options that we have, might be better to like get them from a source rather than hardcoded */}
-            <MenuItem value={"All"}>All</MenuItem>
-            <MenuItem value={"PDC"}>PDC</MenuItem>
+            <MenuItem value={"all"}>All</MenuItem>
+            <MenuItem value={"pdc"}>PDC</MenuItem>
             </Select>
           </FormControl>
 
@@ -325,14 +414,28 @@ export const SearchRelationView: FunctionComponent<Props> = ({
               onClose={handleAlgoClose}
               onOpen={handleAlgoOpen}
               value={algorithmChoice}
-              onChange={handleChangeAlgorithm}
+              disabled={multipleChoice}
+              onChange={(event: any) => setAlgorithmChoice(event.target.value)}
               className={classes.select}
             >
             <MenuItem value={'jaccard'}>Jaccard</MenuItem>
             <MenuItem value={'matching'}>Matching</MenuItem>
             <MenuItem value={'pagerank'}>Pagerank</MenuItem>
             </Select>
+          {/* This is used to set the search type, either search or simularity */}
           </FormControl>
+          <ToggleButtonGroup
+          value= {searchType}
+          exclusive
+          onChange={handleChangeSearchType}
+        >
+          <ToggleButton value="search">
+            Search
+          </ToggleButton>
+          <ToggleButton value="similarity">
+            Similarity
+          </ToggleButton>
+         </ToggleButtonGroup>
 
           <Paper>
               <Grid container direction="column">
@@ -344,14 +447,71 @@ export const SearchRelationView: FunctionComponent<Props> = ({
                   </Grid>
                   <Grid item
                         >
-                      <Link to={""}>
-                          <Button className={classes.margin} variant="contained" color="primary">
+                          <Button onClick={handleSearchClick} className={classes.margin} variant="contained" color="primary">
                               Search
                           </Button>
-                      </Link>
+                          
                   </Grid>
               </Grid>
           </Paper>
+          {/* Super weird syntax but basically its conditionally creating these elements depending on if the multipleChoice
+          variable is true or not */}
+          
+          {(resultDisplay !== null)&&!multipleChoice&&<Typography component={'span'}> 
+                      {
+                        
+                        resultDisplay?.map(({id, score, title}) => 
+                      {
+                        let link = './material/' + id
+                          return (
+                            <Link to={link} style={{ textDecoration: 'none' }}>
+                                <Card variant="outlined">
+                                  <CardContent>
+                                    <Typography>
+                                      {title}
+                                    </Typography>
+                                  </CardContent>
+                                </Card>
+                                </Link>
+                          )
+                        }
+                      )
+                    }
+            </Typography> 
+           
+          }
+          {/* Similar conditional rendering  */}
+          {(resultSimilarityDisplay !== null)&&multipleChoice&&<Typography component={'span'}> 
+            {
+                        // This maps through the results of the similarity search
+                        resultSimilarityDisplay?.map((value: Array<Object>, index) => 
+                      {
+                          return (
+                                <Card variant="outlined">
+                                  <CardContent>
+                                    <h4>Similarity scores for: {
+                                      //This is using the id's present in the keys array to searh the materials list for the titles of the various
+                                      //materials that are being listed as well as displaying their similarity score.
+                                    listInfo.materials.find(({id}) => id === parseInt(resultSimilarityDisplayKeys![index]))?.title}
+                                    </h4>
+                                    {
+                                      value?.map((info: any) => {
+                                        return<Typography>
+                                          {listInfo.materials.find(({id}) => id === parseInt(info[0]))?.title}: {info[1]}
+                                        </Typography>
+                                      })
+                                    }
+                                    <Typography> 
+                                    </Typography>
+                                  </CardContent>
+                                </Card>
+                                
+                          )
+                        }
+                      )
+                    }
+            </Typography> 
+          }
               {
                   // viewInfo.fetched && viewInfo.data !== null? (
                   //     <div id={"matrix-container"}>
@@ -360,7 +520,6 @@ export const SearchRelationView: FunctionComponent<Props> = ({
                   //     ):
                   //     <CircularProgress/>
               }
-
           </div>
         }
 
@@ -378,7 +537,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     // }
 
 
-    console.log(viewInfo)
+    //console.log(viewInfo)
 
     return (
       <div>
