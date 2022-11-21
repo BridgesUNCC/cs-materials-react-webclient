@@ -190,16 +190,14 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           else {
 
               if (resp['status'] === "OK") {
-                //I'm sure there is a better way of doing this, but I am just convering this information to an array of strings to be displayed
-                  let data = resp['data'];
+                let data = resp['data'];
                   let dataArray = [];
                   data = data.similarity; //This is the portion of the response that contains the similarity data
                   data = Object.values(data)
                   for(let i = 0; i < data.length; i++){
                     dataArray.push(Object.entries(data[i]))
                   }
-
-                  setSimilarityDisplay({displayData: dataArray, keys: Object.keys(data)})
+                  setSimilarityDisplay({displayData: dataArray, keys: Object.keys(resp['data'].similarity)})
               }
           }
       })
@@ -255,11 +253,11 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     //for both you should pass in ids
     // I have been intructed to commend this stuff out
     if (!viewInfo.fetched) {
-        // console.log("pinging");
+        //console.log("pinging");
 
       	// //Erik says: there must be a better way to parse GET parameters?
         // //K is the number of matches
-      	// let k = "20"
+      	
       	// if (location.search.split("k=")[1])
         //             k = location.search.split("k=")[1].split("&")[0];
         // //to figure out
@@ -288,7 +286,6 @@ export const SearchRelationView: FunctionComponent<Props> = ({
         // +"&matchpool="+matchpool
         // +"&k="+k
         // +"&algo="+algo;
-
         //TODO: Done! There was some stuff down here but I removed it
         //move to onclick function
 
@@ -297,17 +294,17 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           {/* <Autocomplete
             disablePortal
             id="combo-box-demo"
+            value={[]}
             multiple = {multipleChoice}
             getOptionLabel={(option) => option.title}
-            onChange={(event: any, value: MaterialListEntry | MaterialListEntry[] | null) => {
-              
-              setMaterialChoice(value!.id);
-            
+            onChange={(event: any, value: any) => {
+              setSearchParameters({...searchParameters, materialChoice: value.id});
             }}
             options={listInfo.materials}
             renderInput={(params) => <TextField {...params} label="Select Material" />}
           /> */}
           {/* This form is what you would use to select the material that you want to search for */}
+          
           <FormControl className={classes.formControl}>
             <InputLabel id="material-select-label" className={classes.label}>Selected Material</InputLabel>
             <Select
@@ -335,7 +332,6 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             disabled={multipleChoice}
             onChange={(event: any) => setSearchParameters({...searchParameters, searchAmount: event.target.value})}/>
           </FormControl>
-          
          
             {/* This form is what you would use to select the matchpool that you want to search for */}
           <FormControl className={classes.formControl}>
@@ -353,7 +349,6 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             <MenuItem value={"pdc"}>PDC</MenuItem>
             </Select>
           </FormControl>
-
           {/* This form is what you would use to select the algorithm that you want to search for */}
           <FormControl className={classes.formControl}>
             <InputLabel id="algo-select-label" className={classes.label}>Algorithm</InputLabel>
@@ -392,8 +387,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           <ToggleButton value="similarity">
             Similarity
           </ToggleButton>
-         </ToggleButtonGroup>
-
+         </ToggleButtonGroup>     
           <Paper>
               <Grid container direction="column">
                     <Grid item>
@@ -410,11 +404,12 @@ export const SearchRelationView: FunctionComponent<Props> = ({
                           
                   </Grid>
               </Grid>
+              
           </Paper>
           {/* Super weird syntax but basically its conditionally creating these elements depending on if the multipleChoice
           variable is true or not */}
-          
           {(resultDisplay !== null)&&!multipleChoice&&<Typography component={'span'}> 
+          <Paper style={{maxHeight: 330, overflow: 'auto'}}>
                       {
                         
                         resultDisplay?.map(({id, score, title}) => 
@@ -434,12 +429,13 @@ export const SearchRelationView: FunctionComponent<Props> = ({
                         }
                       )
                     }
-
+              </Paper>
             </Typography> 
            
           }
           {/* Similar conditional rendering  */}
           {(similarityDisplay !== null)&&multipleChoice&&<Typography component={'span'}> 
+          <Paper style={{maxHeight: 330, overflow: 'auto'}}>
             {
                         // This maps through the results of the similarity search
                         similarityDisplay.displayData?.map((value: Array<Object>, index: number) => 
@@ -464,8 +460,11 @@ export const SearchRelationView: FunctionComponent<Props> = ({
                         }
                       )
                     }
+              </Paper>
             </Typography> 
+            
           }
+          
               {
                   // viewInfo.fetched && viewInfo.data !== null? (
                   //     <div id={"matrix-container"}>
