@@ -1,12 +1,12 @@
 import React, {FunctionComponent} from "react";
 import {RouteComponentProps} from "react-router";
 import {getJSONData} from "../common/util";
-import {createStyles, Divider, Theme, List} from "@material-ui/core";
+import {createStyles, Divider, Theme, List, TextField} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
-import {Link} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import {ListItemLink} from "./ListItemLink";
 import {DeleteDialog} from "./forms/DeleteDialog";
@@ -132,6 +132,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
     const [open, setOpen] = React.useState(false);
     const [numberOfSearches, setK] = React.useState('');
     const [searchAlgo, setAlgo] = React.useState('pagerank');
+    const [searchMatchpool, setSearchMatchpool] = React.useState('all');
 
     const handleChange = (event: any) => {
       setK(event.target.value || '');
@@ -395,14 +396,21 @@ export const MaterialOverview: FunctionComponent<Props> = (
                                                   <Select
                                                     labelId="demo-dialog-select-label"
                                                     id="demo-dialog-select"
-                                                    value={numberOfSearches}
-                                                    onChange={handleChange}
+                                                    value={searchMatchpool}
+                                                    onChange = {(event : any) =>{
+                                                            setSearchMatchpool(event.target.value);
+                                                    }}
                                                     input={<Input />}
                                                   >
-                                                    <MenuItem value={10}>10</MenuItem>
-                                                    <MenuItem value={20}>20</MenuItem>
-                                                    <MenuItem value={30}>30</MenuItem>
+                                                    <MenuItem value={"all"}>All</MenuItem>
+                                                    <MenuItem value={"pdc"}>PDC</MenuItem>
+                                                    
                                                   </Select>
+                                                  <TextField
+                                                   className={classes.formControl} 
+                                                   value={numberOfSearches} 
+                                                   onChange={handleChange} 
+                                                   label = "Number Of Matches"></TextField>
                                                 </FormControl>
                                               </form>
                                             </DialogContent>
@@ -410,7 +418,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                                               <Button onClick={handleClose} color="primary">
                                                 Cancel
                                               </Button>
-                                              <Button color="primary" component={ Link } to={"/searchrelation?type=search&algo=" + searchAlgo + "&k=" + numberOfSearches + "&matID="+overviewInfo.data.id}>
+                                              <Button color="primary" component={ Link } to={"/searchrelation?type=search&algo=" + searchAlgo + "&k=" + numberOfSearches + "&matID="+overviewInfo.data.id + "&matchpool="+searchMatchpool}>
                                                 Submit
                                               </Button>
                                             </DialogActions>

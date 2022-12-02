@@ -5,7 +5,7 @@ import {Grid} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import {RouteComponentProps} from "react-router";
 import {SearchRelation} from "./SearchRelation";
-import {Link} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import {MaterialListEntry} from "../../common/types";
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -74,9 +74,9 @@ interface ViewInfo {
 //This interface and the following function create a way of holding all of the search parameters
 interface SearchParam {
   materialChoice: Array<number> | number;
-  matchpoolChoice: string;
-  algorithmChoice: string;
-  searchType: string;
+  matchpoolChoice: string | null;
+  algorithmChoice: string | null;
+  searchType: string | null;
   searchAmount: number;
 }
 const createEmptyParams = (): SearchParam => {
@@ -236,10 +236,8 @@ export const SearchRelationView: FunctionComponent<Props> = ({
         })
     }
 
-
+    let { search } = useLocation();
     const classes = useStyles();
-
-
     //TODO:
     //This is currently running automatically when the page loads
     //Need to run this when someone submits from the form
@@ -253,7 +251,9 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     //for both you should pass in ids
     // I have been intructed to commend this stuff out
     if (!viewInfo.fetched) {
-        //console.log("pinging");
+      
+      
+      //console.log("pinging");
 
       	// //Erik says: there must be a better way to parse GET parameters?
         // //K is the number of matches
@@ -288,7 +288,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
         // +"&algo="+algo;
         //TODO: Done! There was some stuff down here but I removed it
         //move to onclick function
-
+        
           viewg = <div>
             {/* This autocomplete could be a really cool way of replacing the current dropdown menu with something easier to use */}
           {/* <Autocomplete
@@ -488,13 +488,28 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     //     history.push('/materials?ids=' + results.toString())
     //   }
     // }
-
-
+    
+    //This stuff runs when the component is mounted
     //console.log(viewInfo)
-
+    let algorithms = ["jaccard", "matching", "pagerank"];
+    let types = ["similarity", "search"];
+    let matchpools = ["all", "pdc"];
+    useEffect(()=>{
+        let tempParam = createEmptyParams();
+        const searchParams = new URLSearchParams(search);
+        if(searchParams.has("type") && types.includes(searchParams.get("type")!)) tempParam.searchType = searchParams.get("type")!;
+        if(searchParams.has("algo") && algorithms.includes(searchParams.get("algo")!)) tempParam.algorithmChoice = searchParams.get("algo")!;
+        if(searchParams.has("matchpool") && matchpools.includes(searchParams.get("matchpool")!)) tempParam.matchpoolChoice = searchParams.get("matchpool")!;
+        if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0) tempParam.materialChoice = parseInt(searchParams.get("matID")!);
+        if(searchParams.has("k") && parseInt(searchParams.get("k")!) >= 0) tempParam.searchAmount = parseInt(searchParams.get("k")!);
+        if(tempParam !== searchParameters){
+          setSearchParameters(tempParam);
+        }
+      }, []) 
     return (
-      <div>
-        {viewg}
-      </div>
-    )
+        <div>
+          {viewg}
+        </div>
+      )
+    
 };

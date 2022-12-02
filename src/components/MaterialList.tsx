@@ -117,8 +117,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     const itemsPerPage = 10;
     let noOfPages = 1 //default value
 
-
-
+                                           
     const [listInfo, setListInfo] = React.useState<ListEntity>(
         createEmptyEntity(path, selected_materials)
     );
@@ -259,6 +258,20 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     let output;
     let count = 0;
 
+    //Sorting the list by how frequently the keywords are present in the description + title
+    //I  think this works? Looks like it did when I tested it
+    if(listInfo.keyword !== null){
+    listInfo.materials?.sort((a,b) => {
+      let keyword : string | undefined= listInfo.keyword?.toLowerCase();
+      let combinedA : string = + a.title + " " + a.description;
+      combinedA = combinedA.toLowerCase();
+      let aInclude : number = combinedA.split(keyword!).length -1;
+      let combinedB : string = + b.title + " " + b.description;
+      combinedB = combinedB.toLowerCase();
+      let bInclude : number = combinedB.split(keyword!).length -1;
+      return (aInclude > bInclude) ? -1 : 1; 
+    });
+  }
     if (listInfo.materials !== null && !reload) {
         noOfPages = Math.ceil(listInfo.materials.length / itemsPerPage)
         output = listInfo.materials.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((value, index) => {
