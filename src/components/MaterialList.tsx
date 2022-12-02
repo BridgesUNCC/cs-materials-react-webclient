@@ -168,7 +168,6 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     let reload = path !== listInfo.path || search !== listInfo.search;
     let keyword = listInfo.keyword || parse_query_variable(location, "keyword");
     let tags = listInfo.tags || parse_query_variable(location, "tags");
-    console.log(tags)
     let init_tags = undefined;
     if (tags.length > 0) {
       init_tags = tags.split(",").map((s) => Number(s));
@@ -260,7 +259,8 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
 
     //Sorting the list by how frequently the keywords are present in the description + title
     //I  think this works? Looks like it did when I tested it
-    if(listInfo.keyword !== null){
+    
+    if(listInfo.keyword !== undefined){
     listInfo.materials?.sort((a,b) => {
       let keyword : string | undefined= listInfo.keyword?.toLowerCase();
       let combinedA : string = + a.title + " " + a.description;
@@ -269,7 +269,9 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
       let combinedB : string = + b.title + " " + b.description;
       combinedB = combinedB.toLowerCase();
       let bInclude : number = combinedB.split(keyword!).length -1;
-      return (aInclude > bInclude) ? -1 : 1; 
+      if (aInclude > bInclude) return -1;
+      else if ((aInclude < bInclude) ) return 1;
+      else return 0;
     });
   }
     if (listInfo.materials !== null && !reload) {
@@ -321,7 +323,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                       <Checkbox id={`checkbox-${value.id}`}
                                             checked={listInfo.selected_materials.includes(value.id) || currentSelected.includes(value.id)}
                                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                                event.stopPropagation();
+                                              event.stopPropagation();
                                                 handleCheck(event, value.id);
                                                 if(listOneCallBack !== undefined){
                                                   listOneCallBack(event.target.checked, {name: value.title, id: value.id});
@@ -454,7 +456,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
           }
           <div className={classes.root}>
           <Search
-                history={history} location={location} match={match} api_url={api_url} init_keyword={keyword} init_tags={init_tags} on_submit={handle_submit}
+                history={history} location={location} match={match} api_url={api_url} init_keyword={keyword} init_tags={init_tags} on_submit={handle_submit } currentSelected={listInfo.selected_materials?.map(a => listInfo.selected_materials)}
           />
 
                 <Grid container direction="column">

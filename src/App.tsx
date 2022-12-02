@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from 'react';
+import React, {FunctionComponent, useEffect} from 'react';
 import './App.css';
 import {getJSONData, parseJwt} from './common/util';
 import {LoginDialog} from "./components/user/LoginDialog";
@@ -217,6 +217,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
         }
     }
+
     //function same as above but for material list one in comparison view
     const handleListOneUpdate = (event: boolean, newElement: any) => {
         if(event){
@@ -566,7 +567,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
                     <Route path="/search" render={(route_props) => (
                         <Container maxWidth="lg">
-                            <Search {...route_props} api_url={appInfo.api_url} redirect={redirect}/>
+                            <Search {...route_props} api_url={appInfo.api_url} redirect={redirect} />
                         </Container>
                     )}
                     />

@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, useEffect} from "react";
 import {RouteComponentProps} from "react-router";
 import {createStyles, Paper, Theme, Grid, Button, TextField} from "@material-ui/core";
 import {TreeDialog} from "../forms/TreeDialog";
@@ -39,6 +39,7 @@ interface Props extends RouteComponentProps<MatchParams> {
     on_submit?: (keyword: string, tags: TagData[]) => void;
     init_keyword?: string;
     init_tags?: number[];
+    currentSelected?: any[];
 }
 
 
@@ -50,6 +51,7 @@ interface SearchEntity {
     tags_fetched: boolean;
     show_acm: boolean;
     show_pdc: boolean;
+    
 }
 
 const createInitialEntity = (keyword: string | undefined, init_tags: number[] | undefined ): SearchEntity => {
@@ -71,9 +73,11 @@ export const Search: FunctionComponent<Props> = (
         match,
         api_url,
         redirect,
+        currentSelected,
         on_submit,
         init_keyword,
         init_tags,
+
     }
 ) => {
     const classes = useStyles();
@@ -82,6 +86,7 @@ export const Search: FunctionComponent<Props> = (
         createInitialEntity(init_keyword, init_tags)
     );
 
+    const [similarityData, setSimilarityData] = React.useState<Array<any> | undefined>();
 
     if (!searchInfo.tags_fetched) {
         let url = api_url + "/data/meta_tags/compressed";
@@ -145,6 +150,26 @@ export const Search: FunctionComponent<Props> = (
               searchInfo.selected_tags.map((e) => e.id)
           );
         }
+    };
+
+
+    
+    const handleCheckSimilarity = (): void => {
+      console.log(currentSelected);
+      var url = 'https://csmaterials-search.herokuapp.com/similarity?'+
+                 `matID=${currentSelected}`;
+      getJSONData(url, {}).then(resp => {
+          if (resp === undefined) {
+              console.log("API SERVER FAIL")
+          }
+          else {
+
+              if (resp['status'] === "OK") {
+                console.log(resp.data);
+                setSimilarityData(resp.data);
+              }
+          }
+      })
     };
 
     const onTextFieldChange = (field_id: string) => (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -241,6 +266,7 @@ export const Search: FunctionComponent<Props> = (
               </Button>
             </Grid>
             <Grid item>
+            
               {on_submit !== undefined ? (
                 <Button
                   className={classes.margin}
@@ -266,8 +292,19 @@ export const Search: FunctionComponent<Props> = (
                   >
                     Search
                   </Button>
+                  
                 </Link>
               )}
+            </Grid>
+            <Grid item>
+            <Button
+              className={classes.margin}
+              variant="contained"
+              color="primary"
+              onClick = {handleCheckSimilarity}
+            >
+                Check Similarity
+            </Button>
             </Grid>
           </Grid>
         
@@ -289,6 +326,8 @@ export const Search: FunctionComponent<Props> = (
           selected_tags={searchInfo.selected_tags}
           onCheck={onTreeCheckBoxClick}
         />
+        {similarityData !== undefined &&<div>{Object.keys(similarityData!)}</div>}
+        
       </div>
     );
 };
