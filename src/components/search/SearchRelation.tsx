@@ -52,40 +52,58 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
           .select('g').attr('transform', 'translate(' + 2000 / 2 + ',' + 1000 / 2 + ')');
 
       console.log(data)
+      let nodes: any[] = []
+      let links: any[] = []
 
       if(data != undefined){
-            const queryID = data['data'].length;
-  //
-  //     console.log(data)
-  //
+            const queryID = null;
+
 	    console.log("something"+queryID);
-  //
+ 
 	    let all_similarities : number[] = [];
-  //
-        let nodes: any[] = []
-        let links: any[] = []
-        // let nodeJSON = {'id': queryID,
-        //                 'name': data['query'].query_matID.toString(),
-        //                 'x': data['query'].mds_x,
-        //                 'y': data['query'].mds_y,
-        //                 'color': "blue",
-        //                 'size': 20}
-        // nodes.push(nodeJSON)
-  //       for(let i = 0; i < data['2dembedding'].length; i++){
-  //         //add this node to the list with its location data
-  //         let nodeJSON = {'id': i,
-  //                         // 'name': data['result'][i].title,
-  //                         'x': data['2dembedding'][i].mds_x,
-  //                         'y': data['2dembedding'][i].mds_y,
-  //                         'color': "red",
-  //                         'size': 10}
-  //         let linkJSON = {"source": i,
-  //                         "target": queryID,
-  //                         "value": data['result'][i].query_similarity,
-  //                         "x1": (data['result'][i].mds_x * 300),
-  //                         "y1": (data['result'][i].mds_y * 300),
-  //                         "x2": (data['query'].mds_x * 300),
-  //                         "y2": (data['query'].mds_y * 300)}
+
+      for(const key in data['2dembedding']){
+        let nodeJSON = {
+          'id': key,
+          // 'name': data['result'][i].title,
+          'x': data['2dembedding'][key][0],
+          'y': data['2dembedding'][key][1],
+          'color': "red",
+          'size': 20
+        }
+        nodes.push(nodeJSON)
+      }
+
+      for(const key in data['similarity']){
+        for(const p in data['similarity'][key]){
+          let linkJSON = {
+          'id': key + "X" + p,
+          'x1': data['2dembedding'][key][0]* 300,
+          'y1': data['2dembedding'][key][1]* 300,
+          'x2': data['2dembedding'][p][0]* 300,
+          'y2': data['2dembedding'][p][1]* 300,
+        }
+        links.push(linkJSON)
+        }
+        
+      }
+      
+
+        // for(let i = 0; i < data['2dembedding'].length; i++){
+        //   //add this node to the list with its location data
+        //   let nodeJSON = {'id': i,
+        //                   // 'name': data['result'][i].title,
+        //                   'x': data['2dembedding'][i].mds_x,
+        //                   'y': data['2dembedding'][i].mds_y,
+        //                   'color': "red",
+        //                   'size': 10}
+        //   let linkJSON = {"source": i,
+        //                   "target": queryID,
+        //                   "value": data['result'][i].query_similarity,
+        //                   "x1": (data['result'][i].mds_x * 300),
+        //                   "y1": (data['result'][i].mds_y * 300),
+        //                   "x2": (data['query'].mds_x * 300),
+        //                   "y2": (data['query'].mds_y * 300)}
 	// all_similarities.push(data['result'][i].query_similarity)
   //         if(data['result'][i].query_similarity > max_opacity){
   //           max_opacity = data['result'][i].query_similarity
@@ -114,50 +132,50 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
 	// all_similarities.sort();
 	// var similarity_threshold = all_similarities[all_similarities.length-1-(data['result'].length+1)*2];
   //
-  //       let link = g.append("g").selectAll("link").data(links)
-  //                    .enter()
-  //                    .append("line")
-  //                    .attr("class", "link")
-  //                    .attr("x1", function(l) {
-  //                      console.log(l)
-  //                      return l.x1
-  //                    })
-  //                    .attr("x2", function(l) {
-  //                      return l.x2
-  //                    })
-  //                    .attr("y1", function (d) {
-  //                      return d.y1;
-  //                    })
-  //                    .attr("y2", function (d) {
-  //                      return d.y2;
-  //                    })
-  //                    .attr("fill", "none")
-  //                    .attr("stroke", function(d){
-  //
-  //                        return "white"
-  //
-  //                    })
+        let link = g.append("g").attr("class", "links").selectAll("link").data(links)
+                     .enter()
+                     .append("line")
+                     .attr("class", "link")
+                     .attr("x1", function(l) {
+                       console.log(l)
+                       return l.x1
+                     })
+                     .attr("x2", function(l) {
+                       return l.x2
+                     })
+                     .attr("y1", function (d) {
+                       return d.y1;
+                     })
+                     .attr("y2", function (d) {
+                       return d.y2;
+                     })
+                     .attr("fill", "white")
+                     .attr("stroke", function(d){
+  
+                         return "white"
+  
+                     }).style("stroke-width", 3);
   //                    .style("opacity", function(d){
 	// 	         if (d.value > similarity_threshold)
   //                        return d.value / max_opacity/2.
 	// 		 else
 	// 		 return 0.;
   //                    })
-  //                    .style("stroke-width", 3);
-  //       let node = g.append("g").attr("class", "nodes").selectAll("circle")
-  //                   .data(nodes).enter()
-  //                   .append('circle')
-  //                   .attr('r', function(d){
-  //                     return d.size
-  //                   })
-  //                   .attr("stroke", "black")
-  //                   .attr("fill", function(d){
-  //                     return d.color
-  //                   })
-  //                   .attr("transform", function (d) {
-  //                     console.log(d)
-  //                     return "translate(" + ((d.x * 300)) + "," + ((d.y * 300)) + ")";
-  //                   })
+  //                    
+        let node = g.append("g").attr("class", "nodes").selectAll("circle")
+                    .data(nodes).enter()
+                    .append('circle')
+                    .attr('r', function(d){
+                      return d.size
+                    })
+                    .attr("stroke", "black")
+                    .attr("fill", function(d){
+                      return d.color
+                    })
+                    .attr("transform", function (d) {
+                      console.log(d)
+                      return "translate(" + ((d.x * 300)) + "," + ((d.y * 300)) + ")";
+                    })
   //       let background = g.append('g').selectAll("rect")
   //         .data(nodes)
   //         .enter().append("rect")

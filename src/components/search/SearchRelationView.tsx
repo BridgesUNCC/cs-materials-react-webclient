@@ -91,6 +91,7 @@ const createEmptyParams = (): SearchParam => {
 interface SimilarityData {
   displayData: any;
   keys: Array<string>;
+  visData: any;
 }
 
 interface ResultData {
@@ -191,13 +192,14 @@ export const SearchRelationView: FunctionComponent<Props> = ({
 
               if (resp['status'] === "OK") {
                 let data = resp['data'];
+                let dataVis = resp['data'];
                   let dataArray = [];
                   data = data.similarity; //This is the portion of the response that contains the similarity data
                   data = Object.values(data)
                   for(let i = 0; i < data.length; i++){
                     dataArray.push(Object.entries(data[i]))
                   }
-                  setSimilarityDisplay({displayData: dataArray, keys: Object.keys(resp['data'].similarity)})
+                  setSimilarityDisplay({displayData: dataArray, keys: Object.keys(resp['data'].similarity), visData: dataVis})
               }
           }
       })
@@ -437,8 +439,8 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           {(similarityDisplay !== null)&&multipleChoice&&<Typography component={'span'}> 
           <Paper style={{maxHeight: 330, overflow: 'auto'}}>
             {
-                        // This maps through the results of the similarity search
-                        similarityDisplay.displayData?.map((value: Array<Object>, index: number) => 
+                      // This maps through the results of the similarity search
+                      similarityDisplay.displayData?.map((value: Array<Object>, index: number) => 
                       {
                           return (
                                 <Card variant="outlined">
@@ -461,8 +463,8 @@ export const SearchRelationView: FunctionComponent<Props> = ({
                       )
                     }
               </Paper>
+              <SearchRelation data={similarityDisplay.visData}/>
             </Typography> 
-            
           }
           
               {
