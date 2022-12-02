@@ -91,6 +91,9 @@ const useStyles = makeStyles((theme: Theme) =>
           paddingRight: '200px',
 
       },
+      navbar:{
+          overflow: 'hidden'
+      },
       frame: {
         paddingTop: 0,
         marginBottom: '5%',
@@ -429,7 +432,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
         <div className="App">
             <Switch>
                 <Route path="/">
-                    <AppBar color="secondary" position="sticky">
+                    <AppBar color="secondary" position="fixed">
                         <Grid container >
                             <Grid item>
                                 <Button className={classes.margin} variant="contained" color="primary"
