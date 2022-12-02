@@ -41,7 +41,7 @@ class OntologyWrapper extends Component {
             oneids = this.props.location.search.split("listoneids=")[1].split("&")[0];
           if (this.props.location.search.split("listtwoids=")[1])
             twoids = this.props.location.search.split("listtwoids=")[1].split("&")[0];
-        }else{
+        }else if (this.props.location.search.includes('ids')){
           if (this.props.location.search.split("ids=")[1])
               ids = this.props.location.search.split("ids=")[1].split("&")[0];
           if (this.props.location.search.split("tags=")[1])
@@ -77,7 +77,8 @@ class OntologyWrapper extends Component {
 
     // allows user to switch between acm and pdc views with same data
     componentDidUpdate(prevProps) {
-        if (prevProps && this.props.location.search !== prevProps.location.search) {
+        //checks to make sure that it only updates data if ids is present in the url
+        if (prevProps && this.props.location.search !== prevProps.location.search && this.props.location.search.includes('ids')) {
             let data = this.state.data;
             data[0] = this.state.radialdata.data[this.props.history.location.search.split("tree=")[1].split("&")[0]]
             this.setState({...this.state, data});
