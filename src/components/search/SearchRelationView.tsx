@@ -500,12 +500,15 @@ export const SearchRelationView: FunctionComponent<Props> = ({
         if(searchParams.has("type") && types.includes(searchParams.get("type")!)) tempParam.searchType = searchParams.get("type")!;
         if(searchParams.has("algo") && algorithms.includes(searchParams.get("algo")!)) tempParam.algorithmChoice = searchParams.get("algo")!;
         if(searchParams.has("matchpool") && matchpools.includes(searchParams.get("matchpool")!)) tempParam.matchpoolChoice = searchParams.get("matchpool")!;
-        if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0) tempParam.materialChoice = parseInt(searchParams.get("matID")!);
+        if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0 && tempParam.searchType === "search") tempParam.materialChoice = parseInt(searchParams.get("matID")!);
+        if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0 && tempParam.searchType === "similarity") tempParam.materialChoice = searchParams.get("matID")!.split(',').map(e => parseInt(e));
         if(searchParams.has("k") && parseInt(searchParams.get("k")!) >= 0) tempParam.searchAmount = parseInt(searchParams.get("k")!);
+        console.log(searchParams.get("matID")!.split(',').map(e => parseInt(e))); 
         if(tempParam !== searchParameters){
           setSearchParameters(tempParam);
         }
-      }, []) 
+      }, []);
+      
     return (
         <div>
           {viewg}
