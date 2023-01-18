@@ -51,6 +51,10 @@ const useStyles = makeStyles((theme: Theme) =>
           marginRight: 20,
           // paddingRight:200
         },
+        Grid: {
+          
+
+        },
         textFieldStyle: {
           paddingLeft: 20
         },
@@ -304,7 +308,9 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             renderInput={(params) => <TextField {...params} label="Select Material" />}
           /> */}
           {/* This form is what you would use to select the material that you want to search for */}
-          
+          <Grid container spacing={0} direction="column" alignItems="center" justifyContent="center" style={{ minHeight: '50vh' }}>
+
+          <Grid item>
           <FormControl className={classes.formControl}>
             <InputLabel id="material-select-label" className={classes.label}>Selected Material</InputLabel>
             <Select
@@ -332,8 +338,10 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             disabled={multipleChoice}
             onChange={(event: any) => setSearchParameters({...searchParameters, searchAmount: event.target.value})}/>
           </FormControl>
-         
+          </Grid>
+
             {/* This form is what you would use to select the matchpool that you want to search for */}
+          <Grid item>
           <FormControl className={classes.formControl}>
             <InputLabel id="matchpool-select-label" className={classes.label}>Matchpool</InputLabel>
             <Select
@@ -349,7 +357,10 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             <MenuItem value={"pdc"}>PDC</MenuItem>
             </Select>
           </FormControl>
+          </Grid>
+
           {/* This form is what you would use to select the algorithm that you want to search for */}
+          <Grid item>
           <FormControl className={classes.formControl}>
             <InputLabel id="algo-select-label" className={classes.label}>Algorithm</InputLabel>
             <Select
@@ -367,6 +378,9 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             </Select>
           {/* This is used to set the search type, either search or similarity */}
           </FormControl>
+          </Grid>
+
+          <Grid item>
           <ToggleButtonGroup
           value= {searchParameters.searchType}
           exclusive
@@ -387,7 +401,10 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           <ToggleButton value="similarity">
             Similarity
           </ToggleButton>
-         </ToggleButtonGroup>     
+         </ToggleButtonGroup>   
+         </Grid>
+
+         </Grid>
           <Paper>
               <Grid container direction="column">
                     <Grid item>
@@ -408,6 +425,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           </Paper>
           {/* Super weird syntax but basically its conditionally creating these elements depending on if the multipleChoice
           variable is true or not */}
+          
           {(resultDisplay !== null)&&!multipleChoice&&<Typography component={'span'}> 
           <Paper style={{maxHeight: 330, overflow: 'auto'}}>
                       {
@@ -464,6 +482,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             </Typography> 
             
           }
+         
           
               {
                   // viewInfo.fetched && viewInfo.data !== null? (
@@ -503,9 +522,11 @@ export const SearchRelationView: FunctionComponent<Props> = ({
         if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0 && tempParam.searchType === "search") tempParam.materialChoice = parseInt(searchParams.get("matID")!);
         if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0 && tempParam.searchType === "similarity") tempParam.materialChoice = searchParams.get("matID")!.split(',').map(e => parseInt(e));
         if(searchParams.has("k") && parseInt(searchParams.get("k")!) >= 0) tempParam.searchAmount = parseInt(searchParams.get("k")!);
-        console.log(searchParams.get("matID")!.split(',').map(e => parseInt(e))); 
+        console.log(); 
         if(tempParam !== searchParameters){
           setSearchParameters(tempParam);
+          console.log(searchParameters);
+          handleSearchClick();
         }
       }, []);
       
