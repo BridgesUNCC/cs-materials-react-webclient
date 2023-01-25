@@ -79,6 +79,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
           'y1': data['2dembedding'][key][1]* 300,
           'x2': data['2dembedding'][p][0]* 300,
           'y2': data['2dembedding'][p][1]* 300,
+          'opacity': data['similarity'][key][p],
         }
         links.push(linkJSON)
         }
@@ -104,10 +105,13 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
                      })
                      .attr("fill", "white")
                      .attr("stroke", function(d){
-  
                          return "white"
   
-                     }).style("stroke-width", 3);
+                     })
+                     .attr("opacity", function(d){
+                       return d.opacity;
+                     })
+                     .style("stroke-width", 3);
 
         let node = g.append("g").attr("class", "nodes").selectAll("circle")
                     .data(nodes).enter()
