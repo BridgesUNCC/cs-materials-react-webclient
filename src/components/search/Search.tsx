@@ -154,23 +154,7 @@ export const Search: FunctionComponent<Props> = (
 
 
     
-    const handleCheckSimilarity = (): void => {
-      console.log(currentSelected);
-      var url = 'https://csmaterials-search.herokuapp.com/similarity?'+
-                 `matID=${currentSelected}`;
-      getJSONData(url, {}).then(resp => {
-          if (resp === undefined) {
-              console.log("API SERVER FAIL")
-          }
-          else {
-
-              if (resp['status'] === "OK") {
-                console.log(resp.data);
-                setSimilarityData(resp.data);
-              }
-          }
-      })
-    };
+    
 
     const onTextFieldChange = (field_id: string) => (e: React.ChangeEvent<HTMLInputElement>): void => {
         let fields = searchInfo;
@@ -297,11 +281,14 @@ export const Search: FunctionComponent<Props> = (
               )}
             </Grid>
             <Grid item>
+             
             <Button
               className={classes.margin}
               variant="contained"
               color="primary"
-              onClick = {handleCheckSimilarity}
+              component={ Link } 
+              to={"/searchrelation?type=similarity&matID=" + currentSelected}
+              onClick={() => {console.log(currentSelected)}}
             >
                 Check Similarity
             </Button>
@@ -326,7 +313,6 @@ export const Search: FunctionComponent<Props> = (
           selected_tags={searchInfo.selected_tags}
           onCheck={onTreeCheckBoxClick}
         />
-        {similarityData !== undefined &&<div>{Object.keys(similarityData!)}</div>}
         
       </div>
     );

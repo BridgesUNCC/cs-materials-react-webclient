@@ -456,7 +456,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
           }
           <div className={classes.root}>
           <Search
-                history={history} location={location} match={match} api_url={api_url} init_keyword={keyword} init_tags={init_tags} on_submit={handle_submit } currentSelected={listInfo.selected_materials?.map(a => listInfo.selected_materials)}
+                history={history} location={location} match={match} api_url={api_url} init_keyword={keyword} init_tags={init_tags} on_submit={handle_submit } currentSelected={listInfo.selected_materials}
           />
 
                 <Grid container direction="column">

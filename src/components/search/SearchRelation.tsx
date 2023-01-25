@@ -33,9 +33,6 @@ const useStyles = makeStyles((theme: Theme) =>
 export const SearchRelation: FunctionComponent<Props> = ({ data,
                                                            }) => {
 
-
-	console.log("duhadgjkbadf")
-
     const ref = useRef(null);
 
     const classes = useStyles();
@@ -88,50 +85,6 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
         
       }
       
-
-        // for(let i = 0; i < data['2dembedding'].length; i++){
-        //   //add this node to the list with its location data
-        //   let nodeJSON = {'id': i,
-        //                   // 'name': data['result'][i].title,
-        //                   'x': data['2dembedding'][i].mds_x,
-        //                   'y': data['2dembedding'][i].mds_y,
-        //                   'color': "red",
-        //                   'size': 10}
-        //   let linkJSON = {"source": i,
-        //                   "target": queryID,
-        //                   "value": data['result'][i].query_similarity,
-        //                   "x1": (data['result'][i].mds_x * 300),
-        //                   "y1": (data['result'][i].mds_y * 300),
-        //                   "x2": (data['query'].mds_x * 300),
-        //                   "y2": (data['query'].mds_y * 300)}
-	// all_similarities.push(data['result'][i].query_similarity)
-  //         if(data['result'][i].query_similarity > max_opacity){
-  //           max_opacity = data['result'][i].query_similarity
-  //         }
-  //         links.push(linkJSON)
-  //         nodes.push(nodeJSON)
-  //         for( let j = i+1; j < data['result'].length; j++){
-  //           //add link for this node to the i node with their result_similarity
-  //           let linkJSON = {"source": j,
-  //                           "target": i,
-  //                           "value": data['result'][j].result_similarity[i],
-  //                           "x1": (data['result'][j].mds_x * 300),
-  //                           "y1": (data['result'][j].mds_y * 300),
-  //                           "x2": (data['result'][i].mds_x * 300),
-  //                           "y2": (data['result'][i].mds_y * 300)}
-  //
-  //           if (data['result'][j].result_similarity[i] != 1)
-	//       all_similarities.push(data['result'][j].result_similarity[i]);
-  //           if(data['result'][j].result_similarity[i] > max_opacity && data['result'][j].result_similarity[i] != 1){
-  //             max_opacity = data['result'][j].result_similarity[i]
-  //           }
-  //           links.push(linkJSON)
-  //         }
-  //       }
-  //
-	// all_similarities.sort();
-	// var similarity_threshold = all_similarities[all_similarities.length-1-(data['result'].length+1)*2];
-  //
         let link = g.append("g").attr("class", "links").selectAll("link").data(links)
                      .enter()
                      .append("line")
@@ -155,13 +108,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
                          return "white"
   
                      }).style("stroke-width", 3);
-  //                    .style("opacity", function(d){
-	// 	         if (d.value > similarity_threshold)
-  //                        return d.value / max_opacity/2.
-	// 		 else
-	// 		 return 0.;
-  //                    })
-  //                    
+
         let node = g.append("g").attr("class", "nodes").selectAll("circle")
                     .data(nodes).enter()
                     .append('circle')
@@ -176,51 +123,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
                       console.log(d)
                       return "translate(" + ((d.x * 300)) + "," + ((d.y * 300)) + ")";
                     })
-  //       let background = g.append('g').selectAll("rect")
-  //         .data(nodes)
-  //         .enter().append("rect")
-  //         .attr("x", function(d){
-  //           return d.x * 300 - 5
-  //         })
-  //         .attr("y", function(d){
-  //           return d.y * 300 - 12
-  //         })
-  //         .attr("width", function(d){
-  //           if(d.name.length <= 3){
-  //             return 40
-  //           } else{
-  //             return d.name.length*8.5
-  //           }
-  //         })
-  //         .attr("height", 15)
-  //         .attr("fill", "white")
-  //         .attr('opacity', 0.2)
-  //         .attr('stroke', 'black');
-  //
-  //       let text = g.append("g")
-  //           .attr("class", "labels")
-  //           .selectAll("text")
-  //           .data(nodes)
-  //           .enter().append("text")
-  //           .attr("x", function(d){
-  //             return d.x * 300
-  //           })
-  //           .attr("y", function(d){
-  //             return d.y * 300
-  //           })
-  //           .attr('background-color', "white")
-  //           .text(function(d) { return d.name })
-  //
-  //         // let label = node.append('g').append("text")
-  //         //                 .text(function(d) {
-  //         //                   return d.name
-  //         //                 })
-  //         //                 .attr('x', 600)
-  //         //                 .attr('y', 300);
-  //         //
-  //         //     node.append("title")
-  //         //     .text(function(d){ return d.name;});
-  //
+
         }
 
 
