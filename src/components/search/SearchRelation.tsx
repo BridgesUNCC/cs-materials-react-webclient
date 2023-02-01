@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
             width: 400,
         },
         margin: {
-            margin: theme.spacing(1, 0),
+            margin: theme.spacing(0, 0),
         },
         paper: {
           marginTop: '0%',
@@ -44,9 +44,10 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
       const svgElement = d3.select(ref.current);
       let container = d3.select('#parent')
       let svg = container.append('svg').append('g')
-
-      const g = container.select('svg').attr('width', 2000).attr('height', 1000)
-          .select('g').attr('transform', 'translate(' + 2000 / 2 + ',' + 1000 / 2 + ')');
+      let widthAmount = 940; //I would really like for this to be taken from the width and height of the contained div
+      let heightAmount = 970;
+      const g = container.select('svg').attr('width', widthAmount).attr('height', heightAmount)
+          .select('g').attr('transform', 'translate(' + widthAmount / 2 + ',' + heightAmount / 3 + ')');
 
       console.log(data)
       let nodes: any[] = []
@@ -54,6 +55,8 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
 
       if(data != undefined){
             const queryID = null;
+            g.selectAll("*").remove(); //This prevents multiple graphs from stacking on top of each other
+                                       //It just removes the old data when new data is provided (I THINK?)
 
 	    console.log("something"+queryID);
  
@@ -129,7 +132,6 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
                     })
 
         }
-
 
         //uhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh | this part right here is so stupid and still dont understand it
         //                                      V took 3000 hours to find solution

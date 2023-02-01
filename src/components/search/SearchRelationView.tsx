@@ -15,8 +15,6 @@ import { Autocomplete, ToggleButton, ToggleButtonGroup } from "@material-ui/lab"
 import { EqualizerSharp, Label } from "@material-ui/icons";
 import { Console } from "console";
 
-
-
 const useStyles = makeStyles((theme: Theme) =>
     createStyles ( {
         textField: {
@@ -49,7 +47,7 @@ const useStyles = makeStyles((theme: Theme) =>
         select: {
           width: 300,
           marginRight: 20,
-          // paddingRight:200
+          marginTop:20
         },
         Grid: {
           
@@ -93,8 +91,6 @@ const createEmptyParams = (): SearchParam => {
   }
 };
 interface SimilarityData {
-  displayData: any;
-  keys: Array<string>;
   visData: any;
 }
 
@@ -170,7 +166,8 @@ export const SearchRelationView: FunctionComponent<Props> = ({
       //This syntax looks a lot better to me
       var url = 'https://csmaterials-search.herokuapp.com/search?'+
                  `matID=${searchParameters.materialChoice}&matchpool=${searchParameters.matchpoolChoice}`+
-                 `&algorithm=${searchParameters.algorithmChoice}&k=${searchParameters.searchAmount}`
+                 `&algorithm=${searchParameters.algorithmChoice}&k=${searchParameters.searchAmount}`;
+      console.log(url);
       getJSONData(url, {}).then(resp => {
         console.log(resp)
           if (resp === undefined) {
@@ -186,6 +183,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
       })
     };
     const handleSimilarity = () => {
+      
       var url = 'https://csmaterials-search.herokuapp.com/similarity?'+
                  `matID=${searchParameters.materialChoice}&matchpool=${searchParameters.matchpoolChoice}`
       getJSONData(url, {}).then(resp => {
@@ -195,15 +193,8 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           else {
 
               if (resp['status'] === "OK") {
-                let data = resp['data'];
                 let dataVis = resp['data'];
-                  let dataArray = [];
-                  data = data.similarity; //This is the portion of the response that contains the similarity data
-                  data = Object.values(data)
-                  for(let i = 0; i < data.length; i++){
-                    dataArray.push(Object.entries(data[i]))
-                  }
-                  setSimilarityDisplay({displayData: dataArray, keys: Object.keys(resp['data'].similarity), visData: dataVis})
+                  setSimilarityDisplay({visData: dataVis})
               }
           }
       })
@@ -345,7 +336,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             {/* This form is what you would use to select the matchpool that you want to search for */}
           <Grid item>
           <FormControl className={classes.formControl}>
-            <InputLabel id="matchpool-select-label" className={classes.label}>Matchpool</InputLabel>
+            <InputLabel id="matchpool-select-label" className={classes.label}>Matchpool / Algorithm</InputLabel>
             <Select
               autoWidth
               labelId="matchpool-select-label"
@@ -358,29 +349,27 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             <MenuItem value={"all"}>All</MenuItem>
             <MenuItem value={"pdc"}>PDC</MenuItem>
             </Select>
-          </FormControl>
-          </Grid>
-
-          {/* This form is what you would use to select the algorithm that you want to search for */}
-          <Grid item>
-          <FormControl className={classes.formControl}>
-            <InputLabel id="algo-select-label" className={classes.label}>Algorithm</InputLabel>
+              {/* This form is what you would use to select the algorithm that you want to search for */}
             <Select
               autoWidth
               labelId="algo-select-label"
               id="algo-select"
               value={searchParameters.algorithmChoice}
               disabled={multipleChoice}
-              onChange={(event: any) => setSearchParameters({...searchParameters, algorithmChoice: event.target.value})}
+              onChange={(event: any) =>{
+                setSearchParameters({...searchParameters, algorithmChoice: event.target.value});
+                console.log(event.target.value);
+              } }
               className={classes.select}
             >
             <MenuItem value={'jaccard'}>Jaccard</MenuItem>
             <MenuItem value={'matching'}>Matching</MenuItem>
             <MenuItem value={'pagerank'}>Pagerank</MenuItem>
             </Select>
-          {/* This is used to set the search type, either search or similarity */}
           </FormControl>
           </Grid>
+
+          
 
           <Grid item>
           <ToggleButtonGroup
@@ -454,35 +443,11 @@ export const SearchRelationView: FunctionComponent<Props> = ({
            
           }
           {/* Similar conditional rendering  */}
-          {(similarityDisplay !== null)&&multipleChoice&&<Typography component={'span'}> 
-          <Paper style={{maxHeight: 330, overflow: 'auto'}}>
-            {
-                      // This maps through the results of the similarity search
-                      similarityDisplay.displayData?.map((value: Array<Object>, index: number) => 
-                      {
-                          return (
-                                <Card variant="outlined">
-                                  <CardContent>
-                                    <h4>Similarity scores for: {
-                                    listInfo.materials.find(({id}) => id === parseInt(similarityDisplay!.keys[index]))?.title}
-                                    </h4>
-                                    {
-                                      value?.map((info: any) => {
-                                        return<Typography>
-                                          {listInfo.materials.find(({id}) => id === parseInt(info[0]))?.title}: {info[1]}
-                                        </Typography>
-                                      })
-                                    }
-                                  </CardContent>
-                                </Card>
-                                
-                          )
-                        }
-                      )
-                    }
-              </Paper>
+          {(similarityDisplay !== null)&&multipleChoice&&
+          // I mean should I be using Material UI for this? I'm just gonna use in text styling
+            <div style={{border: '2px solid gray', height: '1000px', backgroundColor: '#3b3a3a', marginTop: '20px'}}> 
               <SearchRelation data={similarityDisplay.visData}/>
-            </Typography> 
+            </div> 
           }
          
           
