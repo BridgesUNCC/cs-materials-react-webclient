@@ -92,6 +92,7 @@ const createEmptyParams = (): SearchParam => {
 };
 interface SimilarityData {
   visData: any;
+  names: any;
 }
 
 interface ResultData {
@@ -137,6 +138,26 @@ export const SearchRelationView: FunctionComponent<Props> = ({
                                                                 user_id,
 
 }) => {
+
+      //This stuff runs when the component is mounted
+      //console.log(viewInfo)
+      let algorithms = ["jaccard", "matching", "pagerank"];
+      let types = ["similarity", "search"];
+      let matchpools = ["all", "pdc"];
+      useEffect(()=>{
+          let tempParam = createEmptyParams();
+          const searchParams = new URLSearchParams(search);
+          if(searchParams.has("type") && types.includes(searchParams.get("type")!)) tempParam.searchType = searchParams.get("type")!;
+          if(searchParams.has("algo") && algorithms.includes(searchParams.get("algo")!)) tempParam.algorithmChoice = searchParams.get("algo")!;
+          if(searchParams.has("matchpool") && matchpools.includes(searchParams.get("matchpool")!)) tempParam.matchpoolChoice = searchParams.get("matchpool")!;
+          if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0 && tempParam.searchType === "search") tempParam.materialChoice = parseInt(searchParams.get("matID")!);
+          if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0 && tempParam.searchType === "similarity") tempParam.materialChoice = searchParams.get("matID")!.split(',').map(e => parseInt(e));
+          if(searchParams.has("k") && parseInt(searchParams.get("k")!) >= 0) tempParam.searchAmount = parseInt(searchParams.get("k")!);
+          (tempParam.searchType === "search") ? setMultipleChoice(false) : setMultipleChoice(true);
+          if(tempParam !== searchParameters){
+            setSearchParameters(tempParam);
+          }
+        }, []);
     const [viewInfo, setViewInfo] = React.useState(
         createEmptyInfo()
     );
@@ -160,13 +181,12 @@ export const SearchRelationView: FunctionComponent<Props> = ({
 
     const handleSearchClick = () => {
       multipleChoice ? handleSimilarity() : handleSearch();
-      
     };
     const handleSearch = () => {
       //This syntax looks a lot better to me
       var url = 'https://csmaterials-search.herokuapp.com/search?'+
                  `matID=${searchParameters.materialChoice}&matchpool=${searchParameters.matchpoolChoice}`+
-                 `&algorithm=${searchParameters.algorithmChoice}&k=${searchParameters.searchAmount}`;
+                 `&algo=${searchParameters.algorithmChoice}&k=${searchParameters.searchAmount}`;
       console.log(url);
       getJSONData(url, {}).then(resp => {
         console.log(resp)
@@ -185,7 +205,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     const handleSimilarity = () => {
       
       var url = 'https://csmaterials-search.herokuapp.com/similarity?'+
-                 `matID=${searchParameters.materialChoice}&matchpool=${searchParameters.matchpoolChoice}`
+                 `matID=${searchParameters.materialChoice}`
       getJSONData(url, {}).then(resp => {
           if (resp === undefined) {
               console.log("API SERVER FAIL")
@@ -193,8 +213,15 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           else {
 
               if (resp['status'] === "OK") {
+                //Getting the names for the labels
+                let ob = {};
+                if(Array.isArray(searchParameters.materialChoice)){
+                  searchParameters.materialChoice.map(i =>{
+                    ob = {...ob, [i]: (listInfo.materials.find(material => material.id === i))?.title};
+                  });
+                }
                 let dataVis = resp['data'];
-                  setSimilarityDisplay({visData: dataVis})
+                  setSimilarityDisplay({visData: dataVis, names: ob});
               }
           }
       })
@@ -358,7 +385,6 @@ export const SearchRelationView: FunctionComponent<Props> = ({
               disabled={multipleChoice}
               onChange={(event: any) =>{
                 setSearchParameters({...searchParameters, algorithmChoice: event.target.value});
-                console.log(event.target.value);
               } }
               className={classes.select}
             >
@@ -380,7 +406,12 @@ export const SearchRelationView: FunctionComponent<Props> = ({
                       newSearchType: string | null
                     ) => {
                       if (newSearchType !== null) {
-                        setSearchParameters({...searchParameters, searchType: newSearchType, materialChoice: [], searchAmount: 1})
+                        //This part just fills in the list with data from the URL when you switch from similarity to search
+                        let materials : Array<number> | number = [];
+                        const searchParams = new URLSearchParams(search);
+                        if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0 && !multipleChoice) materials = searchParams.get("matID")!.split(',').map(e => parseInt(e));
+                        if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0 && multipleChoice) materials = [parseInt(searchParams.get("matID")!)];
+                        setSearchParameters({...searchParameters, searchType: newSearchType, materialChoice: materials, searchAmount: 1})
                         setSimilarityDisplay(null);
                         setResultDisplay(null);
                       }
@@ -445,9 +476,11 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           {/* Similar conditional rendering  */}
           {(similarityDisplay !== null)&&multipleChoice&&
           // I mean should I be using Material UI for this? I'm just gonna use in text styling
-            <div style={{border: '2px solid gray', height: '1000px', backgroundColor: '#3b3a3a', marginTop: '20px'}}> 
-              <SearchRelation data={similarityDisplay.visData}/>
+            <div>
+            <div style={{border: '2px solid gray', height: '600px', backgroundColor: '#3b3a3a', marginTop: '20px'}}> 
+              <SearchRelation data={similarityDisplay.visData} names={similarityDisplay.names}/>
             </div> 
+            </div>
           }
          
           
@@ -475,28 +508,8 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     //   }
     // }
     
-    //This stuff runs when the component is mounted
-    //console.log(viewInfo)
-    let algorithms = ["jaccard", "matching", "pagerank"];
-    let types = ["similarity", "search"];
-    let matchpools = ["all", "pdc"];
-    useEffect(()=>{
-        let tempParam = createEmptyParams();
-        const searchParams = new URLSearchParams(search);
-        if(searchParams.has("type") && types.includes(searchParams.get("type")!)) tempParam.searchType = searchParams.get("type")!;
-        if(searchParams.has("algo") && algorithms.includes(searchParams.get("algo")!)) tempParam.algorithmChoice = searchParams.get("algo")!;
-        if(searchParams.has("matchpool") && matchpools.includes(searchParams.get("matchpool")!)) tempParam.matchpoolChoice = searchParams.get("matchpool")!;
-        if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0 && tempParam.searchType === "search") tempParam.materialChoice = parseInt(searchParams.get("matID")!);
-        if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0 && tempParam.searchType === "similarity") tempParam.materialChoice = searchParams.get("matID")!.split(',').map(e => parseInt(e));
-        if(searchParams.has("k") && parseInt(searchParams.get("k")!) >= 0) tempParam.searchAmount = parseInt(searchParams.get("k")!);
-        console.log(); 
-        if(tempParam !== searchParameters){
-          setSearchParameters(tempParam);
-          console.log(searchParameters);
-          handleSearchClick();
-        }
-      }, []);
-      
+ 
+
     return (
         <div>
           {viewg}

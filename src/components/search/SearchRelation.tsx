@@ -7,11 +7,13 @@ import {makeStyles} from "@material-ui/core/styles";
 
 
 import * as d3 from "d3";
+import { Opacity } from "@material-ui/icons";
 
 
 
 interface Props {
     data: any
+    names: any
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -30,11 +32,10 @@ const useStyles = makeStyles((theme: Theme) =>
         },
     }));
 
-export const SearchRelation: FunctionComponent<Props> = ({ data,
+export const SearchRelation: FunctionComponent<Props> = ({ data, names
                                                            }) => {
 
     const ref = useRef(null);
-
     const classes = useStyles();
     var start_x: any
     var start_y: any
@@ -45,11 +46,10 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
       let container = d3.select('#parent')
       let svg = container.append('svg').append('g')
       let widthAmount = 940; //I would really like for this to be taken from the width and height of the contained div
-      let heightAmount = 970;
+      let heightAmount = 590;
       const g = container.select('svg').attr('width', widthAmount).attr('height', heightAmount)
           .select('g').attr('transform', 'translate(' + widthAmount / 2 + ',' + heightAmount / 3 + ')');
 
-      console.log(data)
       let nodes: any[] = []
       let links: any[] = []
 
@@ -58,8 +58,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
             g.selectAll("*").remove(); //This prevents multiple graphs from stacking on top of each other
                                        //It just removes the old data when new data is provided (I THINK?)
 
-	    console.log("something"+queryID);
- 
+
 	    let all_similarities : number[] = [];
 
       for(const key in data['2dembedding']){
@@ -94,7 +93,6 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
                      .append("line")
                      .attr("class", "link")
                      .attr("x1", function(l) {
-                       console.log(l)
                        return l.x1
                      })
                      .attr("x2", function(l) {
@@ -127,9 +125,24 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
                       return d.color
                     })
                     .attr("transform", function (d) {
-                      console.log(d)
                       return "translate(" + ((d.x * 300)) + "," + ((d.y * 300)) + ")";
                     })
+                    .on("mouseover", d => {
+                      //d3.select('#name_display').html(names[d.id]).style("opacity", 1)
+                      d3.select("#tooltip")
+                      .style('opacity', 1)
+                      .select("#value")
+                      .style("color", "black")
+                      .style('opacity', 1)
+                      .text(names[d.id]);
+                      d3.select("#tooltips")
+                      
+                    })
+                    .on("mouseout", d => {
+                      d3.select("#tooltip")
+                      .style('opacity', 0)
+                    })
+                    
 
         }
 
@@ -140,7 +153,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
             .on("zoom", zoomed));
 
         function zoomed() {
-          d3.select("g").attr("transform", d3.event.transform.translate(2000 / 2, 1000 / 2).scale(1));
+          d3.select("g").attr("transform", d3.event.transform.translate(widthAmount / 2, heightAmount / 2).scale(1));
         }
     });
 
@@ -148,6 +161,15 @@ export const SearchRelation: FunctionComponent<Props> = ({ data,
 
     return (
       <div id="parent" className={classes.textField}>
+        <div >
+            <div id="tooltips">
+              <div id="tooltip" style={{'opacity': 0, 'position': "absolute", 'top': '700px', 'left': '550px'}}>
+                <p><strong>Material: </strong></p>
+                <p><span id="value">100</span></p>
+              </div>
+            </div>
+          </div>
       </div>
+      
     )
 };

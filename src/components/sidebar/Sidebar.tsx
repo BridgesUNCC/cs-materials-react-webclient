@@ -255,13 +255,13 @@ export const Sidebar: FunctionComponent<Props> = (
             </ListItem>
               <Collapse in={materialOpen} timeout="auto" unmountOnExit>
                 <List>
-                  <ListItem button onClick={() => setIndex(1)} className={classes.nested} selected={selectedIndex === 1} component={Link} to='/materials'>
+                  <ListItem button onClick={() => setIndex(2)} className={classes.nested} selected={selectedIndex === 2} component={Link} to='/materials'>
                     <ListItemIcon>
                       <PlaylistAddIcon />
                     </ListItemIcon>
                     <ListItemText primary="Select Materials" />
                   </ListItem>
-                  <ListItem button onClick={() => setIndex(2)} className={classes.nested} selected={selectedIndex === 2} component={Link} to='/materials?material_types=collection'>
+                  <ListItem button onClick={() => setIndex(3)} className={classes.nested} selected={selectedIndex === 3} component={Link} to='/materials?material_types=collection'>
                     <ListItemIcon>
                       <AccountTreeIcon />
                     </ListItemIcon>
@@ -277,6 +277,12 @@ export const Sidebar: FunctionComponent<Props> = (
                     <ListItemText primary="Harmonization View" />
                   </ListItem>
 
+                  <ListItem className={classes.nested} button onClick={() => {setIndex(7)}} selected={selectedIndex === 7} component={Link} to={'/searchrelation?type=similarity&matID=' + listOne}>
+                    <ListItemIcon>
+                      <PeopleIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Smart Search" />
+                  </ListItem>
                 </List>
               </Collapse>
             <ListItem button onClick={() => {handleClick()}}>
@@ -288,13 +294,13 @@ export const Sidebar: FunctionComponent<Props> = (
             </ListItem>
             <Collapse in={comparisonOpen} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
-                  <ListItem className={classes.nested} button onClick={() => {setIndex(3)}} selected={selectedIndex === 3} component={Link} to='/comparison'>
+                  <ListItem className={classes.nested} button onClick={() => {setIndex(8)}} selected={selectedIndex === 8} component={Link} to='/comparison'>
                     <ListItemIcon>
                       <AccountTreeIcon />
                     </ListItemIcon>
                     <ListItemText primary="Select Comparison" />
                   </ListItem>
-                  <ListItem className={classes.nested} button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=acm&listoneids=' + compareListOne + '&listtwoids=' + listTwo}>
+                  <ListItem className={classes.nested} button onClick={() => setIndex(9)} selected={selectedIndex === 9} component={Link} to={'/radial?tree=acm&listoneids=' + compareListOne + '&listtwoids=' + listTwo}>
                     <ListItemIcon>
                         <PeopleIcon />
                     </ListItemIcon>
@@ -317,13 +323,13 @@ export const Sidebar: FunctionComponent<Props> = (
           {(user_id !== null) ?
             <div>
             <ListSubheader inset className={classes.ListSubheader}>Authoring</ListSubheader>
-            <ListItem button onClick={() => setIndex(7)} selected={selectedIndex === 7} component={Link} to='/material/create'>
+            <ListItem button onClick={() => setIndex(10)} selected={selectedIndex === 10} component={Link} to='/material/create'>
               <ListItemIcon>
                 <DashboardIcon />
               </ListItemIcon>
               <ListItemText primary="Create Materials" />
             </ListItem>
-            <ListItem button onClick={() => setIndex(8)} selected={selectedIndex === 8} component={Link} to='/materials_author'>
+            <ListItem button onClick={() => setIndex(11)} selected={selectedIndex === 11} component={Link} to='/materials_author'>
               <ListItemIcon>
                 <AccountTreeIcon />
               </ListItemIcon>
