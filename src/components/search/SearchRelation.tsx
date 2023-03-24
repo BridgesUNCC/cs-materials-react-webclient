@@ -163,6 +163,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ data, names
       <div id="parent" className={classes.textField}>
         <div >
             <div id="tooltips">
+              {/* For some reason sometimes its about 50 pixels off from the top even if I'm not messing with the size of the window */}
               <div id="tooltip" style={{'opacity': 0, 'position': "absolute", 'top': '700px', 'left': '550px'}}>
                 <p><strong>Material: </strong></p>
                 <p><span id="value">100</span></p>

@@ -168,14 +168,10 @@ export const Sidebar: FunctionComponent<Props> = (
     const handleMaterialListClick = () => {
       setMaterialOpen(!materialOpen);
     };
-
-
-    // useEffect(() => {
-    //     console.log("hello")
-    //     return () => {
-    //         console.log("hello")
-    //     }
-    // }, [])
+    const [searchCompareOpen, setSearchCompareOpen] = React.useState(true);
+    const handleSearchCompareListClick = () => {
+      setSearchCompareOpen(!searchCompareOpen);
+    };
 
 
     if (from === "listOne") {
@@ -276,12 +272,23 @@ export const Sidebar: FunctionComponent<Props> = (
                     </ListItemIcon>
                     <ListItemText primary="Harmonization View" />
                   </ListItem>
+                </List>
+              </Collapse>
 
+              <ListItem button onClick={() => {handleSearchCompareListClick()}} selected={selectedIndex === 1}>
+              <ListItemIcon>
+                <PlaylistAddIcon />
+              </ListItemIcon>
+              <ListItemText primary="Smart Search" />
+              {searchCompareOpen ? <ExpandLess /> : <ExpandMore />}
+            </ListItem>
+              <Collapse in={searchCompareOpen} timeout="auto" unmountOnExit>
+                <List>
                   <ListItem className={classes.nested} button onClick={() => {setIndex(7)}} selected={selectedIndex === 7} component={Link} to={'/searchrelation?type=similarity&matID=' + listOne}>
                     <ListItemIcon>
                       <PeopleIcon />
                     </ListItemIcon>
-                    <ListItemText primary="Smart Search" />
+                    <ListItemText primary="Search and Compare" />
                   </ListItem>
                 </List>
               </Collapse>
@@ -308,6 +315,7 @@ export const Sidebar: FunctionComponent<Props> = (
                   </ListItem>
               </List>
             </Collapse>
+            
 
 
 
