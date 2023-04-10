@@ -225,7 +225,12 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                 let other_materials = data.filter(
                   (mat) => !selected_map[mat.id]
                 );
-
+                //This just checks if you are selecting collections or not and then filters the current selections accordingly 
+                if(material_types === "collection"){
+                  selected_materials = selected_materials.filter(mat => mat.material_type === "collection");
+                }else{
+                  selected_materials = selected_materials.filter(mat => mat.material_type !== "collection");
+                }
                 let materials = [...selected_materials, ...other_materials];
                 setPage(parseInt(history.location.hash.split("#",2)[1]));
                 setListInfo({
@@ -259,21 +264,21 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
 
     //Sorting the list by how frequently the keywords are present in the description + title
     //I  think this works? Looks like it did when I tested it
-    
-    if(listInfo.keyword !== undefined){
-    listInfo.materials?.sort((a,b) => {
-      let keyword : string | undefined= listInfo.keyword?.toLowerCase();
-      let combinedA : string = + a.title + " " + a.description;
-      combinedA = combinedA.toLowerCase();
-      let aInclude : number = combinedA.split(keyword!).length -1;
-      let combinedB : string = + b.title + " " + b.description;
-      combinedB = combinedB.toLowerCase();
-      let bInclude : number = combinedB.split(keyword!).length -1;
-      if (aInclude > bInclude) return -1;
-      else if ((aInclude < bInclude) ) return 1;
-      else return 0;
-    });
-  }
+    //ok this doesn't work, but I don't think we would need it if we were using the smart search anyways
+    // if(listInfo.keyword !== undefined){
+    // listInfo.materials?.sort((a,b) => {
+    //   let keyword : string | undefined= listInfo.keyword?.toLowerCase();
+    //   let combinedA : string = + a.title + " " + a.description;
+    //   combinedA = combinedA.toLowerCase();
+    //   let aInclude : number = combinedA.split(keyword!).length -1;
+    //   let combinedB : string = + b.title + " " + b.description;
+    //   combinedB = combinedB.toLowerCase();
+    //   let bInclude : number = combinedB.split(keyword!).length -1;
+    //   if (aInclude > bInclude) return -1;
+    //   else if ((aInclude < bInclude) ) return 1;
+    //   else return 0;
+    // });
+    // }
     if (listInfo.materials !== null && !reload) {
         noOfPages = Math.ceil(listInfo.materials.length / itemsPerPage)
         output = listInfo.materials.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((value, index) => {

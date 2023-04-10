@@ -1,6 +1,6 @@
 import React, {FunctionComponent, useEffect} from "react";
 import {RouteComponentProps} from "react-router";
-import {createStyles, Paper, Theme, Grid, Button, TextField} from "@material-ui/core";
+import {createStyles, Paper, Theme, Grid, Button, TextField, Select, MenuItem, InputLabel} from "@material-ui/core";
 import {TreeDialog} from "../forms/TreeDialog";
 import {makeStyles} from "@material-ui/core/styles";
 import {OntologyData, TagData} from "../../common/types"
@@ -25,7 +25,11 @@ const useStyles = makeStyles((theme: Theme) =>
         textArea: {
             margin: theme.spacing(1),
             width: '80%',
-        }
+        },
+        select: {
+          margin: theme.spacing(1),
+          width: '30%',
+      }
     }),
 );
 
@@ -227,6 +231,24 @@ export const Search: FunctionComponent<Props> = (
             </Grid>
 
             {tags_fields}
+            {/* Labels look pretty bad, not really sure how to fix that */}
+            <Grid item>
+            <InputLabel id="matchpool_select">Matchpool / Algorithm</InputLabel>   
+            <Select 
+            className={classes.select} labelId="matchpool_select">
+              {/* This just lists the different options that we have, might be better to like get them from a source rather than hardcoded */}
+              <MenuItem value={"all"}>All</MenuItem>
+              <MenuItem value={"pdc"}>PDC</MenuItem>
+             </Select>
+             {/* <InputLabel id="algo_select">Algorithm</InputLabel>    */}
+             <Select className={classes.select} labelId="algo_select">
+              {/* This just lists the different options that we have, might be better to like get them from a source rather than hardcoded */}
+              <MenuItem value={"jaccard"}>Jaccard</MenuItem>
+              <MenuItem value={"matching"}>Matching</MenuItem>
+              <MenuItem value={"pagerank"}>Pagerank</MenuItem>
+             </Select>
+             </Grid>
+
             <Grid item>
               <Button
                 className={classes.margin}
@@ -282,7 +304,7 @@ export const Search: FunctionComponent<Props> = (
             </Grid>
             <Grid item>
              
-            <Button
+            {/* <Button
               className={classes.margin}
               variant="contained"
               color="primary"
@@ -291,7 +313,9 @@ export const Search: FunctionComponent<Props> = (
               onClick={() => {console.log(currentSelected)}}
             >
                 Check Similarity
-            </Button>
+            </Button> */}
+          
+          
             </Grid>
           </Grid>
         
