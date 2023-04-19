@@ -15,6 +15,8 @@ import Pagination from '@material-ui/lab/Pagination';
 import { Search } from "./search/Search";
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
+import { SearchRelation } from "./search/SearchRelation";
 
 
 
@@ -53,15 +55,22 @@ const useStyles = makeStyles((theme: Theme) =>
         margin: {
             margin: theme.spacing(5),
         },
-        //I think this is what changes the style of the page list at the bottom of the material list page but no matter what I change is does nothing
-        paginator: {
-          align: 'center',
-          padding: "10px",
+        //This just makes it so that the paginator is in the center
+        pagination: {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginTop: 40,
+          paddingLeft: 45
         }
     }),
 );
 
 
+interface SimilarityData {
+  visData: any;
+  names: any;
+}
 
 interface ListEntity {
     materials: MaterialListEntry[] | null;
@@ -117,7 +126,8 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     const itemsPerPage = 10;
     let noOfPages = 1 //default value
 
-                                           
+    const [similaritySelected, setSimilaritySelected] = React.useState('search');    
+    const [similarityDisplay, setSimilarityDisplay] = React.useState<SimilarityData | null>(null);                                   
     const [listInfo, setListInfo] = React.useState<ListEntity>(
         createEmptyEntity(path, selected_materials)
     );
@@ -463,7 +473,46 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
           <Search
                 history={history} location={location} match={match} api_url={api_url} init_keyword={keyword} init_tags={init_tags} on_submit={handle_submit } currentSelected={listInfo.selected_materials}
           />
+          <ToggleButtonGroup
+          exclusive
+          value = {similaritySelected}
+          onChange={(
+            event: React.MouseEvent<HTMLElement>,
+            newSearchType: string
+          ) => {
+            console.log("Hitting API");
+            var url = 'https://csmaterials-search.herokuapp.com/similarity?'+
+            `matID=${listInfo.selected_materials}`
+                    getJSONData(url, {}).then(resp => {
+                      if (resp === undefined) {
+                          console.log("API SERVER FAIL")
+                      }
+                      else {
 
+                          if (resp['status'] === "OK") {
+                            //Getting the names for the labels
+                            let ob = {};
+                            if(Array.isArray(listInfo.selected_materials)){
+                              listInfo.selected_materials.map(i =>{
+                                ob = {...ob, [i]: (listInfo.materials!.find(material => material.id === i))?.title};
+                              });
+                            }
+                            let dataVis = resp['data'];
+                              setSimilarityDisplay({visData: dataVis, names: ob});
+                          }
+                      }
+                  })
+              setSimilaritySelected(newSearchType);
+          }}
+
+          >
+          <ToggleButton value="search">
+            Search
+          </ToggleButton>
+          <ToggleButton value="similarity">
+            Similarity
+          </ToggleButton>
+         </ToggleButtonGroup>   
                 <Grid container direction="column">
                     <Grid item>
                         <Button className={classes.margin} variant="contained" color="primary"
@@ -485,9 +534,15 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                 <CircularProgress/>
                 }
                 </div>
-
-
-                <List>
+                
+                {(similaritySelected === 'similarity' && (similarityDisplay !== null)) ? 
+                <div>
+                <div style={{border: '2px solid gray', height: '600px', backgroundColor: '#3b3a3a', marginTop: '20px'}}> 
+                  <SearchRelation data={similarityDisplay.visData} names={similarityDisplay.names}/>
+                </div> 
+              </div>
+              :
+                <div><List>
                     {output}
                 </List>
                 <Pagination
@@ -499,9 +554,11 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                   size="large"
                   showFirstButton
                   showLastButton
-                  className={classes.root}
+                  className={classes.pagination}
                 />
-                
+               </div> 
+               
+               }                                         
         </div>
 
     )

@@ -272,10 +272,22 @@ export const Sidebar: FunctionComponent<Props> = (
                     </ListItemIcon>
                     <ListItemText primary="Harmonization View" />
                   </ListItem>
+                  {/* <ListItem className={classes.nested} button onClick={() => {setIndex(7)}} selected={selectedIndex === 7} component={Link} to={'/searchrelation?type=similarity&matID=' + listOne}>
+                    <ListItemIcon>
+                      <PeopleIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Similarity View" />
+                  </ListItem>
+                  <ListItem className={classes.nested} button onClick={() => {setIndex(8)}} selected={selectedIndex === 8} component={Link} to={'/similarityview?matID=' + listOne}>
+                    <ListItemIcon>
+                      <PeopleIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="New Similarity View" />
+                  </ListItem> */}
                 </List>
               </Collapse>
 
-              <ListItem button onClick={() => {handleSearchCompareListClick()}} selected={selectedIndex === 1}>
+              {/* <ListItem button onClick={() => {handleSearchCompareListClick()}} selected={selectedIndex === 1}>
               <ListItemIcon>
                 <PlaylistAddIcon />
               </ListItemIcon>
@@ -291,7 +303,7 @@ export const Sidebar: FunctionComponent<Props> = (
                     <ListItemText primary="Search and Compare" />
                   </ListItem>
                 </List>
-              </Collapse>
+              </Collapse> */}
             <ListItem button onClick={() => {handleClick()}}>
               <ListItemIcon>
                 <AccountTreeIcon />

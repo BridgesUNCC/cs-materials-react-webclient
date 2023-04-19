@@ -7,6 +7,7 @@ import {OntologyData, TagData} from "../../common/types"
 import {Link} from "react-router-dom";
 import {getJSONData} from "../../common/util";
 import Autocomplete, {AutocompleteChangeReason} from "@material-ui/lab/Autocomplete";
+import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -90,7 +91,7 @@ export const Search: FunctionComponent<Props> = (
         createInitialEntity(init_keyword, init_tags)
     );
 
-    const [similarityData, setSimilarityData] = React.useState<Array<any> | undefined>();
+    
 
     if (!searchInfo.tags_fetched) {
         let url = api_url + "/data/meta_tags/compressed";
@@ -304,16 +305,24 @@ export const Search: FunctionComponent<Props> = (
             </Grid>
             <Grid item>
              
-            {/* <Button
-              className={classes.margin}
-              variant="contained"
-              color="primary"
-              component={ Link } 
-              to={"/searchrelation?type=similarity&matID=" + currentSelected}
-              onClick={() => {console.log(currentSelected)}}
-            >
-                Check Similarity
-            </Button> */}
+          {/* <ToggleButtonGroup
+          exclusive
+          value = {similaritySelected}
+          onChange={(
+            event: React.MouseEvent<HTMLElement>,
+            newSearchType: string
+          ) => {
+              setSimilaritySelected(newSearchType);
+          }}
+
+          >
+          <ToggleButton value="search">
+            Search
+          </ToggleButton>
+          <ToggleButton value="similarity">
+            Similarity
+          </ToggleButton>
+         </ToggleButtonGroup>    */}
           
           
             </Grid>

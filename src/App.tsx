@@ -704,7 +704,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         </Container>
                     )}
                     />
-                    />
+                    
                     <Route path="/login"/>
                     <Route path="/register"/>
 
