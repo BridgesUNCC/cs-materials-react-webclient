@@ -232,23 +232,7 @@ export const Search: FunctionComponent<Props> = (
             </Grid>
 
             {tags_fields}
-            {/* Labels look pretty bad, not really sure how to fix that */}
-            <Grid item>
-            <InputLabel id="matchpool_select">Matchpool / Algorithm</InputLabel>   
-            <Select 
-            className={classes.select} labelId="matchpool_select">
-              {/* This just lists the different options that we have, might be better to like get them from a source rather than hardcoded */}
-              <MenuItem value={"all"}>All</MenuItem>
-              <MenuItem value={"pdc"}>PDC</MenuItem>
-             </Select>
-             {/* <InputLabel id="algo_select">Algorithm</InputLabel>    */}
-             <Select className={classes.select} labelId="algo_select">
-              {/* This just lists the different options that we have, might be better to like get them from a source rather than hardcoded */}
-              <MenuItem value={"jaccard"}>Jaccard</MenuItem>
-              <MenuItem value={"matching"}>Matching</MenuItem>
-              <MenuItem value={"pagerank"}>Pagerank</MenuItem>
-             </Select>
-             </Grid>
+            
 
             <Grid item>
               <Button

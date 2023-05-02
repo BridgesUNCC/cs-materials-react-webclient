@@ -125,9 +125,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     let search = location.search;
     const itemsPerPage = 10;
     let noOfPages = 1 //default value
-
-    const [similaritySelected, setSimilaritySelected] = React.useState('search');    
-    const [similarityDisplay, setSimilarityDisplay] = React.useState<SimilarityData | null>(null);                                   
+                                
     const [listInfo, setListInfo] = React.useState<ListEntity>(
         createEmptyEntity(path, selected_materials)
     );
@@ -473,13 +471,14 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
           <Search
                 history={history} location={location} match={match} api_url={api_url} init_keyword={keyword} init_tags={init_tags} on_submit={handle_submit } currentSelected={listInfo.selected_materials}
           />
-          <ToggleButtonGroup
+          {/* <ToggleButtonGroup
           exclusive
           value = {similaritySelected}
           onChange={(
             event: React.MouseEvent<HTMLElement>,
             newSearchType: string
           ) => {
+            if(newSearchType !== null){
             console.log("Hitting API");
             var url = 'https://csmaterials-search.herokuapp.com/similarity?'+
             `matID=${listInfo.selected_materials}`
@@ -503,6 +502,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                       }
                   })
               setSimilaritySelected(newSearchType);
+            }
           }}
 
           >
@@ -512,7 +512,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
           <ToggleButton value="similarity">
             Similarity
           </ToggleButton>
-         </ToggleButtonGroup>   
+         </ToggleButtonGroup>    */}
                 <Grid container direction="column">
                     <Grid item>
                         <Button className={classes.margin} variant="contained" color="primary"
@@ -535,14 +535,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                 }
                 </div>
                 
-                {(similaritySelected === 'similarity' && (similarityDisplay !== null)) ? 
-                <div>
-                <div style={{border: '2px solid gray', height: '600px', backgroundColor: '#3b3a3a', marginTop: '20px'}}> 
-                  <SearchRelation data={similarityDisplay.visData} names={similarityDisplay.names}/>
-                </div> 
-              </div>
-              :
-                <div><List>
+                <List>
                     {output}
                 </List>
                 <Pagination
@@ -556,9 +549,9 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                   showLastButton
                   className={classes.pagination}
                 />
-               </div> 
+      
                
-               }                                         
+                                                     
         </div>
 
     )

@@ -22,6 +22,7 @@ import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Collapse from '@material-ui/core/Collapse';
+import { SimilarityWrapper } from "../search/SimilarityWrapper";
 
 
 
@@ -272,6 +273,12 @@ export const Sidebar: FunctionComponent<Props> = (
                     </ListItemIcon>
                     <ListItemText primary="Harmonization View" />
                   </ListItem>
+                  <ListItem className={classes.nested} button onClick={() => {setIndex(8)}} selected={selectedIndex === 8} component={Link} to={'/selectsimilarity?id=' + listOne}>
+                    <ListItemIcon>
+                      <PeopleIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Similarity View" />
+                  </ListItem>
                   {/* <ListItem className={classes.nested} button onClick={() => {setIndex(7)}} selected={selectedIndex === 7} component={Link} to={'/searchrelation?type=similarity&matID=' + listOne}>
                     <ListItemIcon>
                       <PeopleIcon />
@@ -287,7 +294,7 @@ export const Sidebar: FunctionComponent<Props> = (
                 </List>
               </Collapse>
 
-              {/* <ListItem button onClick={() => {handleSearchCompareListClick()}} selected={selectedIndex === 1}>
+              <ListItem button onClick={() => {handleSearchCompareListClick()}} selected={selectedIndex === 1}>
               <ListItemIcon>
                 <PlaylistAddIcon />
               </ListItemIcon>
@@ -296,14 +303,20 @@ export const Sidebar: FunctionComponent<Props> = (
             </ListItem>
               <Collapse in={searchCompareOpen} timeout="auto" unmountOnExit>
                 <List>
-                  <ListItem className={classes.nested} button onClick={() => {setIndex(7)}} selected={selectedIndex === 7} component={Link} to={'/searchrelation?type=similarity&matID=' + listOne}>
+                  <ListItem className={classes.nested} button onClick={() => {setIndex(7)}} selected={selectedIndex === 7} component={Link} to={'/searchrelation?type=search&matID=' + listOne}>
                     <ListItemIcon>
                       <PeopleIcon />
                     </ListItemIcon>
                     <ListItemText primary="Search and Compare" />
                   </ListItem>
+                  {/* <ListItem className={classes.nested} button onClick={() => {setIndex(8)}} selected={selectedIndex === 8} component={Link} to={'/selectsimilarity?id=' + listOne}>
+                    <ListItemIcon>
+                      <PeopleIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Similarity Graph" />
+                  </ListItem> */}
                 </List>
-              </Collapse> */}
+              </Collapse>
             <ListItem button onClick={() => {handleClick()}}>
               <ListItemIcon>
                 <AccountTreeIcon />
@@ -313,17 +326,23 @@ export const Sidebar: FunctionComponent<Props> = (
             </ListItem>
             <Collapse in={comparisonOpen} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
-                  <ListItem className={classes.nested} button onClick={() => {setIndex(8)}} selected={selectedIndex === 8} component={Link} to='/comparison'>
+                  <ListItem className={classes.nested} button onClick={() => {setIndex(9)}} selected={selectedIndex === 9} component={Link} to='/comparison'>
                     <ListItemIcon>
                       <AccountTreeIcon />
                     </ListItemIcon>
                     <ListItemText primary="Select Comparison" />
                   </ListItem>
-                  <ListItem className={classes.nested} button onClick={() => setIndex(9)} selected={selectedIndex === 9} component={Link} to={'/radial?tree=acm&listoneids=' + compareListOne + '&listtwoids=' + listTwo}>
+                  <ListItem className={classes.nested} button onClick={() => setIndex(10)} selected={selectedIndex === 10} component={Link} to={'/radial?tree=acm&listoneids=' + compareListOne + '&listtwoids=' + listTwo}>
                     <ListItemIcon>
                         <PeopleIcon />
                     </ListItemIcon>
                     <ListItemText primary="Radial Comparison View" />
+                  </ListItem>
+                  <ListItem className={classes.nested} button onClick={() => {setIndex(11)}} selected={selectedIndex === 11} component={Link} to={'/selectsimilarity?id=' + compareListOne + '&id2=' + listTwo}>
+                    <ListItemIcon>
+                        <PeopleIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Comparison Similarity" />
                   </ListItem>
               </List>
             </Collapse>
@@ -355,7 +374,7 @@ export const Sidebar: FunctionComponent<Props> = (
               </ListItemIcon>
               <ListItemText primary="Create Collections" />
             </ListItem>
-            <ListItem button onClick={() => setIndex(9)} selected={selectedIndex === 9} component={Link} to='/my_materials'>
+            <ListItem button onClick={() => setIndex(12)} selected={selectedIndex === 9} component={Link} to='/my_materials'>
               <ListItemIcon>
                 <PeopleIcon />
               </ListItemIcon>
@@ -377,7 +396,7 @@ export const Sidebar: FunctionComponent<Props> = (
           <div></div>}
 
           {(false)?
-          <ListItem button onClick={() => setIndex(10)} selected={selectedIndex === 10} component={Link} to='/search'>
+          <ListItem button onClick={() => setIndex(13)} selected={selectedIndex === 13} component={Link} to='/search'>
             <ListItemIcon>
               <DashboardIcon />
             </ListItemIcon>
@@ -388,7 +407,7 @@ export const Sidebar: FunctionComponent<Props> = (
 
 
           {(false)?
-          <ListItem button onClick={() => setIndex(7)} selected={selectedIndex === 7} component={Link} to={'/searchrelation?k=20&matID=1'}>
+          <ListItem button onClick={() => setIndex(14)} selected={selectedIndex === 14} component={Link} to={'/searchrelation?k=20&matID=1'}>
             <ListItemIcon>
               <BarChartIcon />
             </ListItemIcon>

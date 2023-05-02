@@ -373,7 +373,8 @@ export const MaterialOverview: FunctionComponent<Props> = (
                                             </Button>
                                         </Link>
                                         }
-                                        <Button variant="contained" color="primary" onClick={handleClickOpen}>Search For Similar Material</Button>
+                                        {/* <Button variant="contained" color="primary" onClick={handleClickOpen}>Search For Similar Material</Button> */}
+                                        <Button component={Link} to={'/searchrelation?matID=' + overviewInfo.data.id + "&k=" + 10} variant="contained" color="primary">Search For Similar Materials</Button>
                                           <Dialog disableBackdropClick disableEscapeKeyDown open={open} onClose={handleClose}>
                                             <DialogTitle>Fill the form</DialogTitle>
                                             <DialogContent>

@@ -45,8 +45,8 @@ export const SearchRelation: FunctionComponent<Props> = ({ data, names
       const svgElement = d3.select(ref.current);
       let container = d3.select('#parent')
       let svg = container.append('svg').append('g')
-      let widthAmount = 940; //I would really like for this to be taken from the width and height of the contained div
-      let heightAmount = 590;
+      let widthAmount = 2000; //I would really like for this to be taken from the width and height of the contained div
+      let heightAmount = 1000;
       const g = container.select('svg').attr('width', widthAmount).attr('height', heightAmount)
           .select('g').attr('transform', 'translate(' + widthAmount / 2 + ',' + heightAmount / 3 + ')');
 
@@ -128,7 +128,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ data, names
                       return "translate(" + ((d.x * 300)) + "," + ((d.y * 300)) + ")";
                     })
                     .on("mouseover", d => {
-                      //d3.select('#name_display').html(names[d.id]).style("opacity", 1)
+                      console.log();
                       d3.select("#tooltip")
                       .style('opacity', 1)
                       .select("#value")
@@ -161,12 +161,12 @@ export const SearchRelation: FunctionComponent<Props> = ({ data, names
 
     return (
       <div id="parent" className={classes.textField}>
-        <div >
+        <div>
             <div id="tooltips">
               {/* For some reason sometimes its about 50 pixels off from the top even if I'm not messing with the size of the window */}
-              <div id="tooltip" style={{'opacity': 0, 'position': "absolute", 'top': '700px', 'left': '550px'}}>
+              <div id="tooltip"  style={{'opacity': 0}}>
                 <p><strong>Material: </strong></p>
-                <p><span id="value">100</span></p>
+                <p><span id="value"></span></p>
               </div>
             </div>
           </div>

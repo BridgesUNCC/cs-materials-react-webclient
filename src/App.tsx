@@ -40,6 +40,7 @@ import {
     emptySnackbarBuilderProps,
     SnackbarBuilderProps
 } from "./common/SnackbarBuilder";
+import { SimilarityWrapper } from './components/search/SimilarityWrapper';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -701,6 +702,12 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     <Route path="/searchrelation"render={(route_props) => (
                         <Container maxWidth="xl">
                             <SearchRelationView {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} />
+                        </Container>
+                    )}
+                    />
+                     <Route path="/selectsimilarity"render={(route_props) => (
+                        <Container maxWidth="xl">
+                            <SimilarityWrapper api_url={appInfo.api_url} />
                         </Container>
                     )}
                     />

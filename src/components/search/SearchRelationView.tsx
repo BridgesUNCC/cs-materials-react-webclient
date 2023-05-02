@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme: Theme) =>
           marginLeft: 60
         },
         select: {
-          width: 300,
+          width: 600,
           marginRight: 20,
           marginTop:20
         },
@@ -56,6 +56,7 @@ const useStyles = makeStyles((theme: Theme) =>
         textFieldStyle: {
           paddingLeft: 20
         },
+      
     }));
 
 interface MatchParams {
@@ -150,8 +151,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           if(searchParams.has("type") && types.includes(searchParams.get("type")!)) tempParam.searchType = searchParams.get("type")!;
           if(searchParams.has("algo") && algorithms.includes(searchParams.get("algo")!)) tempParam.algorithmChoice = searchParams.get("algo")!;
           if(searchParams.has("matchpool") && matchpools.includes(searchParams.get("matchpool")!)) tempParam.matchpoolChoice = searchParams.get("matchpool")!;
-          if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0 && tempParam.searchType === "search") tempParam.materialChoice = parseInt(searchParams.get("matID")!);
-          if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0 && tempParam.searchType === "similarity") tempParam.materialChoice = searchParams.get("matID")!.split(',').map(e => parseInt(e));
+          if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0) tempParam.materialChoice = searchParams.get("matID")!.split(',').map(e => parseInt(e));
           if(searchParams.has("k") && parseInt(searchParams.get("k")!) >= 0) tempParam.searchAmount = parseInt(searchParams.get("k")!);
           (tempParam.searchType === "search") ? setMultipleChoice(false) : setMultipleChoice(true);
           if(tempParam !== searchParameters){
@@ -172,6 +172,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     const [resultDisplay, setResultDisplay] = React.useState<Array<ResultData> | null>();
     const [similarityDisplay, setSimilarityDisplay] = React.useState<SimilarityData | null>(null);
     const [multipleChoice,setMultipleChoice] = React.useState(false);
+    const [similarityIdList, setSimilarityIdList] = React.useState<Number[]>([]);
     
     //This function makes sure that at least one of the toggles is selected
     //I need this to correctly update the multipleChoice variable correctly I believe (the useEffect hook operates async)
@@ -194,10 +195,20 @@ export const SearchRelationView: FunctionComponent<Props> = ({
               console.log("API SERVER FAIL")
           }
           else {
-
+              let list: number[] = [];
               if (resp['status'] === "OK") {
+                  let listOfResults : ResultData[] = [];
                   let data = resp['data'];
+                  listOfResults = data.results;
                   setResultDisplay(data.results);
+                  listOfResults?.map(({id, score, title}) => 
+                  {
+                    console.log(id);
+                    list.push(id);
+                    }
+                  )
+                  setSimilarityIdList(list);
+                  console.log("List: " + list + "\nSimilarity List: " + similarityIdList + "\nResults Display: " + resultDisplay);
               }
           }
       })
@@ -328,7 +339,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             renderInput={(params) => <TextField {...params} label="Select Material" />}
           /> */}
           {/* This form is what you would use to select the material that you want to search for */}
-          <Grid container spacing={0} direction="column" alignItems="center" justifyContent="center" style={{ minHeight: '50vh' }}>
+          <Grid container spacing={0} direction="column" alignItems="center" justifyContent="center" >
 
           <Grid item>
           <FormControl className={classes.formControl}>
@@ -340,7 +351,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
               
               
               value={searchParameters.materialChoice}
-              multiple = {multipleChoice}
+              multiple = {true}
               onChange={(event: any) => setSearchParameters({...searchParameters, materialChoice: event.target.value})}
               className={classes.select}
               
@@ -361,7 +372,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           </Grid>
 
             {/* This form is what you would use to select the matchpool that you want to search for */}
-          <Grid item>
+          {/* <Grid item>
           <FormControl className={classes.formControl}>
             <InputLabel id="matchpool-select-label" className={classes.label}>Matchpool / Algorithm</InputLabel>
             <Select
@@ -372,11 +383,9 @@ export const SearchRelationView: FunctionComponent<Props> = ({
               onChange={(event: any) => setSearchParameters({...searchParameters, matchpoolChoice: event.target.value})}
               className={classes.select}
             >
-              {/* This just lists the different options that we have, might be better to like get them from a source rather than hardcoded */}
             <MenuItem value={"all"}>All</MenuItem>
             <MenuItem value={"pdc"}>PDC</MenuItem>
             </Select>
-              {/* This form is what you would use to select the algorithm that you want to search for */}
             <Select
               autoWidth
               labelId="algo-select-label"
@@ -393,12 +402,12 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             <MenuItem value={'pagerank'}>Pagerank</MenuItem>
             </Select>
           </FormControl>
-          </Grid>
+          </Grid> */}
 
           
 
           <Grid item>
-          <ToggleButtonGroup
+          {/* <ToggleButtonGroup
           value= {searchParameters.searchType}
           exclusive
           onChange={(
@@ -423,11 +432,10 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           <ToggleButton value="similarity">
             Similarity
           </ToggleButton>
-         </ToggleButtonGroup>   
+         </ToggleButtonGroup>    */}
          </Grid>
 
          </Grid>
-          <Paper>
               <Grid container direction="column">
                     <Grid item>
 
@@ -435,16 +443,17 @@ export const SearchRelationView: FunctionComponent<Props> = ({
                   <Grid item>
 
                   </Grid>
-                  <Grid item
-                        >
+                  <Grid item>
                           <Button onClick={handleSearchClick} className={classes.margin} variant="contained" color="primary">
                               Search
                           </Button>
-                          
+                  </Grid>
+                  <Grid item>
+                          <Button component={Link} to={'/selectsimilarity?id=' + searchParameters.materialChoice + "&id2=" + similarityIdList} variant="contained" color="primary">
+                              Similarity Graph
+                          </Button>
                   </Grid>
               </Grid>
-              
-          </Paper>
           {/* Super weird syntax but basically its conditionally creating these elements depending on if the multipleChoice
           variable is true or not */}
           
