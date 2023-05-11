@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme: Theme) =>
             margin: theme.spacing(2, 1),
             textAlign: 'left',
             display: 'flex',
-            flexDirection: 'row',
+            flexWrap: 'wrap',
         },
         contentVertical: {
             margin: theme.spacing(2, 1),
@@ -470,7 +470,10 @@ export const MaterialOverview: FunctionComponent<Props> = (
                                 return <li className={classes.horizontalBullets} key={value.id}>{value.title}</li>;
                             })}
                         </Typography>
-                        <Divider/>
+                      </Paper>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Paper onMouseOver={handleHoverOver} onMouseOut={handleHoverOff} className={classes.paper}>
                          <Typography variant={"h5"} className={classes.content}>
                             Ontologies
                         </Typography>
@@ -485,7 +488,6 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         </Typography>
                       </Paper>
                     </Grid>
-
                     <Grid item xs={12}>
                       <Paper id="Materials" onMouseOver={handleHoverOver} onMouseOut={handleHoverOff} className={classes.paper}>
                         <Typography variant={"h5"} className={classes.content}>
