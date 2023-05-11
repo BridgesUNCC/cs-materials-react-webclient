@@ -20,7 +20,6 @@ import { SearchRelation } from "./search/SearchRelation";
 
 
 
-
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {

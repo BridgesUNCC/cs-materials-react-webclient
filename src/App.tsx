@@ -3,6 +3,7 @@ import './App.css';
 import {getJSONData, parseJwt} from './common/util';
 import {LoginDialog} from "./components/user/LoginDialog";
 import {MaterialList} from "./components/MaterialList";
+import {DashBoard} from "./components/collection_dashboard/dashboard";
 import {Comparison} from "./components/Comparison";
 import {MaterialListAuthor} from "./components/MaterialListAuthor";
 import {AppBar, createStyles, Grid, Theme} from "@material-ui/core";
@@ -58,10 +59,10 @@ const useStyles = makeStyles((theme: Theme) =>
       },
       heroContent: {
         // backgroundColor: theme.palette.background.paper,
-        padding: theme.spacing(8, 18, 6),
+        padding: theme.spacing(8, 8, 6),
         positon: 'relative',
         display: 'flex',
-        marginLeft: theme.spacing(4),
+        marginLeft: theme.spacing(1),
       },
       heroButtons: {
         marginTop: theme.spacing(4),
@@ -90,6 +91,7 @@ const useStyles = makeStyles((theme: Theme) =>
           position: 'absolute',
           display: 'flex',
           paddingRight: '200px',
+          
 
       },
       navbar:{
@@ -539,7 +541,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
             </Grid>
 
             <Grid item xs={10} >
-            <Container maxWidth="lg" className={classes.heroContent} >
+            <Container maxWidth="xl" className={classes.heroContent} >
                 <Switch>
                     <Route exact path="/" render={() => (
                         <div>

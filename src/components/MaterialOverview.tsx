@@ -12,6 +12,7 @@ import {ListItemLink} from "./ListItemLink";
 import {DeleteDialog} from "./forms/DeleteDialog";
 import {MaterialListData, MaterialTypesArray} from "../common/types";
 import {Author} from "./author/Author";
+import {DashBoard} from "./collection_dashboard/dashboard";
 import EditIcon from '@material-ui/icons/Edit';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import {NotFound} from "./NotFound";
@@ -24,6 +25,10 @@ import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import Container from '@material-ui/core/Container';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Grid from '@material-ui/core/Grid';
+
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -41,9 +46,19 @@ const useStyles = makeStyles((theme: Theme) =>
         content: {
             margin: theme.spacing(2, 1),
             textAlign: 'left',
+            display: 'flex',
+            flexDirection: 'row',
+        },
+        contentVertical: {
+            margin: theme.spacing(2, 1),
+            textAlign: 'left',
+        },
+        horizontalBullets: {
+            marginLeft: theme.spacing(3),
         },
         link: {
             color: 'cyan',
+            marginLeft: theme.spacing(2),
         },
         container: {
          display: 'flex',
@@ -53,6 +68,12 @@ const useStyles = makeStyles((theme: Theme) =>
          margin: theme.spacing(1),
          minWidth: 120,
        },
+       paper: {
+    padding: theme.spacing(2),
+    display: 'flex',
+    overflow: 'auto',
+    flexDirection: 'column',
+  },
     }),
 );
 
@@ -128,6 +149,20 @@ export const MaterialOverview: FunctionComponent<Props> = (
         createEmptyEntity()
     );
 
+    const [hover, setHover] = React.useState(1);
+
+    const handleHoverOver = (event: any) => {
+        if(event.target === event.currentTarget)
+            console.log(event.currentTarget.style.boxShadow)
+        event.currentTarget.style.boxShadow= "0px 0px 5px red"
+        //setHover(24);
+    }
+
+    const handleHoverOff = (event: any) => {
+        event.currentTarget.style.boxShadow= ""
+
+    }
+
     //states for opening the dialog for similar material
     const [open, setOpen] = React.useState(false);
     const [numberOfSearches, setK] = React.useState('');
@@ -154,7 +189,8 @@ export const MaterialOverview: FunctionComponent<Props> = (
         setOverviewInfo({...overviewInfo, data: null, fetched: false})
     }
 
-    console.log(overviewInfo.not_found);
+    let treeData : {name:string, children:Array<any>};
+
     if (!overviewInfo.fetched || force_fetch_data) {
         const url = api_url + "/data/material/meta?id=" + match.params.id;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
@@ -162,7 +198,6 @@ export const MaterialOverview: FunctionComponent<Props> = (
         let promises: Promise<OverviewEntity>[] = [];
         let promise;
         promise = getJSONData(url, auth).then(resp => {
-            console.log(resp);
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
                 return overviewInfo
@@ -192,6 +227,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                     let inner_promises: Promise<FileLink>[] = [];
                     resp.data.forEach((file_name: string) => {
                         const file_get = api_url + "/data/get_file/material?id=" + match.params.id + "&file_key=" + file_name;
+
                         let inner_promise: Promise<FileLink> = getJSONData(file_get, auth).then((resp) => {
                             if (resp === undefined) {
                                 console.log("API SERVER FAIL")
@@ -223,122 +259,241 @@ export const MaterialOverview: FunctionComponent<Props> = (
         })
     }
 
+    function getMaterialMeta(materialid:Number, td:any){
+        const url = api_url + "/data/material/meta?id=" + materialid;
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+
+        let promises: Promise<OverviewEntity>[] = [];
+        let promise;
+        let data;
+        promise = getJSONData(url, auth).then(resp => {
+            if (resp === undefined) {
+                console.log("API SERVER FAIL")
+                return overviewInfo
+            } else {
+                if (resp['status'] === "OK") {
+                    let can_edit = resp['access'] === "owner" || resp['access'] === "write";
+
+                    let can_delete = resp['access'] === "owner";
+
+                    data = resp['data'];
+                    populateTree(data, td)
+                }
+            }
+        })
+    }
+
+    function populateTree(root:any, tree:any){
+        if(root.materials.length <= 0){
+            return
+        }
+        for(let i = 0; i < root.materials.length; i++){
+            let tempBranch = {"name":root.materials[i].title, children: []}
+            getMaterialMeta(root.materials[i].id, tempBranch);
+            tree.children.push(tempBranch);
+            
+        }
+    }
+
+    console.log(overviewInfo)
+    if(overviewInfo.data){
+        
+    }
+    
+    
+    treeData = {
+            "name": "collection",
+            "children": [{"name": "cane", "children": []}],
+        };
+    if(overviewInfo.data !== null){
+        treeData = {"name": overviewInfo.data.title,
+             "children": []}
+        populateTree(overviewInfo.data, treeData);
+        console.log(treeData)
+    }
+
+
+
+
+
     let output;
     let count = 0;
     if (overviewInfo.data) {
         output = (
             <div>
-                <Divider/>
-                <Typography variant={"h5"} className={classes.content}>
-                    Authors
-                </Typography>
-                <Typography variant="body1" component="ul" className={classes.content} >
-                    {overviewInfo.data.tags.map((value) => {
-                        if (value.type !== "author") {
-                            return null;
+                <Container maxWidth="lg" className={classes.container}>
+                  <Grid container spacing={3}>
+                    
+                    <Grid item xs={4} md={4} lg={4}>
+                      <Paper onMouseOver={handleHoverOver} onMouseOut={handleHoverOff} className={classes.paper}>
+                        <Typography variant={"h5"} className={classes.content}>
+                            Authors
+                        </Typography>
+                        <Typography variant="body1" component="ul" className={classes.contentVertical} >
+                            {overviewInfo.data.tags.map((value) => {
+                                if (value.type !== "author") {
+                                    return null;
+                                }
+
+                                return <li key={value.id}>{value.title} </li>;
+                            })}
+                        </Typography>
+
+                        <Divider/>
+                        <Typography variant={"h5"} className={classes.content}>
+                            Courses
+                        </Typography>
+                        <Typography variant="body1" component="ul" className={classes.contentVertical} >
+                            {overviewInfo.data.tags.map((value) => {
+                                if (value.type !== "course") {
+                                    return null;
+                                }
+
+                                return <li key={value.id}>{value.title}</li>;
+                            })}
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={8} lg={8}>
+                      <Paper onMouseOver={handleHoverOver} onMouseOut={handleHoverOff} className={classes.paper}>
+                         <Typography variant={"h5"} className={classes.content}>
+                            Topics
+                        </Typography>
+                        <Typography variant="body1" component="ul" className={classes.content} >
+                            {overviewInfo.data.tags.map((value) => {
+                                if (value.type !== "topic") {
+                                    return null;
+                                }
+
+                                return <li className={classes.horizontalBullets} key={value.id}>{value.title}</li>;
+                            })}
+                        </Typography>
+                        <Divider/>
+                         <Typography variant={"h5"} className={classes.content}>
+                            Programming Languages
+                        </Typography>
+                        <Typography variant="body1" component="ul" className={classes.content} >
+                            {overviewInfo.data.tags.map((value) => {
+                                if (value.type !== "language") {
+                                    return null;
+                                }
+
+                                return <li className={classes.horizontalBullets} key={value.id}>{value.title}</li>;
+                            })}
+                        </Typography>
+                        <Divider/>
+                         <Typography variant={"h5"} className={classes.content}>
+                            Datasets
+                        </Typography>
+                        <Typography variant="body1" component="ul" className={classes.content} >
+                            {overviewInfo.data.tags.map((value) => {
+                                if (value.type !== "dataset") {
+                                    return null;
+                                }
+
+                                return <li className={classes.horizontalBullets} key={value.id}>{value.title}</li>;
+                            })}
+                        </Typography>
+                        <Divider/>
+                         <Typography variant={"h5"} className={classes.content}>
+                            Ontologies
+                        </Typography>
+                        <Typography variant="body1" component="ul" className={classes.content} >
+                            {overviewInfo.data.tags.map((value) => {
+                                if (value.type !== "ontology") {
+                                    return null;
+                                }
+
+                                return <li className={classes.horizontalBullets} key={value.id}>{value.title}</li>;
+                            })}
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                    
+                    <Grid item xs={12}>
+                      <Paper id="Materials" onMouseOver={handleHoverOver} onMouseOut={handleHoverOff} className={classes.paper}>
+                        <Typography variant={"h5"} className={classes.content}>
+                            Mapped Materials
+                        </Typography>
+                        {
+                            //<DashBoard data={collectionJSON}/>
+                                
                         }
+                        <List>
+                            {
+                                overviewInfo.data.materials.map((value, index) => {
+                                    // @Hack @FIXME cull entries for speed
+                                    if (count++ > 250)
+                                        return null;
+                                    return (
+                                        <div key={`${value.id}`}>
 
-                        return <li key={value.id}>{value.title}</li>;
-                    })}
-                </Typography>
+                                            <Divider/>
+                                            <ListItemLink
+                                                history={history}
+                                                location={location}
+                                                match={match}
+                                                primary={value.title} to={"/material/" + value.id} key={value.id}
+                                            />
+                                        </div>
+                                    )
+                                })
+                            }
 
+
+                        </List>
+                        
+                      </Paper>
+                    </Grid>
+                  </Grid>
+                </Container>
                 <Divider/>
-                <Typography variant={"h5"} className={classes.content}>
-                    Courses
-                </Typography>
-                <Typography variant="body1" component="ul" className={classes.content} >
-                    {overviewInfo.data.tags.map((value) => {
-                        if (value.type !== "course") {
-                            return null;
-                        }
-
-                        return <li key={value.id}>{value.title}</li>;
-                    })}
-                </Typography>
+                
+                
                 <Divider/>
-                 <Typography variant={"h5"} className={classes.content}>
-                    Topics
-                </Typography>
-                <Typography variant="body1" component="ul" className={classes.content} >
-                    {overviewInfo.data.tags.map((value) => {
-                        if (value.type !== "topic") {
-                            return null;
-                        }
-
-                        return <li key={value.id}>{value.title}</li>;
-                    })}
-                </Typography>
-                <Divider/>
-                 <Typography variant={"h5"} className={classes.content}>
-                    Programming Languages
-                </Typography>
-                <Typography variant="body1" component="ul" className={classes.content} >
-                    {overviewInfo.data.tags.map((value) => {
-                        if (value.type !== "language") {
-                            return null;
-                        }
-
-                        return <li key={value.id}>{value.title}</li>;
-                    })}
-                </Typography>
-                <Divider/>
-                 <Typography variant={"h5"} className={classes.content}>
-                    Datasets
-                </Typography>
-                <Typography variant="body1" component="ul" className={classes.content} >
-                    {overviewInfo.data.tags.map((value) => {
-                        if (value.type !== "dataset") {
-                            return null;
-                        }
-
-                        return <li key={value.id}>{value.title}</li>;
-                    })}
-                </Typography>
-                <Divider/>
-                 <Typography variant={"h5"} className={classes.content}>
-                    Ontologies
-                </Typography>
-                <Typography variant="body1" component="ul" className={classes.content} >
-                    {overviewInfo.data.tags.map((value) => {
-                        if (value.type !== "ontology") {
-                            return null;
-                        }
-
-                        return <li key={value.id}>{value.title}</li>;
-                    })}
-                </Typography>
-                <Divider/>
-                <Typography variant={"h5"} className={classes.content}>
-                    Mapped Materials
-                </Typography>
-                <List>
-                    {
-                        overviewInfo.data.materials.map((value, index) => {
-                            // @Hack @FIXME cull entries for speed
-                            if (count++ > 250)
-                                return null;
-                            return (
-                                <div key={`${value.id}`}>
-
-                                    <Divider/>
-                                    <ListItemLink
-                                        history={history}
-                                        location={location}
-                                        match={match}
-                                        primary={value.title} to={"/material/" + value.id} key={value.id}
-                                    />
-                                </div>
-                            )
-                        })
-                    }
-                </List>
+                
             </div>
         )
 
     }
 
+    
+
+    /*
+      <CssBaseline />
+      <main className={classes.content}>
+        <div className={classes.appBarSpacer} />
+        <Container maxWidth="lg" className={classes.container}>
+          <Grid container spacing={3}>
+            {
+            <Grid item xs={12} md={8} lg={9}>
+              <Paper className={classes.paper}>
+                
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4} lg={3}>
+              <Paper className={classes.paper}>
+                
+              </Paper>
+            </Grid>
+            
+            <Grid item xs={12}>
+              <Paper className={classes.paper}>
+                
+              </Paper>
+            </Grid>
+          </Grid>
+        </Container>
+      </main>
+      */
+    
+
     return (
         <div>
+            {
+                <DashBoard data={treeData}/>
+                
+            }
             {
                 !overviewInfo.not_found &&
                 typeof localStorage.getItem("access_token") === "string" &&
@@ -351,13 +506,14 @@ export const MaterialOverview: FunctionComponent<Props> = (
             <div className={classes.root}>
 
                 {overviewInfo.not_found && <NotFound/>}
-                <Paper>
+                
                     {overviewInfo.data === null ?
                         <div>
                             {!overviewInfo.not_found && <CircularProgress/>}
                         </div>
                         :
                         <div>
+
                                     <div className={classes.topButton}>
                                         {overviewInfo.can_edit &&
                                         <Link to={overviewInfo.data.id + "/edit"}>
@@ -443,49 +599,50 @@ export const MaterialOverview: FunctionComponent<Props> = (
                                                         </Button>
                                                     })}
 
-                                                    <Divider/>
-                                                </div>
-                                                :
-                                                <div/>
-                                        }
 
-                                        {overviewInfo.can_delete &&
-                                        <DeleteDialog id={overviewInfo.data.id} name={overviewInfo.data.title} api_url={api_url}
-                                                      on_success={() => {
-                                                          history.push({
-                                                              pathname: "/my_materials",
-                                                          });}}
-                                                      endpoint={"/data/delete/material?id=" + overviewInfo.data.id}
-                                        />
-                                        }
-                                    </div>
-                                    <Divider/>
-                                    <Typography variant={"h3"}>
-                                        {MaterialTypesArray.find(e => e.value === overviewInfo.data?.material_type)?.label}
-                                    </Typography>
-                                    <Typography variant="h4" component="h3" className={classes.root}>
-                                        {overviewInfo.data.title}
-                                    </Typography>
-                                    <Divider/>
-                                    <Typography variant={"h5"} className={classes.content}>
-                                        Upstream URL
-                                    </Typography>
-                                    <a target={"_blank"} href={overviewInfo.data.upstream_url} className={classes.link}>
-                                        {overviewInfo.data.upstream_url}
-                                    </a>
-                                    <Divider/>
-                                    <Typography variant={"h5"} className={classes.content}>
-                                        Description
-                                    </Typography>
-                                    <Typography variant="body1" component="p" className={classes.content} >
-                                        {overviewInfo.data.description}
-                                    </Typography>
-                                    <Divider/>
-                                    {output}
-                                    <Divider/>
+                                            <Divider/>
+                                        </div>
+                                        :
+                                        <div/>
+                                }
+
+                                {overviewInfo.can_delete &&
+                                <DeleteDialog id={overviewInfo.data.id} name={overviewInfo.data.title} api_url={api_url}
+                                              on_success={() => {
+                                                  history.push({
+                                                      pathname: "/my_materials",
+                                                  });}}
+                                              endpoint={"/data/delete/material?id=" + overviewInfo.data.id}
+                                />
+                                }
+                            </div>
+                            <Divider/>
+                            <Typography variant={"h3"}>
+                                {MaterialTypesArray.find(e => e.value === overviewInfo.data?.material_type)?.label}
+                            </Typography>
+                            <Typography variant="h4" component="h3" className={classes.root}>
+                                {overviewInfo.data.title}
+                            </Typography>
+                            <Divider/>
+                            <Typography variant={"h5"} className={classes.content}>
+                                Upstream URL <a target={"_blank"} href={overviewInfo.data.upstream_url} className={classes.link}>
+                                {overviewInfo.data.upstream_url}
+                            </a>
+                            </Typography>
+                            
+                            <Divider/>
+                            <Typography variant={"h5"} className={classes.content}>
+                                Description
+                            </Typography>
+                            <Typography variant="body1" component="p" className={classes.content} >
+                                {overviewInfo.data.description}
+                            </Typography>
+                            <Divider/>
+                            {output}
+                            <Divider/>
                         </div>
                     }
-                </Paper>
+                
             </div>
         </div>
     )
