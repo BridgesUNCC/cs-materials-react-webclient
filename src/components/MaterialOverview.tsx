@@ -106,7 +106,6 @@ interface MaterialData {
     upstream_url: string;
     tags: TagData[];
     materials: MaterialListData[];
-    idlist: any[];
 }
 
 interface TagData {
@@ -135,6 +134,7 @@ interface OverviewEntity {
     can_edit: boolean;
     can_delete: boolean;
     not_found: boolean;
+    idlist: any;
 }
 
 const createEmptyEntity = (): OverviewEntity => {
@@ -145,6 +145,7 @@ const createEmptyEntity = (): OverviewEntity => {
         can_edit: false,
         can_delete: false,
         not_found: false,
+        idlist: null,
     };
 };
 
@@ -219,6 +220,130 @@ export const MaterialOverview: FunctionComponent<Props> = (
 
     let treeData : TreeNode;
 
+
+    function getMaterialMeta(materialid:Number, td:any, list:any){
+        const url = api_url + "/data/material/meta?id=" + materialid;
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+
+        let promises: Promise<OverviewEntity>[] = [];
+        let promise;
+        let data;
+        promise = getJSONData(url, auth).then(resp => {
+            if (resp === undefined) {
+                console.log("API SERVER FAIL")
+                return overviewInfo
+            } else {
+                if (resp['status'] === "OK") {
+                    let can_edit = resp['access'] === "owner" || resp['access'] === "write";
+
+                    let can_delete = resp['access'] === "owner";
+
+                    data = resp['data'];
+                    populateTree(data, td, list)
+                }
+            }
+        })
+    }
+
+    let idstr = ""
+    function populateTree(root:any, tree:any, list:any){
+        if(root.materials.length <= 0){
+            list.push(root.id)
+            idstr.concat(', ', root.id)
+            return {...overviewInfo, idlist: [root.id]}
+            return
+        }
+        for(let i = 0; i < root.materials.length; i++){
+            let tempBranch = {"name":root.materials[i].title, "id": root.materials[i].id, children: []}
+            getMaterialMeta(root.materials[i].id, tempBranch, list);
+            tree.children.push(tempBranch);
+
+        }
+    }
+
+    let fetched = false;
+    function treeView(value:TreeNode){
+      if(fetched){
+        let ele = (
+          <TreeItem  nodeId={`${value.id}`} label={value.name} >
+            <div key={`${value.id}`}>
+                <ListItemLink
+                    history={history}
+                    location={location}
+                    match={match}
+                    primary={value.name} to={"/material/" + value.id} key={value.id}
+                />
+                {value.children.map((e:TreeNode) => treeView(e))}
+            </div>
+
+
+            </TreeItem>
+        )
+
+
+        return ele
+    }
+
+
+    }
+
+    function button(treeData:any){
+      //let b = (<Button component={Link} to={'/searchrelation?matID=' + overviewInfo.data.id + "&k=" + 10} variant="contained" color="primary">Search For Similar Materials</Button>)
+      //return b
+    }
+
+    let tree = null;
+    let but = null;
+
+    treeData = createEmptyTree()
+
+    let list: any[] = [];
+
+      // if(overviewInfo.data !== null){
+      //     treeData = {"name": overviewInfo.data.title,
+      //           "id":overviewInfo.data.id,
+      //          "children": [],
+      //        "idlist": []}
+          //populateTree(overviewInfo.data, treeData, treeData["idlist"]);
+
+          fetched = true
+          //tree = treeView(treeData)
+          //but = button(treeData)
+          //list = [list];
+          //overviewInfo.data.idlist = list
+
+      //}
+    //   useEffect(() =>{
+    //     console.log(list)
+    //     for(let i = 0; i < list.length; i++){
+    //       console.log(i)
+    //     }
+    //     setids(ids.concat(list))
+    //     console.log(ids)
+    // },[setids])
+    let idds: any[] = [];
+    function printTree(root:any){
+      console.log(root)
+      let idstr = ""
+      for(let i = 0; i < root.idlist.length; i++){
+        idstr.concat(', ', root[i])
+      }
+      console.log(idstr)
+      return idstr
+    //   console.log((root.children))
+      // if(root.children.length <= 0 || root.children.length === undefined){
+      //   idds.push(root.id);
+      //   return
+      // }
+      // else{
+      //   for(let i = 0; i< root.children.length; i++){
+      //     printTree(root.children[i])
+      //   }
+      // }
+      // return idds
+    }
+
+
     if (!overviewInfo.fetched || force_fetch_data) {
         const url = api_url + "/data/material/meta?id=" + match.params.id;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
@@ -237,7 +362,20 @@ export const MaterialOverview: FunctionComponent<Props> = (
 
                     const data = resp['data'];
                     console.log(resp);
-                    return {...overviewInfo, fetched: true, data, can_edit, can_delete}
+                    treeData = {"name": data.title,
+                          "id": data.id,
+                         "children": [],
+                       "idlist": []}
+                    populateTree(data, treeData, treeData["idlist"]);
+                    if(treeData.idlist.length<=0){
+                      setTimeout(function(){
+                          console.log("Executed after 1 second");
+                          setids(treeData.idlist)
+                      }, 1000);
+                    }
+
+                    return {...overviewInfo, fetched: true, data, can_edit, can_delete, idlist: treeData}
+
                 } else {
                     return  {...overviewInfo, fetched: true, not_found: true};
                 }
@@ -287,109 +425,8 @@ export const MaterialOverview: FunctionComponent<Props> = (
         })
     }
 
-    function getMaterialMeta(materialid:Number, td:any, list:any){
-        const url = api_url + "/data/material/meta?id=" + materialid;
-        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
-
-        let promises: Promise<OverviewEntity>[] = [];
-        let promise;
-        let data;
-        promise = getJSONData(url, auth).then(resp => {
-            if (resp === undefined) {
-                console.log("API SERVER FAIL")
-                return overviewInfo
-            } else {
-                if (resp['status'] === "OK") {
-                    let can_edit = resp['access'] === "owner" || resp['access'] === "write";
-
-                    let can_delete = resp['access'] === "owner";
-
-                    data = resp['data'];
-                    populateTree(data, td, list)
-                }
-            }
-        })
-    }
-
-
-    function populateTree(root:any, tree:any, list:any){
-        if(root.materials.length <= 0){
-            list.push(root.id)
-            return
-        }
-        for(let i = 0; i < root.materials.length; i++){
-            let tempBranch = {"name":root.materials[i].title, "id": root.materials[i].id, children: []}
-            getMaterialMeta(root.materials[i].id, tempBranch, list);
-            tree.children.push(tempBranch);
-
-        }
-    }
-
-    let fetched = false;
-    function treeView(value:TreeNode){
-      if(fetched){
-        let ele = (
-          <TreeItem  nodeId={`${value.id}`} label={value.name} >
-            <div key={`${value.id}`}>
-                <ListItemLink
-                    history={history}
-                    location={location}
-                    match={match}
-                    primary={value.name} to={"/material/" + value.id} key={value.id}
-                />
-                {value.children.map((e:TreeNode) => treeView(e))}
-            </div>
-
-
-            </TreeItem>
-        )
-
-
-        return ele
-    }
-
-
-    }
-
-    function button(treeData:any){
-      //let b = (<Button component={Link} to={'/searchrelation?matID=' + overviewInfo.data.id + "&k=" + 10} variant="contained" color="primary">Search For Similar Materials</Button>)
-      //return b
-    }
-
-    let tree = null;
-    let but = null;
-
-    treeData = createEmptyTree()
-
-    let list: any[] = [];
-
-      if(overviewInfo.data !== null){
-          treeData = {"name": overviewInfo.data.title,
-                "id":overviewInfo.data.id,
-               "children": [],
-             "idlist": []}
-          populateTree(overviewInfo.data, treeData, treeData["idlist"]);
-
-          fetched = true
-          tree = treeView(treeData)
-          //but = button(treeData)
-          //list = [list];
-          //overviewInfo.data.idlist = list
-          for(let i = 0; i < list.length; i++){
-            overviewInfo.data.idlist = treeData.idlist
-          }
-          console.log(overviewInfo.data.idlist)
-
-      }
-      useEffect(() =>{
-        console.log(list)
-        for(let i = 0; i < list.length; i++){
-          console.log(i)
-        }
-        setids(ids.concat(list))
-        console.log(ids)
-    },[setids])
-
+    // console.log(overviewInfo.idlist)
+    // console.log(ids)
 
 
     let output;
@@ -496,7 +533,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         <TreeView className={classes.materialList} defaultCollapseIcon={<ExpandMoreIcon />}
                                                                   defaultExpandIcon={<ChevronRightIcon />}>
                             {
-                                treeData.children.map((e:any) => treeView(e))
+                                overviewInfo.idlist.children.map((e:any) => treeView(e))
                             }
 
 
@@ -518,33 +555,6 @@ export const MaterialOverview: FunctionComponent<Props> = (
 
 
 
-    /*
-      <CssBaseline />
-      <main className={classes.content}>
-        <div className={classes.appBarSpacer} />
-        <Container maxWidth="lg" className={classes.container}>
-          <Grid container spacing={3}>
-            {
-            <Grid item xs={12} md={8} lg={9}>
-              <Paper className={classes.paper}>
-
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={4} lg={3}>
-              <Paper className={classes.paper}>
-
-              </Paper>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Paper className={classes.paper}>
-
-              </Paper>
-            </Grid>
-          </Grid>
-        </Container>
-      </main>
-      */
     return (
         <div>
             {
@@ -583,7 +593,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                                         </Link>
                                         }
                                         {/* <Button variant="contained" color="primary" onClick={handleClickOpen}>Search For Similar Material</Button> */}
-                                        <Button component={Link} to={'/searchrelation?matID=' + overviewInfo.data.id + "&k=" + 10} variant="contained" color="primary">Search For Similar Materials</Button>
+                                        <Button component={Link} to={'/searchrelation?matID=' + ids + "&k=" + 10} variant="contained" color="primary">Search For Similar Materials</Button>
                                           <Dialog disableBackdropClick disableEscapeKeyDown open={open} onClose={handleClose}>
                                             <DialogTitle>Fill the form</DialogTitle>
                                             <DialogContent>
