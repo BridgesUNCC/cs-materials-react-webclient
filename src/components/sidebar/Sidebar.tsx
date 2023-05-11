@@ -338,15 +338,17 @@ export const Sidebar: FunctionComponent<Props> = (
                     </ListItemIcon>
                     <ListItemText primary="Radial Comparison View" />
                   </ListItem>
-                  <ListItem className={classes.nested} button onClick={() => {setIndex(11)}} selected={selectedIndex === 11} component={Link} to={'/selectsimilarity?id=' + compareListOne + '&id2=' + listTwo}>
-                    <ListItemIcon>
-                        <PeopleIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Comparison Similarity" />
-                  </ListItem>
+                  {
+                  // <ListItem className={classes.nested} button onClick={() => {setIndex(11)}} selected={selectedIndex === 11} component={Link} to={'/selectsimilarity?id=' + compareListOne + '&id2=' + listTwo}>
+                  //   <ListItemIcon>
+                  //       <PeopleIcon />
+                  //   </ListItemIcon>
+                  //   <ListItemText primary="Comparison Similarity" />
+                  // </ListItem>
+                }
               </List>
             </Collapse>
-            
+
 
 
 
