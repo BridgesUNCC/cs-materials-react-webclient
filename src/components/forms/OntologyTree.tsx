@@ -185,7 +185,7 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
                 />
                 <div>
                     <Typography variant={"body1"} className={classes.inheritTypography}>{node.title}</Typography>
-                    
+
                 </div>
             </div>
         );

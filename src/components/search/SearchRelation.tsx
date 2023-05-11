@@ -45,8 +45,8 @@ export const SearchRelation: FunctionComponent<Props> = ({ data, names
       const svgElement = d3.select(ref.current);
       let container = d3.select('#parent')
       let svg = container.append('svg').append('g')
-      let widthAmount = 2000; //I would really like for this to be taken from the width and height of the contained div
-      let heightAmount = 1000;
+      let widthAmount = 1400; //I would really like for this to be taken from the width and height of the contained div
+      let heightAmount = 2000;
       const g = container.select('svg').attr('width', widthAmount).attr('height', heightAmount)
           .select('g').attr('transform', 'translate(' + widthAmount / 2 + ',' + heightAmount / 3 + ')');
 
@@ -72,7 +72,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ data, names
         }
         nodes.push(nodeJSON)
       }
-
+      console.log(data['similarity'])
       for(const key in data['similarity']){
         for(const p in data['similarity'][key]){
           let linkJSON = {
@@ -85,9 +85,9 @@ export const SearchRelation: FunctionComponent<Props> = ({ data, names
         }
         links.push(linkJSON)
         }
-        
+
       }
-      
+
         let link = g.append("g").attr("class", "links").selectAll("link").data(links)
                      .enter()
                      .append("line")
@@ -107,10 +107,15 @@ export const SearchRelation: FunctionComponent<Props> = ({ data, names
                      .attr("fill", "white")
                      .attr("stroke", function(d){
                          return "white"
-  
+
                      })
                      .attr("opacity", function(d){
-                       return d.opacity;
+                       if(d.opacity < 0.2){
+                         return 0.01
+                       }else{
+                         return d.opacity;
+                       }
+
                      })
                      .style("stroke-width", 3);
 
@@ -136,13 +141,13 @@ export const SearchRelation: FunctionComponent<Props> = ({ data, names
                       .style('opacity', 1)
                       .text(names[d.id]);
                       d3.select("#tooltips")
-                      
+
                     })
                     .on("mouseout", d => {
                       d3.select("#tooltip")
                       .style('opacity', 0)
                     })
-                    
+
 
         }
 
@@ -171,6 +176,6 @@ export const SearchRelation: FunctionComponent<Props> = ({ data, names
             </div>
           </div>
       </div>
-      
+
     )
 };

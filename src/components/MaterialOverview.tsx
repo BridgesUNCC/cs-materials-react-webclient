@@ -1,9 +1,11 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, ReactNode, useEffect} from "react";
 import {RouteComponentProps} from "react-router";
 import {getJSONData} from "../common/util";
 import {createStyles, Divider, Theme, List, TextField} from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import TreeView from '@material-ui/lab/TreeView';
+import TreeItem from '@material-ui/lab/TreeItem';
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import {Link, useParams} from "react-router-dom";
@@ -12,7 +14,6 @@ import {ListItemLink} from "./ListItemLink";
 import {DeleteDialog} from "./forms/DeleteDialog";
 import {MaterialListData, MaterialTypesArray} from "../common/types";
 import {Author} from "./author/Author";
-import {DashBoard} from "./collection_dashboard/dashboard";
 import EditIcon from '@material-ui/icons/Edit';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import {NotFound} from "./NotFound";
@@ -28,6 +29,8 @@ import Select from '@material-ui/core/Select';
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Grid from '@material-ui/core/Grid';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -69,11 +72,16 @@ const useStyles = makeStyles((theme: Theme) =>
          minWidth: 120,
        },
        paper: {
-    padding: theme.spacing(2),
-    display: 'flex',
-    overflow: 'auto',
-    flexDirection: 'column',
-  },
+        padding: theme.spacing(2),
+        display: 'flex',
+        overflow: 'auto',
+        flexDirection: 'column',
+        wordBreak: "break-word",
+      },
+      materialList:{
+        flexGrow: 1,
+        overflowY: 'auto',
+      }
     }),
 );
 
@@ -97,7 +105,8 @@ interface MaterialData {
     description: string;
     upstream_url: string;
     tags: TagData[];
-    materials: MaterialListData[]
+    materials: MaterialListData[];
+    idlist: any[];
 }
 
 interface TagData {
@@ -110,6 +119,13 @@ interface TagData {
 export interface FileLink {
     name: string;
     url: string;
+}
+
+interface TreeNode{
+  name: string;
+  id: any;
+  children: TreeNode[];
+  idlist: any[];
 }
 
 interface OverviewEntity {
@@ -130,6 +146,15 @@ const createEmptyEntity = (): OverviewEntity => {
         can_delete: false,
         not_found: false,
     };
+};
+
+const createEmptyTree = (): TreeNode => {
+  return {
+    id: "null",
+    name: "null",
+    children: [],
+    idlist: [],
+  };
 };
 
 export const MaterialOverview: FunctionComponent<Props> = (
@@ -168,6 +193,9 @@ export const MaterialOverview: FunctionComponent<Props> = (
     const [numberOfSearches, setK] = React.useState('');
     const [searchAlgo, setAlgo] = React.useState('pagerank');
     const [searchMatchpool, setSearchMatchpool] = React.useState('all');
+    let [ids, setids] = React.useState([] as Number[])
+
+
 
     const handleChange = (event: any) => {
       setK(event.target.value || '');
@@ -189,7 +217,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
         setOverviewInfo({...overviewInfo, data: null, fetched: false})
     }
 
-    let treeData : {name:string, children:Array<any>};
+    let treeData : TreeNode;
 
     if (!overviewInfo.fetched || force_fetch_data) {
         const url = api_url + "/data/material/meta?id=" + match.params.id;
@@ -259,7 +287,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
         })
     }
 
-    function getMaterialMeta(materialid:Number, td:any){
+    function getMaterialMeta(materialid:Number, td:any, list:any){
         const url = api_url + "/data/material/meta?id=" + materialid;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
@@ -277,42 +305,90 @@ export const MaterialOverview: FunctionComponent<Props> = (
                     let can_delete = resp['access'] === "owner";
 
                     data = resp['data'];
-                    populateTree(data, td)
+                    populateTree(data, td, list)
                 }
             }
         })
     }
 
-    function populateTree(root:any, tree:any){
+
+    function populateTree(root:any, tree:any, list:any){
         if(root.materials.length <= 0){
+            list.push(root.id)
             return
         }
         for(let i = 0; i < root.materials.length; i++){
-            let tempBranch = {"name":root.materials[i].title, children: []}
-            getMaterialMeta(root.materials[i].id, tempBranch);
+            let tempBranch = {"name":root.materials[i].title, "id": root.materials[i].id, children: []}
+            getMaterialMeta(root.materials[i].id, tempBranch, list);
             tree.children.push(tempBranch);
-            
+
         }
     }
 
-    console.log(overviewInfo)
-    if(overviewInfo.data){
-        
-    }
-    
-    
-    treeData = {
-            "name": "collection",
-            "children": [{"name": "cane", "children": []}],
-        };
-    if(overviewInfo.data !== null){
-        treeData = {"name": overviewInfo.data.title,
-             "children": []}
-        populateTree(overviewInfo.data, treeData);
-        console.log(treeData)
+    let fetched = false;
+    function treeView(value:TreeNode){
+      if(fetched){
+        let ele = (
+          <TreeItem  nodeId={`${value.id}`} label={value.name} >
+            <div key={`${value.id}`}>
+                <ListItemLink
+                    history={history}
+                    location={location}
+                    match={match}
+                    primary={value.name} to={"/material/" + value.id} key={value.id}
+                />
+                {value.children.map((e:TreeNode) => treeView(e))}
+            </div>
+
+
+            </TreeItem>
+        )
+
+
+        return ele
     }
 
 
+    }
+
+    function button(treeData:any){
+      //let b = (<Button component={Link} to={'/searchrelation?matID=' + overviewInfo.data.id + "&k=" + 10} variant="contained" color="primary">Search For Similar Materials</Button>)
+      //return b
+    }
+
+    let tree = null;
+    let but = null;
+
+    treeData = createEmptyTree()
+
+    let list: any[] = [];
+
+      if(overviewInfo.data !== null){
+          treeData = {"name": overviewInfo.data.title,
+                "id":overviewInfo.data.id,
+               "children": [],
+             "idlist": []}
+          populateTree(overviewInfo.data, treeData, treeData["idlist"]);
+
+          fetched = true
+          tree = treeView(treeData)
+          //but = button(treeData)
+          //list = [list];
+          //overviewInfo.data.idlist = list
+          for(let i = 0; i < list.length; i++){
+            overviewInfo.data.idlist = treeData.idlist
+          }
+          console.log(overviewInfo.data.idlist)
+
+      }
+      useEffect(() =>{
+        console.log(list)
+        for(let i = 0; i < list.length; i++){
+          console.log(i)
+        }
+        setids(ids.concat(list))
+        console.log(ids)
+    },[setids])
 
 
 
@@ -323,7 +399,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
             <div>
                 <Container maxWidth="lg" className={classes.container}>
                   <Grid container spacing={3}>
-                    
+
                     <Grid item xs={4} md={4} lg={4}>
                       <Paper onMouseOver={handleHoverOver} onMouseOut={handleHoverOff} className={classes.paper}>
                         <Typography variant={"h5"} className={classes.content}>
@@ -398,7 +474,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                          <Typography variant={"h5"} className={classes.content}>
                             Ontologies
                         </Typography>
-                        <Typography variant="body1" component="ul" className={classes.content} >
+                        <Typography variant="body1" component="ul" className={classes.contentVertical} >
                             {overviewInfo.data.tags.map((value) => {
                                 if (value.type !== "ontology") {
                                     return null;
@@ -409,55 +485,36 @@ export const MaterialOverview: FunctionComponent<Props> = (
                         </Typography>
                       </Paper>
                     </Grid>
-                    
+
                     <Grid item xs={12}>
                       <Paper id="Materials" onMouseOver={handleHoverOver} onMouseOut={handleHoverOff} className={classes.paper}>
                         <Typography variant={"h5"} className={classes.content}>
                             Mapped Materials
                         </Typography>
-                        {
-                            //<DashBoard data={collectionJSON}/>
-                                
-                        }
-                        <List>
+                        <TreeView className={classes.materialList} defaultCollapseIcon={<ExpandMoreIcon />}
+                                                                  defaultExpandIcon={<ChevronRightIcon />}>
                             {
-                                overviewInfo.data.materials.map((value, index) => {
-                                    // @Hack @FIXME cull entries for speed
-                                    if (count++ > 250)
-                                        return null;
-                                    return (
-                                        <div key={`${value.id}`}>
-
-                                            <Divider/>
-                                            <ListItemLink
-                                                history={history}
-                                                location={location}
-                                                match={match}
-                                                primary={value.title} to={"/material/" + value.id} key={value.id}
-                                            />
-                                        </div>
-                                    )
-                                })
+                                treeData.children.map((e:any) => treeView(e))
                             }
 
 
-                        </List>
-                        
+                        </TreeView>
+
                       </Paper>
                     </Grid>
                   </Grid>
                 </Container>
                 <Divider/>
-                
-                
+
+
                 <Divider/>
-                
+
             </div>
         )
 
     }
 
-    
+
 
     /*
       <CssBaseline />
@@ -468,32 +525,26 @@ export const MaterialOverview: FunctionComponent<Props> = (
             {
             <Grid item xs={12} md={8} lg={9}>
               <Paper className={classes.paper}>
-                
+
               </Paper>
             </Grid>
             <Grid item xs={12} md={4} lg={3}>
               <Paper className={classes.paper}>
-                
+
               </Paper>
             </Grid>
-            
+
             <Grid item xs={12}>
               <Paper className={classes.paper}>
-                
+
               </Paper>
             </Grid>
           </Grid>
         </Container>
       </main>
       */
-    
-
     return (
         <div>
-            {
-                <DashBoard data={treeData}/>
-                
-            }
             {
                 !overviewInfo.not_found &&
                 typeof localStorage.getItem("access_token") === "string" &&
@@ -506,7 +557,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
             <div className={classes.root}>
 
                 {overviewInfo.not_found && <NotFound/>}
-                
+
                     {overviewInfo.data === null ?
                         <div>
                             {!overviewInfo.not_found && <CircularProgress/>}
@@ -561,12 +612,12 @@ export const MaterialOverview: FunctionComponent<Props> = (
                                                   >
                                                     <MenuItem value={"all"}>All</MenuItem>
                                                     <MenuItem value={"pdc"}>PDC</MenuItem>
-                                                    
+
                                                   </Select>
                                                   <TextField
-                                                   className={classes.formControl} 
-                                                   value={numberOfSearches} 
-                                                   onChange={handleChange} 
+                                                   className={classes.formControl}
+                                                   value={numberOfSearches}
+                                                   onChange={handleChange}
                                                    label = "Number Of Matches"></TextField>
                                                 </FormControl>
                                               </form>
@@ -629,7 +680,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                                 {overviewInfo.data.upstream_url}
                             </a>
                             </Typography>
-                            
+
                             <Divider/>
                             <Typography variant={"h5"} className={classes.content}>
                                 Description
@@ -642,7 +693,7 @@ export const MaterialOverview: FunctionComponent<Props> = (
                             <Divider/>
                         </div>
                     }
-                
+
             </div>
         </div>
     )

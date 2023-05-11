@@ -50,13 +50,13 @@ const useStyles = makeStyles((theme: Theme) =>
           marginTop:20
         },
         Grid: {
-          
+
 
         },
         textFieldStyle: {
           paddingLeft: 20
         },
-      
+
     }));
 
 interface MatchParams {
@@ -173,7 +173,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     const [similarityDisplay, setSimilarityDisplay] = React.useState<SimilarityData | null>(null);
     const [multipleChoice,setMultipleChoice] = React.useState(false);
     const [similarityIdList, setSimilarityIdList] = React.useState<Number[]>([]);
-    
+
     //This function makes sure that at least one of the toggles is selected
     //I need this to correctly update the multipleChoice variable correctly I believe (the useEffect hook operates async)
     useEffect(() => {
@@ -201,7 +201,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
                   let data = resp['data'];
                   listOfResults = data.results;
                   setResultDisplay(data.results);
-                  listOfResults?.map(({id, score, title}) => 
+                  listOfResults?.map(({id, score, title}) =>
                   {
                     console.log(id);
                     list.push(id);
@@ -214,7 +214,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
       })
     };
     const handleSimilarity = () => {
-      
+
       var url = 'https://csmaterials-search.herokuapp.com/similarity?'+
                  `matID=${searchParameters.materialChoice}`
       getJSONData(url, {}).then(resp => {
@@ -286,13 +286,13 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     //for both you should pass in ids
     // I have been intructed to commend this stuff out
     if (!viewInfo.fetched) {
-      
-      
+
+
       //console.log("pinging");
 
       	// //Erik says: there must be a better way to parse GET parameters?
         // //K is the number of matches
-      	
+
       	// if (location.search.split("k=")[1])
         //             k = location.search.split("k=")[1].split("&")[0];
         // //to figure out
@@ -323,7 +323,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
         // +"&algo="+algo;
         //TODO: Done! There was some stuff down here but I removed it
         //move to onclick function
-        
+
           viewg = <div>
             {/* This autocomplete could be a really cool way of replacing the current dropdown menu with something easier to use */}
           {/* <Autocomplete
@@ -339,7 +339,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             renderInput={(params) => <TextField {...params} label="Select Material" />}
           /> */}
           {/* This form is what you would use to select the material that you want to search for */}
-          <Grid container spacing={0} direction="column" alignItems="center" justifyContent="center" >
+          <Grid container spacing={1} direction="column" alignItems="center">
 
           <Grid item>
           <FormControl className={classes.formControl}>
@@ -348,24 +348,24 @@ export const SearchRelationView: FunctionComponent<Props> = ({
               autoWidth
               labelId="material-select-label"
               id="demo-controlled-open-select"
-              
-              
+
+
               value={searchParameters.materialChoice}
               multiple = {true}
               onChange={(event: any) => setSearchParameters({...searchParameters, materialChoice: event.target.value})}
               className={classes.select}
-              
+
             >
             {listInfo.materials === null ? <MenuItem value=""><em>None</em></MenuItem> : listInfo.materials.map((mat) => (
               <MenuItem value={mat.id}>{mat.title}</MenuItem>
             ))}
             </Select>
             {/* This form is what you would use to select the number of things you are comparing*/}
-            <TextField id="filled-basic" 
-            label="Number of Matches" 
-            variant="filled" 
-            value={searchParameters.searchAmount} 
-            
+            <TextField id="filled-basic"
+            label="Number of Matches"
+            variant="filled"
+            value={searchParameters.searchAmount}
+
             disabled={multipleChoice}
             onChange={(event: any) => setSearchParameters({...searchParameters, searchAmount: event.target.value})}/>
           </FormControl>
@@ -404,7 +404,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           </FormControl>
           </Grid> */}
 
-          
+
 
           <Grid item>
           {/* <ToggleButtonGroup
@@ -456,12 +456,12 @@ export const SearchRelationView: FunctionComponent<Props> = ({
               </Grid>
           {/* Super weird syntax but basically its conditionally creating these elements depending on if the multipleChoice
           variable is true or not */}
-          
-          {(resultDisplay !== null)&&!multipleChoice&&<Typography component={'span'}> 
+
+          {(resultDisplay !== null)&&!multipleChoice&&<Typography component={'span'}>
           <Paper style={{maxHeight: 330, overflow: 'auto'}}>
                       {
-                        
-                        resultDisplay?.map(({id, score, title}) => 
+
+                        resultDisplay?.map(({id, score, title}) =>
                       {
                         let link = './material/' + id
                           return (
@@ -479,20 +479,20 @@ export const SearchRelationView: FunctionComponent<Props> = ({
                       )
                     }
               </Paper>
-            </Typography> 
-           
+            </Typography>
+
           }
           {/* Similar conditional rendering  */}
           {(similarityDisplay !== null)&&multipleChoice&&
           // I mean should I be using Material UI for this? I'm just gonna use in text styling
             <div>
-            <div style={{border: '2px solid gray', height: '600px', backgroundColor: '#3b3a3a', marginTop: '20px'}}> 
+            <div style={{border: '2px solid gray', height: '600px', backgroundColor: '#3b3a3a', marginTop: '20px'}}>
               <SearchRelation data={similarityDisplay.visData} names={similarityDisplay.names}/>
-            </div> 
+            </div>
             </div>
           }
-         
-          
+
+
               {
                   // viewInfo.fetched && viewInfo.data !== null? (
                   //     <div id={"matrix-container"}>
@@ -516,13 +516,13 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     //     history.push('/materials?ids=' + results.toString())
     //   }
     // }
-    
- 
+
+
 
     return (
         <div>
           {viewg}
         </div>
       )
-    
+
 };
