@@ -65,6 +65,7 @@ interface MatchParams {
 
 interface Props extends RouteComponentProps<MatchParams>{
     api_url: string;
+    searchapi_url: string;
     user_id: any;
 }
 
@@ -136,6 +137,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
                                                                 location,
                                                                 match,
                                                                 api_url,
+                                                                searchapi_url,
                                                                 user_id,
 
 }) => {
@@ -185,7 +187,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     };
     const handleSearch = () => {
       //This syntax looks a lot better to me
-      var url = 'https://csmaterials-search.herokuapp.com/search?'+
+      var url = searchapi_url+'/search?'+
                  `matID=${searchParameters.materialChoice}&matchpool=${searchParameters.matchpoolChoice}`+
                  `&algo=${searchParameters.algorithmChoice}&k=${searchParameters.searchAmount}`;
       console.log(url);
@@ -215,7 +217,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     };
     const handleSimilarity = () => {
 
-      var url = 'https://csmaterials-search.herokuapp.com/similarity?'+
+      var url = searchapi_url+'/similarity?'+
                  `matID=${searchParameters.materialChoice}`
       getJSONData(url, {}).then(resp => {
           if (resp === undefined) {
@@ -317,7 +319,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
         //             algo = location.search.split("algo=")[1].split("&")[0];
         // console.log(matID, k, matchpool, type, algo)
 
-        // let url = "https://csmaterials-search.herokuapp.com/"+type+"?matID="+matID
+        // let url = searchapi_url+"/"+type+"?matID="+matID
         // +"&matchpool="+matchpool
         // +"&k="+k
         // +"&algo="+algo;

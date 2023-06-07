@@ -134,6 +134,7 @@ export interface AppEntity {
     fetched_initial_data: boolean;
     force_fetch_data: boolean;
     api_url: string;
+    searchapi_url: string;
     user_data?: UserData | any;
     snackbar_info: SnackbarBuilderProps;
 }
@@ -143,6 +144,7 @@ const createInitialAppEntity = (): AppEntity => {
     let jwt = localStorage.getItem("access_token");
 
     let api_url = process.env.REACT_APP_API_URL || "http://localhost:5000";
+    let searchapi_url = process.env.REACT_APP_SEARCHAPI_URL || "http://localhost:6000";
 
     if (typeof jwt === "string") {
         let payload = parseJwt(jwt);
@@ -153,6 +155,7 @@ const createInitialAppEntity = (): AppEntity => {
                 return {
                     user_id: id,
                     api_url: api_url,
+		    searchapi_url: searchapi_url,
                     fetched_initial_data: false,
                     force_fetch_data: false,
                     snackbar_info: emptySnackbarBuilderProps(),
@@ -164,6 +167,7 @@ const createInitialAppEntity = (): AppEntity => {
     return {
         user_id: null,
         api_url: api_url,
+	searchapi_url: searchapi_url,
         fetched_initial_data: false,
         force_fetch_data: false,
         snackbar_info: emptySnackbarBuilderProps(),
@@ -606,7 +610,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/materials" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialList {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} listOneCallBack = {handleListUpdate} currentSelected={listOne.map(function(a) {return a.id;})}/>
+                            <MaterialList {...route_props} api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} user_id={appInfo.user_id} listOneCallBack = {handleListUpdate} currentSelected={listOne.map(function(a) {return a.id;})}/>
                         </Container>
                     )}
                     />
@@ -633,7 +637,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     }
                     <Route path="/material/create" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialForm {...route_props} api_url={appInfo.api_url}
+                            <MaterialForm {...route_props} api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url}
                                       force_user_data_reload={force_user_data_refresh}
                             />
                         </Container>
@@ -641,7 +645,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/material/:id/edit" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialForm {...route_props} api_url={appInfo.api_url}
+                            <MaterialForm {...route_props} api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url}
                                           force_user_data_reload={force_user_data_refresh}/>
                         </Container>
                     )}
@@ -649,7 +653,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
                     <Route path="/material/create" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialForm {...route_props} api_url={appInfo.api_url}
+                            <MaterialForm {...route_props} api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url}
                                       force_user_data_reload={force_user_data_refresh}
                             />
                         </Container>
@@ -658,7 +662,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
                     <Route path="/material/:id/edit" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialForm {...route_props} api_url={appInfo.api_url}
+                            <MaterialForm {...route_props} api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url}
                                           force_user_data_reload={force_user_data_refresh}/>
                         </Container>
                     )}
@@ -703,13 +707,13 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/searchrelation"render={(route_props) => (
                         <Container maxWidth="xl">
-                            <SearchRelationView {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} />
+                            <SearchRelationView {...route_props} api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} user_id={appInfo.user_id} />
                         </Container>
                     )}
                     />
                      <Route path="/selectsimilarity"render={(route_props) => (
                         <Container maxWidth="xl">
-                            <SimilarityWrapper api_url={appInfo.api_url} />
+                            <SimilarityWrapper api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} />
                         </Container>
                     )}
                     />

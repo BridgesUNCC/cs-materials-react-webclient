@@ -109,6 +109,7 @@ interface MatchParams {
 
 interface Props extends RouteComponentProps<MatchParams> {
     api_url: string;
+    searchapi_url: string;
     force_user_data_reload: () => void;
 
 }
@@ -192,6 +193,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         location,
         match,
         api_url,
+        searchapi_url,
         force_user_data_reload,
     }
 ) => {
@@ -955,6 +957,7 @@ export const MaterialForm: FunctionComponent<Props> = (
           location={location}
           match={match}
           api_url={api_url}
+	  searchapi_url={searchapi_url}
           user_id={0}
           store_tags={false}
           selected_materials={selected_materials}

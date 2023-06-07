@@ -98,6 +98,7 @@ interface MatchParams {
 
 interface ListProps extends RouteComponentProps<MatchParams> {
     api_url: string;
+    searchapi_url: string;
     user_materials?: number[];
     user_id: any;
     selected_materials?: number[];
@@ -111,6 +112,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
                                                                location,
                                                                match,
                                                                api_url,
+                                                               searchapi_url,
                                                                user_materials,
                                                                user_id,
                                                                selected_materials,
@@ -479,7 +481,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
           ) => {
             if(newSearchType !== null){
             console.log("Hitting API");
-            var url = 'https://csmaterials-search.herokuapp.com/similarity?'+
+            var url = searchapi_url+'/similarity?'+
             `matID=${listInfo.selected_materials}`
                     getJSONData(url, {}).then(resp => {
                       if (resp === undefined) {
