@@ -21,10 +21,12 @@ const createEmptyParams = () : SearchParams => {
 }
 interface Props {
     api_url: string;
+    searchapi_url: string;
 }
 
 export const SimilarityWrapper: FunctionComponent<Props> = ({
-    api_url
+    api_url,
+    searchapi_url
 }) => {
     const [idListState, setIdListState] = React.useState<string|null>(null);
     const [data, setData] = React.useState<string|null>(null);
@@ -47,7 +49,7 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
     function updateGraph(){
         let newData = createEmptyParams();
         //Getting the data from the similarity API so that the graph can actually get drawn
-        var url = 'https://csmaterials-search.herokuapp.com/similarity?'+
+        var url = searchapi_url+'/similarity?'+
         `matID=${idList}`;
         getJSONData(url, {}).then(resp => {
             if (resp === undefined) {
@@ -56,7 +58,7 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
             else {
                 if (resp['status'] === "OK") {
                     newData.data = resp['data'];
-                           //Getting the data regarding hte materials selected so that the graph can use that and display it
+                           //Getting the data regarding the materials selected so that the graph can use that and display it
                     url = api_url + "/data/list/materials?ids=" + idList;
                     getJSONData(url, {}).then(resp2 => {
                         if (resp2 === undefined) {
