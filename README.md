@@ -1,6 +1,6 @@
 # cs-materials-react-webclient
 
-# SETUP
+# SETUP for React Client
 ### Requirements
 [yarn](https://yarnpkg.com/)
 
