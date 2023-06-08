@@ -4,7 +4,7 @@
 ### Requirements
 [yarn](https://yarnpkg.com/)
 
-## Install dependencies yarn, react-scripts, typescript
+## Install dependencies: yarn, react-scripts, typescript
 ```sh
 $ npm install -g yarn install 
 ```
