@@ -35,6 +35,7 @@ export function getMaterialLeaves(materialid:number, api_url: string) : Promise<
 	    retvals.push(meta.id);
 	    return retvals;
 	}
+	return retvals;
 
 	const lam = async(mid:number) => {
 	    console.log("unpacking: "+mid);
@@ -48,11 +49,12 @@ export function getMaterialLeaves(materialid:number, api_url: string) : Promise<
 				subt.push(lam(item.id));
 			    }
 			);
+			/*
 			subt.forEach(
 			    function (item:any, index:number) {
 				await item
 			    }
-			);
+			);*/
 			
 		    }
 		}
