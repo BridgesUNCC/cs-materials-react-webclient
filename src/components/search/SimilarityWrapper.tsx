@@ -22,24 +22,21 @@ const createEmptyParams = () : SearchParams => {
 interface Props {
     api_url: string;
     searchapi_url: string;
+    ids: Array<Array<number>>
 }
 
 export const SimilarityWrapper: FunctionComponent<Props> = ({
     api_url,
-    searchapi_url
+    searchapi_url,
+    ids
 }) => {
     const [idListState, setIdListState] = React.useState<string|null>(null);
     const [data, setData] = React.useState<string|null>(null);
     const [materialInfo, setMaterialInfo] = React.useState<Object>({});
-    let { search } = useLocation();
-    let idList : string|null = null, id1 : string|null = null, id2 : string|null = null; 
-        if (search.split("id=")[1]) 
-            id1 = search.split("id=")[1].split("&")[0];
-        if (search.split("id2=")[1]) 
-            id2 = search.split("id2=")[1].split("&")[0];
-    id2 === null ? idList = id1 : idList = id1! + "," + id2!;
-    if(idListState !== idList) setIdListState(idList);
 
+    let idList : string|null = null;
+    idList = ids.toString();
+    if(idListState !== idList) setIdListState(idList);
 
     useEffect(() => {
         updateGraph();
@@ -50,7 +47,7 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
         let newData = createEmptyParams();
         //Getting the data from the similarity API so that the graph can actually get drawn
         var url = searchapi_url+'/similarity?'+
-        `matID=${idList}`;
+        `matID=${ids.toString()}`;
         getJSONData(url, {}).then(resp => {
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
@@ -59,7 +56,7 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
                 if (resp['status'] === "OK") {
                     newData.data = resp['data'];
                            //Getting the data regarding the materials selected so that the graph can use that and display it
-                    url = api_url + "/data/list/materials?ids=" + idList;
+                    url = api_url + "/data/list/materials?ids=" + ids.toString();
                     getJSONData(url, {}).then(resp2 => {
                         if (resp2 === undefined) {
                             console.log("API SERVER FAIL")
@@ -84,7 +81,7 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
 
     return (
       <div>
-            <SearchRelation  names={materialInfo} data={data}/>
+          <SearchRelation  names={materialInfo} similarityData={data} ids={ids} />
       </div>
       
     )

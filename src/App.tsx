@@ -711,12 +711,34 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         </Container>
                     )}
                     />
-                     <Route path="/selectsimilarity"render={(route_props) => (
-                        <Container maxWidth="xl">
-                            <SimilarityWrapper api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} />
-                        </Container>
-                    )}
+
+		    <Route path="/selectsimilarity" render={
+			       (route_props) => 			       {
+				   let search :string = route_props.location.search;
+				   const paramparser = new URLSearchParams(search);
+				   
+				   const p1 : string | null = paramparser.get('id');
+				   const p2 : string | null = paramparser.get('id2');
+				   const ids : Array< Array<number> > = [];
+
+				   if (p1) {
+				      let id1 : Array<number> = [];
+				      id1 = p1.split(",").map(i=>Number(i));
+				      ids.push(id1);
+				   }
+				   if (p2) {
+				      let id2 : Array<number> = [];
+				      id2 = p2.split(",").map(i=>Number(i));
+				      ids.push(id2);
+				   }
+			       return (
+			       <Container maxWidth="xl">
+			       		  <SimilarityWrapper api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} ids={ids} />
+                               </Container>
+			       )}
+			   }
                     />
+
                     
                     <Route path="/login"/>
                     <Route path="/register"/>

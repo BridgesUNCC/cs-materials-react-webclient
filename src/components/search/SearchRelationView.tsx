@@ -489,7 +489,7 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           // I mean should I be using Material UI for this? I'm just gonna use in text styling
             <div>
             <div style={{border: '2px solid gray', height: '600px', backgroundColor: '#3b3a3a', marginTop: '20px'}}>
-              <SearchRelation data={similarityDisplay.visData} names={similarityDisplay.names}/>
+              <SearchRelation similarityData={similarityDisplay.visData} names={similarityDisplay.names} ids={[parse_query_variable(location, "ids").split(",").map(i=>Number(i))]} />
             </div>
             </div>
           }
