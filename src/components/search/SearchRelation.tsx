@@ -68,7 +68,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
 	      });
 	    });
 
-      let colors = ["red", "blue", "green", "yellow", "white", "black", "purple" ];
+	  let colors = ["red", "blue", "green", "yellow", "white", "black", "purple", "pink", "cyan" ];
 
       for(const key in similarityData['2dembedding']){
         let nodeJSON = {

@@ -30,17 +30,13 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
     searchapi_url,
     ids
 }) => {
-    const [idListState, setIdListState] = React.useState<string|null>(null);
-    const [data, setData] = React.useState<string|null>(null);
+    const [renderIds, setRenderIds] = React.useState<Array<Array<number>>>(ids);
+    const [similarityData, setSimilarityData] = React.useState<string|null>(null);
     const [materialInfo, setMaterialInfo] = React.useState<Object>({});
-
-    let idList : string|null = null;
-    idList = ids.toString();
-    if(idListState !== idList) setIdListState(idList);
 
     useEffect(() => {
         updateGraph();
-    }, [idListState]);
+    }, [renderIds]);
 
 
     function updateGraph(){
@@ -70,7 +66,7 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
                                     materialList.map(i => nameObject = {...nameObject, [i.id]: i.title});
                                 }
                                 setMaterialInfo(nameObject);
-                                setData(resp['data']);
+                                setSimilarityData(resp['data']);
                             }
                         }
                     })
@@ -81,7 +77,7 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
 
     return (
       <div>
-          <SearchRelation  names={materialInfo} similarityData={data} ids={ids} />
+	  <SearchRelation  names={materialInfo} similarityData={similarityData} ids={ids} />
       </div>
       
     )
