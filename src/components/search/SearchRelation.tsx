@@ -33,6 +33,20 @@ const useStyles = makeStyles((theme: Theme) =>
         },
     }));
 
+/*
+Displays a similarity graph. This is an inner component of SimilarityWrapper.
+
+The component provides support to organize the materiasl in different sets that  are rendered with different visual attributes.
+
+params:
+
+similarityData: an object formated the way smartsearch returns similarity https://github.com/BridgesUNCC/CSmaterial-smart-search see /similarity route
+
+ids: an Array<Array<number>> that indicates the different sets of materials to visualize. It is assumed that the material ids contained in that list are in similarityData
+
+names: usable strings to use as display for each materials.
+*/
+			
 export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names, ids
                                                            }) => {
 

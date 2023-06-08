@@ -25,10 +25,20 @@ interface Props {
     ids: Array<Array<number>>
 }
 
+/*
+Provides a component to see a graph of similarity between a set of materials. The component provides support to organize the materiasl in different sets that  are rendered with different visual attributes.
+
+TODO: Currently you can not have two similarityWrapper on the same page visible at once. They will "eat" each other because of how SearchRelation is written
+			
+params:
+			
+ids:  a Array<Array<number> which indicates the set of materials IDs that need to be analyzed. If you want to see the similarity of three materials you would pass [[1,2,3]], but if you want to see the difference between different sets, you would pass [[1,2,3],[4,5,6],[7,8],[10]]
+						
+*/			
 export const SimilarityWrapper: FunctionComponent<Props> = ({
     api_url,
     searchapi_url,
-    ids
+    ids 
 }) => {
     const [renderIds, setRenderIds] = React.useState<Array<Array<number>>>(ids);
     const [similarityData, setSimilarityData] = React.useState<string|null>(null);
