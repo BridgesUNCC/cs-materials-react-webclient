@@ -53,7 +53,7 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
         let newData = createEmptyParams();
         //Getting the data from the similarity API so that the graph can actually get drawn
         var url = searchapi_url+'/similarity?'+
-        `matID=${ids.toString()}`;
+        `matID=${renderIds.toString()}`;
         getJSONData(url, {}).then(resp => {
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
@@ -62,7 +62,7 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
                 if (resp['status'] === "OK") {
                     newData.data = resp['data'];
                            //Getting the data regarding the materials selected so that the graph can use that and display it
-                    url = api_url + "/data/list/materials?ids=" + ids.toString();
+                    url = api_url + "/data/list/materials?ids=" + renderIds.toString();
                     getJSONData(url, {}).then(resp2 => {
                         if (resp2 === undefined) {
                             console.log("API SERVER FAIL")
