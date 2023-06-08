@@ -45,10 +45,16 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
     const [materialInfo, setMaterialInfo] = React.useState<Object>({});
 
     useEffect(() => {
-        updateGraph();
+//	console.log("useEffect in SimilarityWrapper. renderIds are :"+renderIds.toString());
+	if (renderIds[0].length > 0)
+            updateGraph();
     }, [renderIds]);
 
-
+    /* if ids happen to be an upstream state, update view on update of that upstream state. */
+    useEffect(() => {
+	setRenderIds(ids);
+    }, [ids]);
+							      
     function updateGraph(){
         let newData = createEmptyParams();
         //Getting the data from the similarity API so that the graph can actually get drawn
