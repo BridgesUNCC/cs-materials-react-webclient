@@ -19,7 +19,10 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         paper: {
           marginTop: '0%',
-          marginBottom: '10%'
+          marginBottom: '0%'
+        },
+        matrix: {
+            marginLeft: '-30%',
         },
     }));
 
@@ -130,6 +133,35 @@ export const HarmonizationView: FunctionComponent<Props> = ({
         const url = api_url + "/data/harmonization?ids=" + ids + "&tag_types=" + tag_types;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
+        const material_url = api_url + "/data/list/materials?ids=" + ids
+        let updated_material_axis: AxisData[] = [];
+        let all_ids = ids.split(",");
+        for(let i = 0; i < all_ids.length; i++){
+                updated_material_axis.push({id:Number(all_ids[i]), title:"test", new_title: "test"})
+        }
+
+        getJSONData(material_url, auth).then(resp => {
+            if (resp === undefined) {
+                console.log("API SERVER FAIL")
+            } else {
+                if(resp['status'] === "OK"){
+                    let material_data = resp['data'];
+                    console.log(material_data)
+
+                    for(let i = 0; i < material_data.length; i++){
+                        for(let j = 0; j < updated_material_axis.length; j++){
+                            if(updated_material_axis[j].id == material_data[i].id){
+                                updated_material_axis[j].title = material_data[i].title
+                                updated_material_axis[j].new_title = material_data[i].title
+                            }
+                        }
+                    }
+                }
+            }
+
+        })
+
+
         getJSONData(url, auth).then(resp => {
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
@@ -137,7 +169,13 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                 if (resp['status'] === "OK") {
                     let data: HarmonizationData = resp['data'];
 
-                    // deep clone
+                    for(let i = 0; i < updated_material_axis.length; i++){
+                        var index = data.material_axis.findIndex(x => x.id==updated_material_axis[i].id); 
+                        if(index === -1){
+                            data.material_axis.push(updated_material_axis[i])
+                        }
+                    }
+                    
                     const init_mapping = data.mapping.map(e => e);
                     //@FIXME this is probably bad form
                     // This will populate the mapping data with the non mapping relationships
@@ -178,11 +216,23 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                             fixed_mapping[index] = value;
                         });
 
+                        //hack to sort matrix in decending order
+                        for(let i = 0; i < data.material_axis.length; i++){
+                            let count = 0
+                            for(let j = 0; j < data.tag_axis.length; j++){
+                                fixed_mapping[i * row_len + j].tag_index = data.tag_axis.length-1 - count; 
+                               count++;
+                            }
+                               
+                            
+                        }
                         data.mapping = fixed_mapping;
+                        data.tag_axis.reverse();
                     };
 
                     fix_matrix(data);
-                    data = Bicluster(data);
+
+                    //data = Bicluster(data);
 
                     setViewInfo({...viewInfo, init_fetched: true, fetched: true, data, ids})
                 }
@@ -198,6 +248,8 @@ export const HarmonizationView: FunctionComponent<Props> = ({
         setViewInfo(fields);
     };
 
+    //fucntion to handle how a cell reacts when clicked based on if it was already selected or removed
+    //from the materials tag list
     const handleBoxToggle = (selected: MappingData, transform: string) => {
         if (viewInfo.data !== null) {
             let mapping = viewInfo.data.mapping;
@@ -218,11 +270,18 @@ export const HarmonizationView: FunctionComponent<Props> = ({
 
     };
 
+    const onCluster = () => {
+        let data: HarmonizationData
+        if(viewInfo.data){
+           data = Bicluster(viewInfo.data) 
+           setViewInfo({...viewInfo, data:data})
+        }
+    }
+
     const onSubmit = () => {
         const ids = viewInfo.data?.material_axis.map(e => e.id);
         const post_url = api_url + "/data/post/material";
-        const fetch_url = api_url + "/data/materials?ids=" + ids;
-
+        const fetch_url = api_url + "/data/materials/full?ids=" + ids;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         getJSONData(fetch_url, auth).then(resp => {
@@ -233,7 +292,6 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                     let data: MaterialData[] = resp['data']['materials'];
 
                     let relevant_mapping = viewInfo.data.mapping.filter(element => element.weight > 0.0);
-
 
                     //@ts-ignore
                     let post_data = {"data": []};
@@ -247,7 +305,7 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                         // @ts-ignore
                         post_data.data.push(material)
                     });
-
+                    console.log(post_data)
                     postJSONData(post_url, post_data, auth).then((resp) => {
                         setViewInfo({...viewInfo, fetched: false});
                     });
@@ -269,19 +327,28 @@ export const HarmonizationView: FunctionComponent<Props> = ({
                         onChange={onTextFieldChange("ids")}
                     />
                     {
-                    // <Button
-                    //     className={classes.margin}
-                    //     variant={"contained"}
-                    //     onClick={onSubmit}
-                    // >
-                    //     Submit Matrix
-                    // </Button>
+                    <Button
+                        className={classes.margin}
+                        variant={"contained"}
+                        onClick={onSubmit}
+                    >
+                        Submit Matrix
+                    </Button>
                   }
+                  {
+                  // <Button
+                  //       className={classes.margin}
+                  //       variant={"contained"}
+                  //       onClick={onCluster}
+                  //   >
+                  //       Bicluster Matrix
+                  //   </Button>
+                }
                 </Paper>
             }
             {
                 viewInfo.fetched && viewInfo.data !== null? (
-                    <div id={"matrix-container"}>
+                    <div id={"matrix-container"} className={classes.matrix}>
                         <Matrix data={viewInfo.data} handleClick={handleBoxToggle} transform={viewInfo.transform}/>
                     </div>
                     ):

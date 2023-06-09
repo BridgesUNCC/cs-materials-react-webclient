@@ -2,6 +2,10 @@ import React, {FunctionComponent, useEffect, useRef} from "react";
 import * as d3 from "d3";
 import {HarmonizationData, MappingData} from "./HarmonizationView";
 import {svg} from "d3";
+import {makeStyles} from "@material-ui/core/styles";
+import {createStyles, Theme} from "@material-ui/core";
+
+
 
 interface Props {
     data: HarmonizationData
@@ -10,12 +14,23 @@ interface Props {
 }
 
 
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles ( {
+        svg: {
+            display: 'block',
+              margin: 'auto'
+        },
+        
+    }));
+
+
 export const Matrix: FunctionComponent<Props> = ({
     data,
     handleClick,
     transform,
 }) => {
     const ref = useRef(null);
+    const classes = useStyles();
     d3.select("#tooltipMatrix").classed("hidden", true);
     function gridOver(d: any, i: any) {
         d3.selectAll("rect").style("stroke-width", function (p: any) {
@@ -39,20 +54,21 @@ export const Matrix: FunctionComponent<Props> = ({
       // Select text by id and then remove
       d3.selectAll("tspan").remove();
     }
-
+    const centerTransform = 'translate('+ window.innerWidth/2 + ',' + window.innerHeight/8 + ')';
     function zoomed() {
         d3.select("g").attr("transform", d3.event.transform);
     }
 
     useEffect(() => {
         const svgElement = d3.select(ref.current);
+        
 
         // cleanup old d3 generated stuff
         svgElement.selectAll("g").remove();
 
         // make matrix
-        svgElement.attr("width", 5000)
-            .attr("height", 5000)
+        svgElement.attr("width", window.innerWidth)
+            .attr("height", window.innerHeight)
             .append("g")
             // @ts-ignore
             .attr("transform", transform)
@@ -65,6 +81,7 @@ export const Matrix: FunctionComponent<Props> = ({
             .attr("height", 25)
             .attr("x", function (d: MappingData) {return d.mat_index * 25})
             .attr("y", function (d: MappingData) {return d.tag_index * 25})
+            .attr("transform", centerTransform)
             .style("stroke", "black")
             .style("stroke-width", "1px")
             .style("fill", function (d: MappingData) {
@@ -120,18 +137,20 @@ export const Matrix: FunctionComponent<Props> = ({
         // @ts-ignore
         let left_axis = d3.axisLeft(tag_scale);
 
-        d3.select("#adjacencyG").append("g").call(left_axis);
+        d3.select("#adjacencyG").append("g").call(left_axis).attr("transform", centerTransform);
         d3.select("#adjacencyG").append("g")
             .call(top_axis)
+            .attr("transform", centerTransform)
             .selectAll("text")
             .style("text-anchor", "end")
-            .attr("transform", "translate(-10,-10) rotate(90)")
+            .attr("transform","translate(-10,-10) rotate(90)")
+            
 
 
 
     });
 
     return (
-        <svg ref={ref}/>
+        <svg ref={ref} className={classes.svg}/>
     )
 };
