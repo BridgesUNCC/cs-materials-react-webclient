@@ -96,7 +96,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
         }
         nodes.push(nodeJSON)
       }
-      console.log(similarityData['similarity'])
+     // console.log(similarityData['similarity'])
       for(const key in similarityData['similarity']){
         for(const p in similarityData['similarity'][key]){
           let linkJSON = {
@@ -157,7 +157,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
                       return "translate(" + ((d.x * 300)) + "," + ((d.y * 300)) + ")";
                     })
                     .on("mouseover", d => {
-                      console.log();
+			//console.log();
                       d3.select("#tooltip")
                       .style('opacity', 1)
                       .select("#value")

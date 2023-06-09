@@ -36,6 +36,8 @@ import CardMedia from '@material-ui/core/CardMedia';
 import  {NotFound} from "./components/NotFound";
 import Typography from '@material-ui/core/Typography';
 import {getMaterialMeta} from './common/csmaterialsapiinterface';
+import {getMaterialLeaves} from './common/csmaterialsapiinterface';
+import {expandCollectionToListLeave} from './common/csmaterialsapiinterface';
 
 
 import {
@@ -45,7 +47,7 @@ import {
     SnackbarBuilderProps
 } from "./common/SnackbarBuilder";
 import { SimilarityWrapper } from './components/search/SimilarityWrapper';
-import { SimRec } from './components/search/SimRec';
+import { SimilaritySubcollection } from './components/search/SimilaritySubcollection';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -745,13 +747,18 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
 		    <Route path="/simtest" render={
 			       (route_props) => 			       {
+				   let search :string = route_props.location.search;
+				   const paramparser = new URLSearchParams(search);
+				   
+				   const p1 : string | null = paramparser.get('id');
+				   let id : number = Number(p1); 
 
-				   let content =  (
+							 return (
 			       <Container maxWidth="xl">
-				   <SimRec api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} id={179}  />
+				   <SimilaritySubcollection api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} id={id}  />
                                </Container>
 							)
-				return content;
+
 							}
 			   }
                     />
