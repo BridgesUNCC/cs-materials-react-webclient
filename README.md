@@ -6,7 +6,7 @@
 
 ## Install dependencies: yarn, react-scripts, typescript
 ```sh
-$ npm install -g yarn install 
+$ npm install -g yarn 
 ```
 ```sh
 $ npm install -g react-scripts
