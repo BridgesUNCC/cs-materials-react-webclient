@@ -1,6 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {MaterialListOne} from "./comparison/MaterialListOne";
-import {MaterialListTwo} from "./comparison/MaterialListTwo";
+import {MaterialListComparison} from "./comparison/MaterialListComparison";
 import {Grid} from "@material-ui/core";
 import {RouteComponentProps} from "react-router";
 
@@ -36,18 +35,6 @@ export const Comparison: FunctionComponent<ListProps> = ({   history,
 
 
 
-    // lol this actually works for call back values from child component
-    // const getList = (list: any, from: string) => {
-    //   if(from === "listOne"){
-    //     listOne = list
-    //     console.log(list, from);
-    //   }
-    //   if(from === "listTwo"){
-    //     listTwo = list
-    //     console.log(list, from);
-    //   }
-    // }
-
     const selectedListOne=(event: boolean, element: any) => {
       if(listOneCallBack !== undefined){
         listOneCallBack(event, element);
@@ -60,16 +47,13 @@ export const Comparison: FunctionComponent<ListProps> = ({   history,
       }
     }
 
-    // let analyze = <Analyze listOne={listOne} listTwo={listTwo} user_id={user_id} user_data={user_data}
-    //                          currentLoc="compare" from="listOne"/>;
-
     return (
       <Grid container spacing={2}>
       <Grid item xs={12} md={6}>
-        <MaterialListOne history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listOne"} selectedListOne={selectedListOne} listOne={listOne} currentSelected={listOne}/>
+        <MaterialListComparison history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listOne"} selectedListCallback={selectedListOne} idlist={listOne} currentSelected={listOne}/>
       </Grid>
       <Grid item xs={12} md={6}>
-        <MaterialListTwo history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listTwo"} selectedListTwo={selectedListTwo} listTwo={listTwo} currentSelected={listTwo}/>
+        <MaterialListComparison history={history} location={location} match={match} api_url={api_url} user_id={user_id} user_data={user_data} from={"listTwo"} selectedListCallback={selectedListTwo} idlist={listTwo} currentSelected={listTwo}/>
       </Grid>
     </Grid>
     )

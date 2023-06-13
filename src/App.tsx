@@ -196,7 +196,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
     //this gets the updated material id selected from material list and
     //comparison views
     let [listOne, setListOne] = React.useState<any[]>([]);
-    let [clistOne, setcListOne] = React.useState<any[]>([]);
+    let [comparisonListOne, setcomparisonListOne] = React.useState<any[]>([]);
     let [listTwo, setListTwo] = React.useState<any[]>([]);
     //takes the event of a checkbox to determine if a value should be removed or
     //appended to the list
@@ -229,18 +229,18 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
     const handleListOneUpdate = (event: boolean, newElement: any) => {
         if(event){
             if(newElement.length === undefined){
-                setcListOne(clistOne => [...clistOne, newElement]);
+                setcomparisonListOne(comparisonListOne => [...comparisonListOne, newElement]);
             }else{
                 for(let i = 0; i < newElement.length; i++){
-                    setcListOne(clistOne => [...clistOne, newElement[i]]);
+                    setcomparisonListOne(comparisonListOne => [...comparisonListOne, newElement[i]]);
                 }
             }
         }else{
             if(newElement.length === undefined){
-                const newList = clistOne.filter((item) => item.id !== newElement.id)
-                setcListOne(newList)
+                const newList = comparisonListOne.filter((item) => item.id !== newElement.id)
+                setcomparisonListOne(newList)
             }else{
-                setcListOne([]);
+                setcomparisonListOne([]);
             }
 
         }
@@ -276,8 +276,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
     const handleGlobalListClose = () => {
       setAnchorEl(null);
     };
-
-
 
 
     const updateUserId = (id: number, fromStorage?: boolean, fromRegister?: boolean) => {
@@ -468,7 +466,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 onClose={handleGlobalListClose}
                                 className={classes.menu}
                               >
-                              <Divider component="li" />
                                   <li>
                                     <Typography
                                       className={classes.dividerFullWidth}
@@ -493,7 +490,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                       Comparison List One
                                     </Typography>
                                   </li>
-                              {clistOne.map((tag) => (
+                              {comparisonListOne.map((tag) => (
                                 <MenuItem onClick={handleGlobalListClose}>{tag.name}</MenuItem>
                               ))}
                               <Divider component="li" />
@@ -540,7 +537,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
             <Grid container spacing={3}>
             <Grid item xs={2}>
             <Container className={classes.sidebar}>
-                <Sidebar listOne={listOne.map(function(a) {return a.id;})} compareListOne={clistOne.map(function(a) {return a.id;})} listTwo={listTwo.map(function(a) {return a.id;})} user_id={appInfo.user_id} user_data={appInfo} currentLoc="materials" from="materials"/>
+                <Sidebar listOne={listOne.map(function(a) {return a.id;})} compareListOne={comparisonListOne.map(function(a) {return a.id;})} listTwo={listTwo.map(function(a) {return a.id;})} user_id={appInfo.user_id} user_data={appInfo} currentLoc="materials" from="materials"/>
             </Container>
             </Grid>
 
@@ -592,7 +589,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/comparison" render={(route_props) => (
                         <Container maxWidth="lg">
-                            <Comparison {...route_props} api_url={appInfo.api_url} user_data={appInfo.user_data} user_id={appInfo.user_id} listOneCallBack = {handleListOneUpdate} listTwoCallBack={handleListTwoUpdate} listOne={clistOne.map(function(a) {return a.id;})} listTwo={listTwo.map(function(a) {return a.id;})}/>
+                            <Comparison {...route_props} api_url={appInfo.api_url} user_data={appInfo.user_data} user_id={appInfo.user_id} listOneCallBack = {handleListOneUpdate} listTwoCallBack={handleListTwoUpdate} listOne={comparisonListOne.map(function(a) {return a.id;})} listTwo={listTwo.map(function(a) {return a.id;})}/>
                         </Container>
                     )}
                     />
