@@ -477,7 +477,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                     </Typography>
                                   </li>
                               {listOne.map((tag) => (
-                                <MenuItem onClick={handleGlobalListClose}>{tag.name}</MenuItem>
+                                <MenuItem component={ Link } to={"/material/"+tag.id}>{tag.name}</MenuItem>
                               ))}
                               <Divider component="li" />
                                   <li>
@@ -491,7 +491,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                     </Typography>
                                   </li>
                               {comparisonListOne.map((tag) => (
-                                <MenuItem onClick={handleGlobalListClose}>{tag.name}</MenuItem>
+                                <MenuItem component={ Link } to={"/material/"+tag.id}>{tag.name}</MenuItem>
                               ))}
                               <Divider component="li" />
                                   <li>
@@ -506,7 +506,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                   </li>
 
                               {listTwo.map((tag) => (
-                                <MenuItem onClick={handleGlobalListClose}>{tag.name}</MenuItem>
+                                <MenuItem component={ Link } to={"/material/"+tag.id}>{tag.name}</MenuItem>
                               ))}
                               </Menu>
                             </Grid>
