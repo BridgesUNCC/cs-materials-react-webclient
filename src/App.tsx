@@ -89,7 +89,7 @@ const useStyles = makeStyles((theme: Theme) =>
       },
       sidebar:{
           position: 'absolute',
-          display: 'flex',
+          //display: 'flex',
           paddingRight: '200px',
           
 
@@ -534,7 +534,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 </Route>
             </Switch>
 
-            <Grid container spacing={3}>
+            <Grid container>
             <Grid item xs={2}>
             <Container className={classes.sidebar}>
                 <Sidebar listOne={listOne.map(function(a) {return a.id;})} compareListOne={comparisonListOne.map(function(a) {return a.id;})} listTwo={listTwo.map(function(a) {return a.id;})} user_id={appInfo.user_id} user_data={appInfo} currentLoc="materials" from="materials"/>
@@ -542,7 +542,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
             </Grid>
 
             <Grid item xs={10} >
-            <Container maxWidth="xl" className={classes.heroContent} >
+            <Container className={classes.heroContent} >
                 <Switch>
                     <Route exact path="/" render={() => (
                         <div>
@@ -581,12 +581,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         </Container>
                     )}
                     />
-                    <Route path="/analyze" render={(route_props) => (
-                        <Container maxWidth="lg">
-                            <Analyze listOne={[]} listTwo={[]} user_id={appInfo.user_id} user_data={appInfo.user_data} currentLoc={""} from={"nav"}/>
-                        </Container>
-                    )}
-                    />
+                    
                     <Route path="/comparison" render={(route_props) => (
                         <Container maxWidth="lg">
                             <Comparison {...route_props} api_url={appInfo.api_url} user_data={appInfo.user_data} user_id={appInfo.user_id} listOneCallBack = {handleListOneUpdate} listTwoCallBack={handleListTwoUpdate} listOne={comparisonListOne.map(function(a) {return a.id;})} listTwo={listTwo.map(function(a) {return a.id;})}/>
