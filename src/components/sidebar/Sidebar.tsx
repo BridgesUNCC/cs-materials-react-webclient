@@ -19,6 +19,7 @@ import PeopleIcon from '@material-ui/icons/People';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
+import ShowChartIcon from '@material-ui/icons/ShowChart';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Collapse from '@material-ui/core/Collapse';
@@ -187,26 +188,26 @@ export const Sidebar: FunctionComponent<Props> = (
     if (currentLoc === "compare") {
         radialacm = <ListItem button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=acm&listoneids=' + compListOne + '&listtwoids=' + compListTwo}>
             <ListItemIcon>
-                <PeopleIcon />
+                <ShowChartIcon />
             </ListItemIcon>
             <ListItemText primary="Radial View ACM-CSC 2013" />
         </ListItem>
         radialpdc = <ListItem button onClick={() => setIndex(5)} selected={selectedIndex === 5} component={Link} to={'/radial?tree=pdc&listoneids=' + compListOne + '&listtwoids=' + compListTwo}>
             <ListItemIcon>
-                <PeopleIcon />
+                <ShowChartIcon />
             </ListItemIcon>
             <ListItemText primary="Radial View PDC 2012" />
         </ListItem>
     } else {
         radialacm = <ListItem className={classes.nested} button onClick={() => setIndex(4)} selected={selectedIndex === 4} component={Link} to={'/radial?tree=acm&ids=' + listOne}>
             <ListItemIcon>
-                <PeopleIcon />
+                <ShowChartIcon />
             </ListItemIcon>
             <ListItemText primary="Radial View ACM-CSC 2013" />
         </ListItem>
         radialpdc = <ListItem className={classes.nested} button onClick={() => setIndex(5)} selected={selectedIndex === 5} component={Link} to={'/radial?tree=pdc&ids=' + listOne}>
             <ListItemIcon>
-                <PeopleIcon />
+                <ShowChartIcon />
             </ListItemIcon>
             <ListItemText primary="Radial View PDC 2012" />
         </ListItem>
@@ -260,7 +261,7 @@ export const Sidebar: FunctionComponent<Props> = (
                   </ListItem>
                   <ListItem button onClick={() => setIndex(3)} className={classes.nested} selected={selectedIndex === 3} component={Link} to='/materials?material_types=collection'>
                     <ListItemIcon>
-                      <AccountTreeIcon />
+                      <PlaylistAddIcon />
                     </ListItemIcon>
                     <ListItemText primary="Select Collections" />
                   </ListItem>
@@ -334,7 +335,7 @@ export const Sidebar: FunctionComponent<Props> = (
                   </ListItem>
                   <ListItem className={classes.nested} button onClick={() => setIndex(10)} selected={selectedIndex === 10} component={Link} to={'/radial?tree=acm&listoneids=' + compareListOne + '&listtwoids=' + listTwo}>
                     <ListItemIcon>
-                        <PeopleIcon />
+                        <ShowChartIcon />
                     </ListItemIcon>
                     <ListItemText primary="Radial Comparison View" />
                   </ListItem>

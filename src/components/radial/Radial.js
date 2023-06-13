@@ -65,7 +65,6 @@ class Radial extends Component {
 
     let data             = Object.values(this.props.data[0]);
     data                 = JSON.parse(JSON.stringify(data)) //deep clone the data
-    let data2            = Object.values(this.props.data[0]);
     let assignments      = JSON.parse(JSON.stringify(this.props.data[1]));
     var assignmentsArray = assignments.assignments;
     let view             = this.props.view || this.props.data.length === 3 ? "compare" : "first";
@@ -82,10 +81,6 @@ class Radial extends Component {
     if(temp1[0] != ""){
       trimming = true;
     }
-
-
-
-
 
 
     const handleClick = () => {
@@ -201,12 +196,6 @@ class Radial extends Component {
         }
       }
       return set
-    }
-
-    function clearDataHits(){
-      for(let i = 0; i < data.length; i++){
-        data[i].hits = 0;
-      }
     }
 
 
