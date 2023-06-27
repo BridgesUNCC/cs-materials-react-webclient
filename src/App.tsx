@@ -89,7 +89,7 @@ const useStyles = makeStyles((theme: Theme) =>
       },
       sidebar:{
           position: 'absolute',
-          display: 'flex',
+          //display: 'flex',
           paddingRight: '200px',
           
 
@@ -135,6 +135,7 @@ export interface AppEntity {
     fetched_initial_data: boolean;
     force_fetch_data: boolean;
     api_url: string;
+    searchapi_url: string;
     user_data?: UserData | any;
     snackbar_info: SnackbarBuilderProps;
 }
@@ -145,6 +146,7 @@ const createInitialAppEntity = (): AppEntity => {
     let jwt = localStorage.getItem("access_token");
 
     let api_url = process.env.REACT_APP_API_URL || "http://localhost:5000";
+    let searchapi_url = process.env.REACT_APP_SEARCHAPI_URL || "http://localhost:6000";
 
     if (typeof jwt === "string") {
         let payload = parseJwt(jwt);
@@ -155,6 +157,7 @@ const createInitialAppEntity = (): AppEntity => {
                 return {
                     user_id: id,
                     api_url: api_url,
+		    searchapi_url: searchapi_url,
                     fetched_initial_data: false,
                     force_fetch_data: false,
                     snackbar_info: emptySnackbarBuilderProps(),
@@ -166,6 +169,7 @@ const createInitialAppEntity = (): AppEntity => {
     return {
         user_id: null,
         api_url: api_url,
+	searchapi_url: searchapi_url,
         fetched_initial_data: false,
         force_fetch_data: false,
         snackbar_info: emptySnackbarBuilderProps(),
@@ -194,7 +198,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
     //this gets the updated material id selected from material list and
     //comparison views
     let [listOne, setListOne] = React.useState<any[]>([]);
-    let [clistOne, setcListOne] = React.useState<any[]>([]);
+    let [comparisonListOne, setcomparisonListOne] = React.useState<any[]>([]);
     let [listTwo, setListTwo] = React.useState<any[]>([]);
     //takes the event of a checkbox to determine if a value should be removed or
     //appended to the list
@@ -227,18 +231,18 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
     const handleListOneUpdate = (event: boolean, newElement: any) => {
         if(event){
             if(newElement.length === undefined){
-                setcListOne(clistOne => [...clistOne, newElement]);
+                setcomparisonListOne(comparisonListOne => [...comparisonListOne, newElement]);
             }else{
                 for(let i = 0; i < newElement.length; i++){
-                    setcListOne(clistOne => [...clistOne, newElement[i]]);
+                    setcomparisonListOne(comparisonListOne => [...comparisonListOne, newElement[i]]);
                 }
             }
         }else{
             if(newElement.length === undefined){
-                const newList = clistOne.filter((item) => item.id !== newElement.id)
-                setcListOne(newList)
+                const newList = comparisonListOne.filter((item) => item.id !== newElement.id)
+                setcomparisonListOne(newList)
             }else{
-                setcListOne([]);
+                setcomparisonListOne([]);
             }
 
         }
@@ -274,8 +278,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
     const handleGlobalListClose = () => {
       setAnchorEl(null);
     };
-
-
 
 
     const updateUserId = (id: number, fromStorage?: boolean, fromRegister?: boolean) => {
@@ -466,7 +468,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 onClose={handleGlobalListClose}
                                 className={classes.menu}
                               >
-                              <Divider component="li" />
                                   <li>
                                     <Typography
                                       className={classes.dividerFullWidth}
@@ -478,7 +479,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                     </Typography>
                                   </li>
                               {listOne.map((tag) => (
-                                <MenuItem onClick={handleGlobalListClose}>{tag.name}</MenuItem>
+                                <MenuItem component={ Link } to={"/material/"+tag.id}>{tag.name}</MenuItem>
                               ))}
                               <Divider component="li" />
                                   <li>
@@ -491,8 +492,8 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                       Comparison List One
                                     </Typography>
                                   </li>
-                              {clistOne.map((tag) => (
-                                <MenuItem onClick={handleGlobalListClose}>{tag.name}</MenuItem>
+                              {comparisonListOne.map((tag) => (
+                                <MenuItem component={ Link } to={"/material/"+tag.id}>{tag.name}</MenuItem>
                               ))}
                               <Divider component="li" />
                                   <li>
@@ -507,7 +508,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                   </li>
 
                               {listTwo.map((tag) => (
-                                <MenuItem onClick={handleGlobalListClose}>{tag.name}</MenuItem>
+                                <MenuItem component={ Link } to={"/material/"+tag.id}>{tag.name}</MenuItem>
                               ))}
                               </Menu>
                             </Grid>
@@ -535,15 +536,15 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                 </Route>
             </Switch>
 
-            <Grid container spacing={3}>
+            <Grid container>
             <Grid item xs={2}>
             <Container className={classes.sidebar}>
-                <Sidebar listOne={listOne.map(function(a) {return a.id;})} compareListOne={clistOne.map(function(a) {return a.id;})} listTwo={listTwo.map(function(a) {return a.id;})} user_id={appInfo.user_id} user_data={appInfo} currentLoc="materials" from="materials"/>
+                <Sidebar listOne={listOne.map(function(a) {return a.id;})} compareListOne={comparisonListOne.map(function(a) {return a.id;})} listTwo={listTwo.map(function(a) {return a.id;})} user_id={appInfo.user_id} user_data={appInfo} currentLoc="materials" from="materials"/>
             </Container>
             </Grid>
 
             <Grid item xs={10} >
-            <Container maxWidth="xl" className={classes.heroContent} >
+            <Container className={classes.heroContent} >
                 <Switch>
                     <Route exact path="/" render={() => (
                         <div>
@@ -582,15 +583,10 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         </Container>
                     )}
                     />
-                    <Route path="/analyze" render={(route_props) => (
-                        <Container maxWidth="lg">
-                            <Analyze listOne={[]} listTwo={[]} user_id={appInfo.user_id} user_data={appInfo.user_data} currentLoc={""} from={"nav"}/>
-                        </Container>
-                    )}
-                    />
+                    
                     <Route path="/comparison" render={(route_props) => (
                         <Container maxWidth="lg">
-                            <Comparison {...route_props} api_url={appInfo.api_url} user_data={appInfo.user_data} user_id={appInfo.user_id} listOneCallBack = {handleListOneUpdate} listTwoCallBack={handleListTwoUpdate} listOne={clistOne.map(function(a) {return a.id;})} listTwo={listTwo.map(function(a) {return a.id;})}/>
+                            <Comparison {...route_props} api_url={appInfo.api_url} user_data={appInfo.user_data} user_id={appInfo.user_id} listOneCallBack = {handleListOneUpdate} listTwoCallBack={handleListTwoUpdate} listOne={comparisonListOne.map(function(a) {return a.id;})} listTwo={listTwo.map(function(a) {return a.id;})}/>
                         </Container>
                     )}
                     />
@@ -608,7 +604,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/materials" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialList {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} listOneCallBack = {handleListUpdate} currentSelected={listOne.map(function(a) {return a.id;})}/>
+                            <MaterialList {...route_props} api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} user_id={appInfo.user_id} listOneCallBack = {handleListUpdate} currentSelected={listOne.map(function(a) {return a.id;})}/>
                         </Container>
                     )}
                     />
@@ -635,7 +631,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     }
                     <Route path="/material/create" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialForm {...route_props} api_url={appInfo.api_url}
+                            <MaterialForm {...route_props} api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url}
                                       force_user_data_reload={force_user_data_refresh}
                             />
                         </Container>
@@ -643,7 +639,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/material/:id/edit" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialForm {...route_props} api_url={appInfo.api_url}
+                            <MaterialForm {...route_props} api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url}
                                           force_user_data_reload={force_user_data_refresh}/>
                         </Container>
                     )}
@@ -651,7 +647,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
                     <Route path="/material/create" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialForm {...route_props} api_url={appInfo.api_url}
+                            <MaterialForm {...route_props} api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url}
                                       force_user_data_reload={force_user_data_refresh}
                             />
                         </Container>
@@ -660,7 +656,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
                     <Route path="/material/:id/edit" render={(route_props) => (
                         <Container maxWidth="md">
-                            <MaterialForm {...route_props} api_url={appInfo.api_url}
+                            <MaterialForm {...route_props} api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url}
                                           force_user_data_reload={force_user_data_refresh}/>
                         </Container>
                     )}
@@ -705,13 +701,13 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                     />
                     <Route path="/searchrelation"render={(route_props) => (
                         <Container maxWidth="xl">
-                            <SearchRelationView {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} />
+                            <SearchRelationView {...route_props} api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} user_id={appInfo.user_id} />
                         </Container>
                     )}
                     />
                      <Route path="/selectsimilarity"render={(route_props) => (
                         <Container maxWidth="xl">
-                            <SimilarityWrapper api_url={appInfo.api_url} />
+                            <SimilarityWrapper api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} />
                         </Container>
                     )}
                     />

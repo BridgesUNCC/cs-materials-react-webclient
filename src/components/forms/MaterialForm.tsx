@@ -109,6 +109,7 @@ interface MatchParams {
 
 interface Props extends RouteComponentProps<MatchParams> {
     api_url: string;
+    searchapi_url: string;
     force_user_data_reload: () => void;
 
 }
@@ -192,6 +193,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         location,
         match,
         api_url,
+        searchapi_url,
         force_user_data_reload,
     }
 ) => {
@@ -563,6 +565,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         // cache target
         let target = event.currentTarget;
         let id = match.params.id;
+
         if (formInfo.new) {
             // need an id for new material, submit it and get the id, redirect after file upload
             await onSubmit((id: number) => id).then((resp) => {
@@ -583,6 +586,7 @@ export const MaterialForm: FunctionComponent<Props> = (
         // if new material redirect to its page, otherwise fetch file list
         Promise.all(promises).then(() => {
             if (formInfo.new) {
+                window.onbeforeunload = () => {};
                 history.push({
                         pathname: "/material/" + id + "/edit"
                     }
@@ -955,6 +959,7 @@ export const MaterialForm: FunctionComponent<Props> = (
           location={location}
           match={match}
           api_url={api_url}
+	  searchapi_url={searchapi_url}
           user_id={0}
           store_tags={false}
           selected_materials={selected_materials}
