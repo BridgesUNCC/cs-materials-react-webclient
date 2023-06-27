@@ -42,7 +42,7 @@ import {
     SnackbarBuilderProps
 } from "./common/SnackbarBuilder";
 import { SimilarityWrapper } from './components/search/SimilarityWrapper';
-
+// part of css and react notations
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
       margin: {
@@ -112,7 +112,8 @@ const useStyles = makeStyles((theme: Theme) =>
       },
   }),
 );
-
+// What does this mean?
+// The individual tutorials in the main page
 const cards = [{id: 1, title: "Author", image: require("./author.PNG"),
                        text: 'Enter your own course information to analyze and compare against ACM and PDC guidelines',
                        link: '/author'},
@@ -138,6 +139,7 @@ export interface AppEntity {
     snackbar_info: SnackbarBuilderProps;
 }
 
+// First thing that gets loaded in the webpage. Runs on the server
 const createInitialAppEntity = (): AppEntity => {
     // @TODO if token is blacklisted, drop it
     let jwt = localStorage.getItem("access_token");
@@ -178,7 +180,7 @@ interface UserData {
     registered_on: string;
     owned_materials: number[];
 }
-
+// Function component is a react thing and thats how we define the app. 
 export const App: FunctionComponent<Props> = ({history, location}) => {
     const classes = useStyles();
 
@@ -732,3 +734,4 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 };
 
 export default App;
+    
