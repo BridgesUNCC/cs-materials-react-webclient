@@ -155,7 +155,6 @@ export const SearchRelationView: FunctionComponent<Props> = ({
           if(searchParams.has("matchpool") && matchpools.includes(searchParams.get("matchpool")!)) tempParam.matchpoolChoice = searchParams.get("matchpool")!;
           if(searchParams.has("matID") && parseInt(searchParams.get("matID")!) >= 0) tempParam.materialChoice = searchParams.get("matID")!.split(',').map(e => parseInt(e));
           if(searchParams.has("k") && parseInt(searchParams.get("k")!) >= 0) tempParam.searchAmount = parseInt(searchParams.get("k")!);
-          (tempParam.searchType === "search") ? setMultipleChoice(false) : setMultipleChoice(true);
           if(tempParam !== searchParameters){
             setSearchParameters(tempParam);
           }
@@ -173,17 +172,11 @@ export const SearchRelationView: FunctionComponent<Props> = ({
     const [searchParameters, setSearchParameters] = React.useState<SearchParam>(createEmptyParams());
     const [resultDisplay, setResultDisplay] = React.useState<Array<ResultData> | null>();
     const [similarityDisplay, setSimilarityDisplay] = React.useState<SimilarityData | null>(null);
-    const [multipleChoice,setMultipleChoice] = React.useState(false);
     const [similarityIdList, setSimilarityIdList] = React.useState<Number[]>([]);
 
-    //This function makes sure that at least one of the toggles is selected
-    //I need this to correctly update the multipleChoice variable correctly I believe (the useEffect hook operates async)
-    useEffect(() => {
-      searchParameters.searchType === 'search' ? setMultipleChoice(false) : setMultipleChoice(true);
-    }, [searchParameters]);
 
     const handleSearchClick = () => {
-      multipleChoice ? handleSimilarity() : handleSearch();
+      handleSearch();
     };
     const handleSearch = () => {
       //This syntax looks a lot better to me
@@ -211,30 +204,6 @@ export const SearchRelationView: FunctionComponent<Props> = ({
                   )
                   setSimilarityIdList(list);
                   console.log("List: " + list + "\nSimilarity List: " + similarityIdList + "\nResults Display: " + resultDisplay);
-              }
-          }
-      })
-    };
-    const handleSimilarity = () => {
-
-      var url = searchapi_url+'/similarity?'+
-                 `matID=${searchParameters.materialChoice}`
-      getJSONData(url, {}).then(resp => {
-          if (resp === undefined) {
-              console.log("API SERVER FAIL")
-          }
-          else {
-
-              if (resp['status'] === "OK") {
-                //Getting the names for the labels
-                let ob = {};
-                if(Array.isArray(searchParameters.materialChoice)){
-                  searchParameters.materialChoice.map(i =>{
-                    ob = {...ob, [i]: (listInfo.materials.find(material => material.id === i))?.title};
-                  });
-                }
-                let dataVis = resp['data'];
-                  setSimilarityDisplay({visData: dataVis, names: ob});
               }
           }
       })
@@ -368,7 +337,6 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             variant="filled"
             value={searchParameters.searchAmount}
 
-            disabled={multipleChoice}
             onChange={(event: any) => setSearchParameters({...searchParameters, searchAmount: event.target.value})}/>
           </FormControl>
           </Grid>
@@ -456,10 +424,8 @@ export const SearchRelationView: FunctionComponent<Props> = ({
                           </Button>
                   </Grid>
               </Grid>
-          {/* Super weird syntax but basically its conditionally creating these elements depending on if the multipleChoice
-          variable is true or not */}
 
-          {(resultDisplay !== null)&&!multipleChoice&&<Typography component={'span'}>
+          {(resultDisplay !== null)&&<Typography component={'span'}>
           <Paper style={{maxHeight: 330, overflow: 'auto'}}>
                       {
 
@@ -484,8 +450,8 @@ export const SearchRelationView: FunctionComponent<Props> = ({
             </Typography>
 
           }
-          {/* Similar conditional rendering  */}
-          {(similarityDisplay !== null)&&multipleChoice&&
+
+          {(similarityDisplay !== null)&&
           // I mean should I be using Material UI for this? I'm just gonna use in text styling
             <div>
             <div style={{border: '2px solid gray', height: '600px', backgroundColor: '#3b3a3a', marginTop: '20px'}}>
