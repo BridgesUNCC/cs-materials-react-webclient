@@ -6,6 +6,7 @@ import {makeStyles} from "@material-ui/core/styles";
 
 import { useLocation } from "react-router-dom";
 import { SearchRelation } from "./SearchRelation";
+import { getSimilarityData} from "../../common/csmaterialsapiinterface";
 
 interface SearchParams {
     data: any;
@@ -57,18 +58,13 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
 							      
     function updateGraph(){
         let newData = createEmptyParams();
+
         //Getting the data from the similarity API so that the graph can actually get drawn
-        var url = searchapi_url+'/similarity?'+
-        `matID=${renderIds.toString()}`;
-        getJSONData(url, {}).then(resp => {
-            if (resp === undefined) {
-                console.log("API SERVER FAIL")
-            }
-            else {
-                if (resp['status'] === "OK") {
-                    newData.data = resp['data'];
+	getSimilarityData(renderIds.flat(), searchapi_url)
+	    .then((simData) =>{
+                    newData.data = simData;
                            //Getting the data regarding the materials selected so that the graph can use that and display it
-                    url = api_url + "/data/list/materials?ids=" + renderIds.toString();
+                const url = api_url + "/data/list/materials?ids=" + renderIds.toString();
                     getJSONData(url, {}).then(resp2 => {
                         if (resp2 === undefined) {
                             console.log("API SERVER FAIL")
@@ -82,13 +78,11 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
                                     materialList.map(i => nameObject = {...nameObject, [i.id]: i.title});
                                 }
                                 setMaterialInfo(nameObject);
-                                setSimilarityData(resp['data']);
+                                setSimilarityData(simData);
                             }
                         }
                     })
-                }
-            }
-        })
+            })
     }
 
     return (

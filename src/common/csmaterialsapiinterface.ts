@@ -12,7 +12,7 @@ export function getMaterialMeta(materialid:Number, api_url: string){
         promise = getJSONData(url, auth).then(resp => {
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
-                return null;
+                return null; //TODO should this return a failed promise?
             } else {
                 if (resp['status'] === "OK") {
                     return resp['data'];
@@ -21,7 +21,6 @@ export function getMaterialMeta(materialid:Number, api_url: string){
         })
     return promise;
     }
-
 
 //returns a promise that will contain a list of material ids.
 //params:
@@ -101,4 +100,34 @@ export function expandCollectionToListLeave(collectionid:number, api_url: string
 	//return retvals
 
     });
+}
+
+
+//returns similarity data for this particular set of materials
+//
+//params:
+//materialsids: an array of material IDs
+//searchapi_url: the base url of the search API
+//
+//returns a object from the respose of /similarity from https://github.com/BridgesUNCC/CSmaterial-smart-search
+export function getSimilarityData(materialids:Array<number>, searchapi_url: string) {
+    const url = searchapi_url+'/similarity?'+
+          `matID=${materialids.toString()}`;
+    return getJSONData(url, {}).then(resp => {
+        if (resp === undefined) {
+            console.log("API SERVER FAIL")
+	    return Promise.reject("API FAIL");
+        }
+	else {
+	    if (resp['status'] === "OK") {
+		console.log('echo');
+		return resp['data'];
+	    }
+	    else {
+		return Promise.reject("API FAIL");
+	    }
+	}
+    });
+
+
 }
