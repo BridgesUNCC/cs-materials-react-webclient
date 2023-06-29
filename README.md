@@ -1,17 +1,23 @@
 # cs-materials-react-webclient
 
-# SETUP
+# SETUP for React 
 ### Requirements
 [yarn](https://yarnpkg.com/)
 
-## Install dependencies
+## Install dependencies: yarn, react-scripts, typescript
 ```sh
-$ yarn install
+$ npm install -g yarn 
+```
+```sh
+$ npm install -g react-scripts
+```
+```sh
+$ npm install -g typescript
 ```
 
 ## Run the server
 ```sh
-$ yarn start
+$ yarn run start
 ```
 
 ## Optional environment variables

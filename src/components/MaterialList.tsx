@@ -124,7 +124,7 @@ export const MaterialList: FunctionComponent<ListProps> = ({   history,
     const classes = useStyles();
     let path = location.pathname;
     let search = location.search;
-    const itemsPerPage = 10;
+    const itemsPerPage = 50;
     let noOfPages = 1 //default value
                                 
     const [listInfo, setListInfo] = React.useState<ListEntity>(
