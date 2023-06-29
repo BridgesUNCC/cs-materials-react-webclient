@@ -6,6 +6,7 @@ import {makeStyles} from "@material-ui/core/styles";
 
 import { useLocation } from "react-router-dom";
 import { SearchRelation } from "./SearchRelation";
+import { getSimilarityData} from "../../common/csmaterialsapiinterface";
 
 interface SearchParams {
     data: any;
@@ -22,44 +23,48 @@ const createEmptyParams = () : SearchParams => {
 interface Props {
     api_url: string;
     searchapi_url: string;
+    ids: Array<Array<number>>
 }
 
+/*
+Provides a component to see a graph of similarity between a set of materials. The component provides support to organize the materiasl in different sets that  are rendered with different visual attributes.
+
+TODO: Currently you can not have two similarityWrapper on the same page visible at once. They will "eat" each other because of how SearchRelation is written
+			
+params:
+			
+ids:  a Array<Array<number> which indicates the set of materials IDs that need to be analyzed. If you want to see the similarity of three materials you would pass [[1,2,3]], but if you want to see the difference between different sets, you would pass [[1,2,3],[4,5,6],[7,8],[10]]
+						
+*/			
 export const SimilarityWrapper: FunctionComponent<Props> = ({
     api_url,
-    searchapi_url
+    searchapi_url,
+    ids 
 }) => {
-    const [idListState, setIdListState] = React.useState<string|null>(null);
-    const [data, setData] = React.useState<string|null>(null);
+    const [renderIds, setRenderIds] = React.useState<Array<Array<number>>>(ids);
+    const [similarityData, setSimilarityData] = React.useState<string|null>(null);
     const [materialInfo, setMaterialInfo] = React.useState<Object>({});
-    let { search } = useLocation();
-    let idList : string|null = null, id1 : string|null = null, id2 : string|null = null; 
-        if (search.split("id=")[1]) 
-            id1 = search.split("id=")[1].split("&")[0];
-        if (search.split("id2=")[1]) 
-            id2 = search.split("id2=")[1].split("&")[0];
-    id2 === null ? idList = id1 : idList = id1! + "," + id2!;
-    if(idListState !== idList) setIdListState(idList);
-
 
     useEffect(() => {
-        updateGraph();
-    }, [idListState]);
+//	console.log("useEffect in SimilarityWrapper. renderIds are :"+renderIds.toString());
+	if (renderIds[0].length > 0)
+            updateGraph();
+    }, [renderIds]);
 
-
+    /* if ids happen to be an upstream state, update view on update of that upstream state. */
+    useEffect(() => {
+	setRenderIds(ids);
+    }, [ids]);
+							      
     function updateGraph(){
         let newData = createEmptyParams();
+
         //Getting the data from the similarity API so that the graph can actually get drawn
-        var url = searchapi_url+'/similarity?'+
-        `matID=${idList}`;
-        getJSONData(url, {}).then(resp => {
-            if (resp === undefined) {
-                console.log("API SERVER FAIL")
-            }
-            else {
-                if (resp['status'] === "OK") {
-                    newData.data = resp['data'];
+	getSimilarityData(renderIds.flat(), searchapi_url)
+	    .then((simData) =>{
+                    newData.data = simData;
                            //Getting the data regarding the materials selected so that the graph can use that and display it
-                    url = api_url + "/data/list/materials?ids=" + idList;
+                const url = api_url + "/data/list/materials?ids=" + renderIds.toString();
                     getJSONData(url, {}).then(resp2 => {
                         if (resp2 === undefined) {
                             console.log("API SERVER FAIL")
@@ -73,18 +78,16 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
                                     materialList.map(i => nameObject = {...nameObject, [i.id]: i.title});
                                 }
                                 setMaterialInfo(nameObject);
-                                setData(resp['data']);
+                                setSimilarityData(simData);
                             }
                         }
                     })
-                }
-            }
-        })
+            })
     }
 
     return (
       <div>
-            <SearchRelation  names={materialInfo} data={data}/>
+	  <SearchRelation  names={materialInfo} similarityData={similarityData} ids={ids} />
       </div>
       
     )
