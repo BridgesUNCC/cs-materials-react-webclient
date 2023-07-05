@@ -80,6 +80,8 @@ class Radial extends Component {
     }
 
 
+
+
     const handleClick = () => {
       this.state.open = true
       return true
@@ -255,7 +257,7 @@ class Radial extends Component {
               tempProp["id"] = foundnode.id;
               classificationTree.push(foundnode);
               node = vd_node.parent
-              
+
             }
             tempProp["visited"] = false;
             mark.push(tempProp)
@@ -593,8 +595,12 @@ class Radial extends Component {
       var tree = comparedTree;
     } else if (view === "first"){
       let firstClassificationSet = parseClassification(assignmentsArray, "1");
+
       let firstClassificationTree = buildClassificationTree(firstClassificationSet);
+
       let firstFlatClassificationTree = addChildren(firstClassificationTree);
+
+      console.log(firstFlatClassificationTree)
       if(removeGray == "1"){
         trimTree1(firstFlatClassificationTree)
         trimGrey(firstFlatClassificationTree)

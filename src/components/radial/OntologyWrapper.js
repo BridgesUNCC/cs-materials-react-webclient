@@ -102,7 +102,7 @@ class OntologyWrapper extends Component {
     render() {
         return (
             <div>
-            
+
                 {this.state.loading ? (
                     <div>loading...</div>
                     ) :
