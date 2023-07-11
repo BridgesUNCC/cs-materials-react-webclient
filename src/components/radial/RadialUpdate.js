@@ -113,8 +113,6 @@ class RadialUpdate extends Component {
       }
     }
 
-	  let core_list = [[12, 13, 42], [123, 83, 92]]
-
     //Traverses the ontology tree, and styles nodes if the are in the list of materials  
     function buildClassificationTree(root, parent){
       //init values of current node to defaults. If we have been to this node be
