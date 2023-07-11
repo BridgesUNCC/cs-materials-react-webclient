@@ -113,6 +113,9 @@ class RadialUpdate extends Component {
       }
     }
 
+	  let core_list = [[12, 13, 42], [123, 83, 92]]
+
+    //Traverses the ontology tree, and styles nodes if the are in the list of materials  
     function buildClassificationTree(root, parent){
       //init values of current node to defaults. If we have been to this node be
       if(root == undefined){return;}
@@ -125,14 +128,15 @@ class RadialUpdate extends Component {
       }else{
         root.hide = true
       }
-      //if(!root.hide) root.hide = true;
-
+      //if(!root.hide) root.hide = true;	    
       root.parent = parent;
       for(let j = 0; j < assignmentsArray.length; j++){
         if(assignmentsArray[j].fields.classifications.includes("ACM-CS2013: " + root.title)){
+	  //style the current node if maps the one of the materials
           styleTreeNode(root)
         }
       }
+      //if current node is hit style the path of nodes to the root
       if(root.hits > 0){
         styleParentNodePath(parent)
       }
