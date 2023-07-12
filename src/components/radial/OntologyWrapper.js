@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Radial from './Radial';
+import RadialUpdate from './RadialUpdate'
 import {Analyze} from "../analyze/Analyze";
 import {getJSONData} from "../../common/util";
 
@@ -26,7 +27,7 @@ class OntologyWrapper extends Component {
     async componentDidMount() {
         const api_url = this.props.api_url;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
-        const radialapi = this.props.api_url + "/data/ontology_trees_old";
+        const radialapi = this.props.api_url + "/data/ontology_trees";
 
         let ids    = "";
         let tags   = "";
@@ -101,7 +102,7 @@ class OntologyWrapper extends Component {
     render() {
         return (
             <div>
-            
+
                 {this.state.loading ? (
                     <div>loading...</div>
                     ) :
@@ -110,7 +111,7 @@ class OntologyWrapper extends Component {
                             :
                             (
                                 <div id={"RadialContainer"}>
-                                    <Radial data={this.state.data} width={this.state.width} height={this.state.height} tags={this.state.tags}/>
+                                    <RadialUpdate data={this.state.data} width={this.state.width} height={this.state.height} tags={this.state.tags}/>
                                 </div>
                             )
                     )

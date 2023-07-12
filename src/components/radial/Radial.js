@@ -71,10 +71,7 @@ class Radial extends Component {
     let temp1            = this.props.tags.split(',');
     // let trimming         = false;
 
-
-
     var trimming = this.state.trimming
-
     var removeGray = this.state.grayRemoval
     var formatAfter = this.state.formatAfter
 
@@ -83,10 +80,13 @@ class Radial extends Component {
     }
 
 
+
+
     const handleClick = () => {
       this.state.open = true
       return true
     };
+
 
     function unflatten(arr) {
       const tree = [], mappedArr = {};
@@ -221,12 +221,7 @@ class Radial extends Component {
     let mark = [];
     function buildClassificationTree(classSet){
       let classificationTree = [];
-      for(let i = 0; i < classSet.length; i++){
-        let tempProp = {};
-        tempProp["id"] = classSet[i];
-        tempProp["visited"] = false;
-        mark.push(tempProp)
-      }
+
       classificationTree.push(data[treeRoot]);
       classificationTree[0].color = "red"; //root color
       classificationTree[0].size = 30; //root size
@@ -236,17 +231,23 @@ class Radial extends Component {
       mark.push(tempProp);
 
       for(let i = 0; i < classSet.length; i++){
+        let tempProp = {};
+        tempProp["id"] = classSet[i];
+        tempProp["visited"] = false;
+        mark.push(tempProp)
+
         let node = classSet[i];
         let vd_node = findInTree(node);
         classificationTree.push(vd_node);
         //mark the nodes from here to the root, to indicate the
         //path of the selected node to the root
-        while(!mark[findMarked(node)].visited){
-          mark[findMarked(node)].visited = true;
+        while(!mark[mark.length-1].visited){
+          mark[mark.length-1].visited = true;
           vd_node = findInTree(node);
-          classificationTree[findInClassTree(node, classificationTree)].color = (vd_node.hits) ? "orange" : "blue";
-          classificationTree[findInClassTree(node, classificationTree)].size = (vd_node.hits/maxHits) * 10 + 10;
-          (classificationTree[findInClassTree(node, classificationTree)].childhits) ? classificationTree[findInClassTree(node, classificationTree)].size = (vd_node.childhits/maxHits) * 10 + 10 : classificationTree[findInClassTree(node, classificationTree)].size = (vd_node.hits/maxHits) * 10 + 10
+          let index = findInClassTree(node, classificationTree);
+          classificationTree[index].color = (vd_node.hits) ? "orange" : "blue";
+          classificationTree[index].size = (vd_node.hits/maxHits) * 10 + 10;
+          (classificationTree[index].childhits) ? classificationTree[index].size = (vd_node.childhits/maxHits) * 10 + 10 : classificationTree[index].size = (vd_node.hits/maxHits) * 10 + 10
           if(findMarked(vd_node.parent) === -1){
             let tempProp = {};
             let foundnode = findInTree(vd_node.parent);
@@ -254,20 +255,13 @@ class Radial extends Component {
               tempProp["id"] = -1
             }else{
               tempProp["id"] = foundnode.id;
+              classificationTree.push(foundnode);
+              node = vd_node.parent
+
             }
             tempProp["visited"] = false;
             mark.push(tempProp)
           }
-          //change label here
-          //change label here
-          if(findMarked(vd_node.parent) !== -1){
-            if(!mark[findMarked(vd_node.parent)].visited){
-              let vd_parent = findInTree(vd_node.parent);
-              classificationTree.push(vd_parent);
-              node = vd_node.parent
-            }
-          }
-
         }
       }
       return classificationTree
@@ -581,14 +575,6 @@ class Radial extends Component {
       }
     }
 
-    // async function removeGrayNodes(tree){
-    //   for (let i = 0; i < tree.length; i++){
-    //     if(tree[i].color === "grey"){
-    //
-    //     }
-    //   }
-    // }
-
     if (view === "compare"){
       let firstClassificationSet = parseClassification(assignmentsArray, "1");
       let firstClassificationTree = buildClassificationTree(firstClassificationSet);
@@ -609,8 +595,12 @@ class Radial extends Component {
       var tree = comparedTree;
     } else if (view === "first"){
       let firstClassificationSet = parseClassification(assignmentsArray, "1");
+
       let firstClassificationTree = buildClassificationTree(firstClassificationSet);
+
       let firstFlatClassificationTree = addChildren(firstClassificationTree);
+
+      console.log(firstFlatClassificationTree)
       if(removeGray == "1"){
         trimTree1(firstFlatClassificationTree)
         trimGrey(firstFlatClassificationTree)
@@ -645,6 +635,8 @@ class Radial extends Component {
       layoutRadialLayer(secondUnflattenedClassificationTree);
       var tree = secondUnflattenedClassificationTree
     }
+
+    console.log(tree)
 
     //visualization containter size and initial drag position
     const g = this.container.select('svg').attr('width', vWidth).attr('height', vHeight)
@@ -812,7 +804,7 @@ class Radial extends Component {
 
         <Button onClick={this.handleClickOpen}>Open select dialog</Button>
       <div id="RadialSettings">
-      <Dialog disableBackdropClick disableEscapeKeyDown open={this.state.open} onClose={this.handleClose}>
+      <Dialog open={this.state.open} onClose={this.handleClose}>
         <DialogTitle>Choose Radial Settings</DialogTitle>
         <DialogContent>
           <form>

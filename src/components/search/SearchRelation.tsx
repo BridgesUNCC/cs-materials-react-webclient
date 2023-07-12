@@ -12,8 +12,9 @@ import { Opacity } from "@material-ui/icons";
 
 
 interface Props {
-    data: any
+    similarityData: any
     names: any
+    ids: Array<Array<number>>
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -32,7 +33,21 @@ const useStyles = makeStyles((theme: Theme) =>
         },
     }));
 
-export const SearchRelation: FunctionComponent<Props> = ({ data, names
+/*
+Displays a similarity graph. This is an inner component of SimilarityWrapper.
+
+The component provides support to organize the materiasl in different sets that  are rendered with different visual attributes.
+
+params:
+
+similarityData: an object formated the way smartsearch returns similarity https://github.com/BridgesUNCC/CSmaterial-smart-search see /similarity route
+
+ids: an Array<Array<number>> that indicates the different sets of materials to visualize. It is assumed that the material ids contained in that list are in similarityData
+
+names: usable strings to use as display for each materials.
+*/
+			
+export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names, ids
                                                            }) => {
 
     const ref = useRef(null);
@@ -53,35 +68,44 @@ export const SearchRelation: FunctionComponent<Props> = ({ data, names
       let nodes: any[] = []
       let links: any[] = []
 
-      if(data != undefined){
+      if(similarityData != undefined){
             const queryID = null;
             g.selectAll("*").remove(); //This prevents multiple graphs from stacking on top of each other
                                        //It just removes the old data when new data is provided (I THINK?)
 
 
 	    let all_similarities : number[] = [];
+	    let category : Map<number, number> = new Map();
+	    ids.forEach(function(item, index) {
+	      item.forEach(function(mat, index2) {
+	        category.set(mat, index);
+	      });
+	    });
 
-      for(const key in data['2dembedding']){
+	  let colors = ["red", "blue", "green", "yellow", "white", "black", "purple", "pink", "cyan" ];
+
+      for(const key in similarityData['2dembedding']){
         let nodeJSON = {
           'id': key,
           // 'name': data['result'][i].title,
-          'x': data['2dembedding'][key][0],
-          'y': data['2dembedding'][key][1],
-          'color': "red",
+          'x': similarityData['2dembedding'][key][0],
+          'y': similarityData['2dembedding'][key][1],
+//          'color': "red",
+          'color': colors[category.get(Number(key) ) || 0 ] || "red",
           'size': 20
         }
         nodes.push(nodeJSON)
       }
-      console.log(data['similarity'])
-      for(const key in data['similarity']){
-        for(const p in data['similarity'][key]){
+     // console.log(similarityData['similarity'])
+      for(const key in similarityData['similarity']){
+        for(const p in similarityData['similarity'][key]){
           let linkJSON = {
           'id': key + "X" + p,
-          'x1': data['2dembedding'][key][0]* 300,
-          'y1': data['2dembedding'][key][1]* 300,
-          'x2': data['2dembedding'][p][0]* 300,
-          'y2': data['2dembedding'][p][1]* 300,
-          'opacity': data['similarity'][key][p],
+          'x1': similarityData['2dembedding'][key][0]* 300,
+          'y1': similarityData['2dembedding'][key][1]* 300,
+          'x2': similarityData['2dembedding'][p][0]* 300,
+          'y2': similarityData['2dembedding'][p][1]* 300,
+          'opacity': similarityData['similarity'][key][p],
         }
         links.push(linkJSON)
         }
@@ -133,7 +157,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ data, names
                       return "translate(" + ((d.x * 300)) + "," + ((d.y * 300)) + ")";
                     })
                     .on("mouseover", d => {
-                      console.log();
+			//console.log();
                       d3.select("#tooltip")
                       .style('opacity', 1)
                       .select("#value")
