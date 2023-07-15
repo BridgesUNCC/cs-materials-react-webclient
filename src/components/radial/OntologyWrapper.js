@@ -4,7 +4,7 @@ import RadialUpdate from './RadialUpdate'
 import {Analyze} from "../analyze/Analyze";
 import {getJSONData} from "../../common/util";
 
-
+ 
 
 class OntologyWrapper extends Component {
     constructor() {
@@ -35,7 +35,7 @@ class OntologyWrapper extends Component {
         let oneids = "";
         let twoids = "";
         let compare = false;
-
+       
         if(this.props.location.search.includes('listoneids')){
           compare = true;
           if (this.props.location.search.split("listoneids=")[1])

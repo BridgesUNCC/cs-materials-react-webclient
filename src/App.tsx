@@ -48,8 +48,11 @@ import {
 } from "./common/SnackbarBuilder";
 import { SimilarityWrapper } from './components/search/SimilarityWrapper';
 <<<<<<< HEAD
+<<<<<<< HEAD
 // part of css and react notations
 =======
+=======
+>>>>>>> a927d916b3b32b4d1bb513f835d3ebcb2725e942
 import { SimilaritySubcollection } from './components/search/SimilaritySubcollection';
 
 >>>>>>> b32d0bb9ddf9121d58de5d108aeece43895716d9
@@ -741,6 +744,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                </Container>
 			       )}
 			   }
+<<<<<<< HEAD
                     />
 
 		    <Route path="/simtest" render={
@@ -761,6 +765,28 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			   }
                     />
 
+=======
+                    />
+
+		    <Route path="/simtest" render={
+			       (route_props) => 			       {
+				   let search :string = route_props.location.search;
+				   const paramparser = new URLSearchParams(search);
+				   
+				   const p1 : string | null = paramparser.get('id');
+				   let id : number = Number(p1); 
+
+							 return (
+			       <Container maxWidth="xl">
+				   <SimilaritySubcollection api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} id={id}  />
+                               </Container>
+							)
+
+							}
+			   }
+                    />
+
+>>>>>>> a927d916b3b32b4d1bb513f835d3ebcb2725e942
 							 
                     
                     <Route path="/login"/>
