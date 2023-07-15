@@ -48,7 +48,7 @@ import {
 } from "./common/SnackbarBuilder";
 import { SimilarityWrapper } from './components/search/SimilarityWrapper';
 
->>>>>>> b32d0bb9ddf9121d58de5d108aeece43895716d9
+  
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
       margin: {
@@ -650,7 +650,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         </Container>
                     )}
                     />
-
+     
                     <Route path="/material/create" render={(route_props) => (
                         <Container maxWidth="md">
                             <MaterialForm {...route_props} api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url}
