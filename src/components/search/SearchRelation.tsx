@@ -141,7 +141,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
                        }
 
                      })
-                     .style("stroke-width", 3);
+                     .style("stroke-width", 0.5);
 
         let node = g.append("g").attr("class", "nodes").selectAll("circle")
                     .data(nodes).enter()
@@ -170,6 +170,15 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
                     .on("mouseout", d => {
                       d3.select("#tooltip")
                       .style('opacity', 0)
+                    })
+
+	let textlabels =  g.append("g").attr("class", "nodes").selectAll("circle")
+                    .data(nodes).enter()
+                    .append('text')
+		    .text(d=> names[d.id])
+                    .attr("fill", "orange")
+                    .attr("transform", function (d) {
+                      return "translate(" + ((d.x * 300+15)) + "," + ((d.y * 300+15)) + ")";
                     })
 
 

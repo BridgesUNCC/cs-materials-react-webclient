@@ -120,7 +120,6 @@ export function getSimilarityData(materialids:Array<number>, searchapi_url: stri
         }
 	else {
 	    if (resp['status'] === "OK") {
-		console.log('echo');
 		return resp['data'];
 	    }
 	    else {
