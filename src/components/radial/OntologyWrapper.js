@@ -18,9 +18,10 @@ class OntologyWrapper extends Component {
             text: '',
             tags: "",
             radialdata: {data: {acm: {}, pdc: {}}},
-            visual: "",
+            visual: "acm",
             temptags: "",
             dirty: false,
+            treetype: "acm"
         };
     }
 
@@ -50,9 +51,11 @@ class OntologyWrapper extends Component {
         }
 
 
-        if (this.props.location.search.split("tree=")[1])
+        if (this.props.location.search.split("tree=")[1]){
             tree = this.props.location.search.split("tree=")[1].split("&")[0];
             this.state.visual = tree
+        }
+            
 
         if (tree !== "acm" && tree !== "pdc")
             tree = "acm";
@@ -82,7 +85,8 @@ class OntologyWrapper extends Component {
         if (prevProps && this.props.location.search !== prevProps.location.search && this.props.location.search.includes('ids')) {
             let data = this.state.data;
             data[0] = this.state.radialdata.data[this.props.history.location.search.split("tree=")[1].split("&")[0]]
-            this.setState({...this.state, data});
+            let vis = this.props.history.location.search.split("tree=")[1].split("&")[0]
+            this.setState({...this.state, data, visual: vis});
         }
       }
 
@@ -111,7 +115,7 @@ class OntologyWrapper extends Component {
                             :
                             (
                                 <div id={"RadialContainer"}>
-                                    <RadialUpdate data={this.state.data} width={this.state.width} height={this.state.height} tags={this.state.tags}/>
+                                    <RadialUpdate data={this.state.data} width={this.state.width} height={this.state.height} tags={this.state.tags} ontology_type={this.state.visual}/>
                                 </div>
                             )
                     )
