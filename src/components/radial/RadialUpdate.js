@@ -132,6 +132,7 @@ class RadialUpdate extends Component {
      const g = this.container.select('svg').attr('width', vWidth).attr('height', vHeight)
          .select('g').attr('transform', 'translate(' + vWidth / 2 + ',' + vHeight / 2 + ')');
 
+
      //tree size
      const vLayout = d3.tree().size([2 * Math.PI, Math.min(vWidth * 2, vHeight * 2)]); // margin!
      console.log(this.props)
