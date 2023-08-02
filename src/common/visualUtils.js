@@ -1,9 +1,11 @@
+import * as d3 from "d3";
+
 let maxHits                   = 15;
 
 function styleTreeNode(node, hitThresh){
       node.hits += 1;
       node.color = "orange";
-      node.size = (node.hits/maxHits) * 10 + 10;
+      node.size = (node.hits/maxHits) * 100 + 10;
       
       if(node.hits < hitThresh[0] || node.hits > hitThresh[1]){
       	console.log(hitThresh)
@@ -56,6 +58,16 @@ export function trimTree(tree){
 }
 
 //given a tree of ontology data, and assignments, build tree.
+//root shape can be:
+/*
+  symbolCircle,
+  symbolCross,
+  symbolDiamond,
+  symbolSquare,
+  symbolStar,
+  symbolTriangle,
+  symbolWye 
+*/
 export function buildClassificationTree(root, parent, assignmentsArray, ontologyType, hitThresh){
       //init values of current node to defaults. If we have been to this node be
       if(root == undefined){return;}
@@ -64,6 +76,7 @@ export function buildClassificationTree(root, parent, assignmentsArray, ontology
       if(!root.childhits) root.childhits = 0;
       if(!root.size) root.size = 10;
       if(!root.assignments) root.assignments = [];
+      if(!root.shapeType) root.shapeType = d3.symbolWye;
       if(root.hide === false){
         root.hide = false
       }else{
