@@ -22,76 +22,38 @@ class OntologyWrapper extends Component {
             visual: "acm",
             temptags: "",
             dirty: false,
+
         };
     }
 
     async componentDidMount() {
         const api_url = this.props.api_url;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
-        const radialapi = this.props.api_url + "/data/ontology_trees";
 
-        getOntologyTree(this.props.treetype, api_url)
-        .then(ontology => {
-               console.log(ontology);
-           });
+        let ontologyTree = await getOntologyTree(this.props.tree, api_url);
 
+        this.state.visual = this.props.tree
 
+        this.state.radialdata = ontologyTree
 
-        let ids    = "";
-        let tags   = "";
-        var tree   = "";
-        let oneids = "";
-        let twoids = "";
-        let compare = false;
-
-        if(this.props.location.search.includes('listoneids')){
-          compare = true;
-          if (this.props.location.search.split("listoneids=")[1])
-            oneids = this.props.location.search.split("listoneids=")[1].split("&")[0];
-          if (this.props.location.search.split("listtwoids=")[1])
-            twoids = this.props.location.search.split("listtwoids=")[1].split("&")[0];
-        }else if (this.props.location.search.includes('ids')){
-          if (this.props.location.search.split("ids=")[1])
-              ids = this.props.location.search.split("ids=")[1].split("&")[0];
-          if (this.props.location.search.split("tags=")[1])
-              tags = this.props.location.search.split("tags=")[1].split("&")[0]
-        }
-
-
-        if (this.props.location.search.split("tree=")[1]){
-            tree = this.props.location.search.split("tree=")[1].split("&")[0];
-            this.state.visual = tree
-        }
-            
-
-        if (tree !== "acm" && tree !== "pdc")
-            tree = "acm";
-
-        const radialresponse = await fetch(radialapi);
-        let radialdata       = await radialresponse.json();
-        this.state.radialdata = radialdata
-
-        radialdata = radialdata.data[tree];
-
-        let assignmentdata;
         //@TODO FIXME ALL OF THIS
-        if (compare) {
-            // comparison view is broken
-            assignmentdata = await getJSONData(api_url + "/data/ontology_data_old?ids=" + oneids.toString(), auth);
-            let assignmentdata2 = await getJSONData(api_url + "/data/ontology_data_old?ids=" + twoids.toString(), auth);
-            this.setState({data: [radialdata, assignmentdata, assignmentdata2], loading: false})
-        } else {
-            assignmentdata= await getJSONData(api_url + "/data/ontology_data_old?ids=" + ids, auth);
-            this.setState({data: [radialdata, assignmentdata], loading: false, tags: tags})
-        }
+        // if (compare) {
+        //     // comparison view is broken
+        //     assignmentdata = await getJSONData(api_url + "/data/ontology_data_old?ids=" + oneids.toString(), auth);
+        //     let assignmentdata2 = await getJSONData(api_url + "/data/ontology_data_old?ids=" + twoids.toString(), auth);
+        //     this.setState({data: [radialdata, assignmentdata, assignmentdata2], loading: false})
+        // } else {
+        let assignmentdata = await getJSONData(api_url + "/data/ontology_data_old?ids=" + this.props.ids[0], auth);
+        this.setState({data: [this.state.radialdata, assignmentdata], loading: false, tags: this.props.tags})
+        // }
     }
 
     // allows user to switch between acm and pdc views with same data
-    componentDidUpdate(prevProps) {
+    async componentDidUpdate(prevProps) {
         //checks to make sure that it only updates data if ids is present in the url
         if (prevProps && this.props.location.search !== prevProps.location.search && this.props.location.search.includes('ids')) {
             let data = this.state.data;
-            data[0] = this.state.radialdata.data[this.props.history.location.search.split("tree=")[1].split("&")[0]]
+            data[0] = await getOntologyTree(this.props.history.location.search.split("tree=")[1].split("&")[0], this.props.api_url);
             let vis = this.props.history.location.search.split("tree=")[1].split("&")[0]
             this.setState({...this.state, data, visual: vis});
         }

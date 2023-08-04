@@ -106,7 +106,13 @@ class RadialUpdate extends Component {
     let assignments               = JSON.parse(JSON.stringify(this.props.data[1]));
     let assignmentsArray          = assignments.assignments;
     let view                      = this.props.view || this.props.data.length === 3 ? "compare" : "first";
-    let temp1                     = this.props.tags.split(',');
+    let temp1
+    if(this.props.tags){
+      temp1                     = this.props.tags.split(',');
+      if(temp1[0] != ""){
+        trimming = true;
+      }
+    }
     let maxHits                   = 15;
     // let trimming         = false;
 
@@ -116,11 +122,6 @@ class RadialUpdate extends Component {
     var trimming = this.state.trimming
     var removeGray = this.state.grayRemoval
     var formatAfter = this.state.formatAfter
-
-
-    if(temp1[0] != ""){
-      trimming = true;
-    }
 
     const handleClick = () => {
       this.state.open = true

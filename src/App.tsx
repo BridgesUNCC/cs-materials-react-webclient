@@ -607,12 +607,17 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                        let query:string = route_props.location.search;
                        const paramparser = new URLSearchParams(query);
                        
-                       const p1 : string | null = paramparser.get('id');
+                       const p1 : string | null = paramparser.get('ids');
                        const p2 : string | null = paramparser.get('id2');
                        const ids : Array<Array<number> > = [];
 
                        const treetype:string | null = paramparser.get('tree');
+                       const tags:string | null = paramparser.get('tags');
 
+                       if(tags){
+                          let tagList : Array<number> = [];
+                          tagList = tags.split(",").map(i=>Number(i));
+                       }
                        if (p1) {
                           let id1 : Array<number> = [];
                           id1 = p1.split(",").map(i=>Number(i));
@@ -625,7 +630,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                        }
                        return(
                         <Container maxWidth="xl">
-                            <OntologyWrapper {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} ids={ids} tree={treetype}/>
+                            <OntologyWrapper {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} ids={ids} tree={treetype} tags={tags}/>
                         </Container>
                     )}
                    }
