@@ -18,7 +18,7 @@ class OntologyWrapper extends Component {
             height: 500,
             text: '',
             tags: "",
-            visual: "acm",
+            visual: "",
             temptags: "",
             dirty: false,
 
@@ -51,11 +51,11 @@ class OntologyWrapper extends Component {
         //checks to make sure that it only updates data if ids is present in the url
         if (prevProps && this.props.location.search !== prevProps.location.search && this.props.location.search.includes('ids')) {
             let data = this.state.data;
-            data[0] = await getOntologyTree(this.props.history.location.search.split("tree=")[1].split("&")[0], this.props.api_url);
-            let vis = this.props.history.location.search.split("tree=")[1].split("&")[0]
-            this.setState({...this.state, data, visual: vis});
+            data[0] = await getOntologyTree(this.props.tree, this.props.api_url);
+            let vis = this.props.tree
+            this.setState({...this.state, data, visual: this.props.tree});
         }
-      }
+    }
 
 
     render() {

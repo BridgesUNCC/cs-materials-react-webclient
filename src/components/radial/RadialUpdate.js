@@ -48,21 +48,17 @@ class RadialUpdate extends Component {
   }
 
   componentDidMount() {
-    this.container = d3.select("#RadialContainer");
-    this.svg       = this.container.append("svg").append("g");
     this.drawRadial();
-    
   }
 
   shouldComponentUpdate(nextProps){
     if(this.props != nextProps){
       //this is updated from ontologywrapper so it clears all svg draws for a new render
-      this.props = nextProps;
-      this.svg.selectAll("*").remove()
+      this.props = nextProps
       this.drawRadial()
       return true
     }
-    return true 
+    return true
   }
 
   handleClickOpen = () => {
@@ -212,6 +208,7 @@ class RadialUpdate extends Component {
         }}
       />
       {(this.state.loading)? (<div></div>) : (<TreeVisualization data={this.state.ontology_data}/>)}
+ 
       </div>
           <div id={"App" + this.props.id}>
             <div id="tooltips">
