@@ -280,6 +280,13 @@ export const Sidebar: FunctionComponent<Props> = (
                     </ListItemIcon>
                     <ListItemText primary="Similarity View" />
                   </ListItem>
+		  <ListItem className={classes.nested} button onClick={() => {setIndex(17)}} selected={selectedIndex === 17} component={Link} to={'/collectionsimilarity?id=' + listOne}>
+                    <ListItemIcon>
+                      <PeopleIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Subcollection Similarity View" />
+                  </ListItem>
+
                   {/* <ListItem className={classes.nested} button onClick={() => {setIndex(7)}} selected={selectedIndex === 7} component={Link} to={'/searchrelation?type=similarity&matID=' + listOne}>
                     <ListItemIcon>
                       <PeopleIcon />

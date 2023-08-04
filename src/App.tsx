@@ -740,7 +740,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			   }
                     />
 
-		    <Route path="/simtest" render={
+		    <Route path="/collectionsimilarity" render={
 			       (route_props) => 			       {
 				   let search :string = route_props.location.search;
 				   const paramparser = new URLSearchParams(search);
