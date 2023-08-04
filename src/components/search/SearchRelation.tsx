@@ -19,10 +19,10 @@ interface Props {
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles ( {
-        textField: {
+        containerstyle: {
             marginTop: '0%',
-            height: 400,
-            width: 400,
+            height: 600,
+            width: 1600,
         },
         margin: {
             margin: theme.spacing(0, 0),
@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
 /*
 Displays a similarity graph. This is an inner component of SimilarityWrapper.
 
-The component provides support to organize the materiasl in different sets that  are rendered with different visual attributes.
+The component provides support to organize the materials in different sets that  are rendered with different visual attributes.
 
 params:
 
@@ -46,23 +46,46 @@ ids: an Array<Array<number>> that indicates the different sets of materials to v
 
 names: usable strings to use as display for each materials.
 */
-			
+
 export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names, ids
                                                            }) => {
 
-    const ref = useRef(null);
     const classes = useStyles();
     var start_x: any
     var start_y: any
     var max_opacity: any = 0;
 
+    let containerRef = useRef<HTMLDivElement>(null);
+      
+
+      console.log( "in functioncomponent"+ ids.toString() );
+
+    
     useEffect(() => {
-      const svgElement = d3.select(ref.current);
-      let container = d3.select('#parent')
-      let svg = container.append('svg').append('g')
-      let widthAmount = 1400; //I would really like for this to be taken from the width and height of the contained div
+    console.log('useeffect');
+    if (containerRef.current == null) //container ain't loaded yet
+        return;
+		    let container = d3.select(containerRef.current);
+
+//    containerRef.current.innerHTML="";
+//          let svg = container.append('svg');
+          let svg = container.select('svg');
+
+    if (svg == null) return;
+       svg.html("");
+       //svgg.node().replaceChildren();
+       svg.selectAll("*").remove();
+       let svgg = svg.append('g');
+
+
+      let widthAmount = 1400; //default values
       let heightAmount = 2000;
-      const g = container.select('svg').attr('width', widthAmount).attr('height', heightAmount)
+      let containernode = container.node();
+      if (containernode != null) {  //but use container size if available
+	widthAmount = containernode.clientWidth;
+	heightAmount = containernode.clientHeight;
+      }
+      const g = svg.attr('width', widthAmount).attr('height', heightAmount)
           .select('g').attr('transform', 'translate(' + widthAmount / 2 + ',' + heightAmount / 3 + ')');
 
       let nodes: any[] = []
@@ -116,24 +139,24 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
                      .enter()
                      .append("line")
                      .attr("class", "link")
-                     .attr("x1", function(l) {
+                     .attr("x1", function(l:any) {
                        return l.x1
                      })
-                     .attr("x2", function(l) {
+                     .attr("x2", function(l:any) {
                        return l.x2
                      })
-                     .attr("y1", function (d) {
+                     .attr("y1", function (d:any) {
                        return d.y1;
                      })
-                     .attr("y2", function (d) {
+                     .attr("y2", function (d:any) {
                        return d.y2;
                      })
                      .attr("fill", "white")
-                     .attr("stroke", function(d){
+                     .attr("stroke", function(d:any){
                          return "white"
 
                      })
-                     .attr("opacity", function(d){
+                     .attr("opacity", function(d:any){
                        if(d.opacity < 0.2){
                          return 0.01
                        }else{
@@ -146,17 +169,17 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
         let node = g.append("g").attr("class", "nodes").selectAll("circle")
                     .data(nodes).enter()
                     .append('circle')
-                    .attr('r', function(d){
+                    .attr('r', function(d:any){
                       return d.size
                     })
                     .attr("stroke", "black")
-                    .attr("fill", function(d){
+                    .attr("fill", function(d:any){
                       return d.color
                     })
-                    .attr("transform", function (d) {
+                    .attr("transform", function (d:any) {
                       return "translate(" + ((d.x * 300)) + "," + ((d.y * 300)) + ")";
                     })
-                    .on("mouseover", d => {
+                    .on("mouseover", (d:any) => {
 			//console.log();
                       d3.select("#tooltip")
                       .style('opacity', 1)
@@ -167,7 +190,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
                       d3.select("#tooltips")
 
                     })
-                    .on("mouseout", d => {
+                    .on("mouseout", (d:any) => {
                       d3.select("#tooltip")
                       .style('opacity', 0)
                     })
@@ -175,9 +198,9 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
 	let textlabels =  g.append("g").attr("class", "nodes").selectAll("circle")
                     .data(nodes).enter()
                     .append('text')
-		    .text(d=> names[d.id])
+		    .text((d:any)=> names[d.id])
                     .attr("fill", "orange")
-                    .attr("transform", function (d) {
+                    .attr("transform", function (d:any) {
                       return "translate(" + ((d.x * 300+15)) + "," + ((d.y * 300+15)) + ")";
                     })
 
@@ -186,20 +209,20 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
 
         //uhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh | this part right here is so stupid and still dont understand it
         //                                      V took 3000 hours to find solution
-        container.select('svg').call(d3.zoom<any, any>()
+        svg.call(d3.zoom<any, any>()
             .scaleExtent([-1, 20])
             .on("zoom", zoomed));
 
         function zoomed() {
-          d3.select("g").attr("transform", d3.event.transform.translate(widthAmount / 2, heightAmount / 2).scale(1));
+          svg.select("g").attr("transform", d3.event.transform.translate(widthAmount / 2, heightAmount / 2).scale(1));
         }
     });
 
 
 
     return (
-      <div id="parent" className={classes.textField}>
-        <div>
+      <div className={classes.containerstyle} ref={containerRef}>
+      <svg></svg>
             <div id="tooltips">
               {/* For some reason sometimes its about 50 pixels off from the top even if I'm not messing with the size of the window */}
               <div id="tooltip"  style={{'opacity': 0}}>
@@ -207,7 +230,6 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
                 <p><span id="value"></span></p>
               </div>
             </div>
-          </div>
       </div>
 
     )
