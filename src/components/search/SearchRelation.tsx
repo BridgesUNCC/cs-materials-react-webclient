@@ -19,10 +19,10 @@ interface Props {
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles ( {
-        textField: {
+        containerstyle: {
             marginTop: '0%',
-            height: 400,
-            width: 400,
+            height: 600,
+            width: 600,
         },
         margin: {
             margin: theme.spacing(0, 0),
@@ -50,8 +50,6 @@ names: usable strings to use as display for each materials.
 export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names, ids
                                                            }) => {
 
-//    const ref = useRef(null);
-      //var containerRef : any;
     const classes = useStyles();
     var start_x: any
     var start_y: any
@@ -60,14 +58,17 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
     let containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-    //      const svgElement = d3.select(ref.current);
-    //      let container = d3.select('#parent')
     
        
     let container = d3.select(containerRef.current);
       let svg = container.append('svg').append('g')
-      let widthAmount = 1400; //I would really like for this to be taken from the width and height of the contained div
+      let widthAmount = 1400; //default values
       let heightAmount = 2000;
+      let containernode = container.node();
+      if (containernode != null) {  //but use container size if available
+	widthAmount = containernode.clientWidth;
+	heightAmount = containernode.clientHeight;
+      }
       const g = container.select('svg').attr('width', widthAmount).attr('height', heightAmount)
           .select('g').attr('transform', 'translate(' + widthAmount / 2 + ',' + heightAmount / 3 + ')');
 
@@ -204,7 +205,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
 
 
     return (
-      <div id="parent" className={classes.textField} ref={containerRef}>
+      <div id="parent" className={classes.containerstyle} ref={containerRef}>
         <div>
             <div id="tooltips">
               {/* For some reason sometimes its about 50 pixels off from the top even if I'm not messing with the size of the window */}
