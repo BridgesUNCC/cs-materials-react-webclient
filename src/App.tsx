@@ -39,6 +39,7 @@ import {getMaterialMeta} from './common/csmaterialsapiinterface';
 import {getMaterialLeaves} from './common/csmaterialsapiinterface';
 import {getMaterials} from './common/csmaterialsapiinterface';
 import {getMaterialsTags} from './common/csmaterialsapiinterface';
+import {getOntologyTree} from './common/csmaterialsapiinterface';
 import {expandCollectionToListLeave} from './common/csmaterialsapiinterface';
 
 
@@ -763,7 +764,10 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			   let obj :Promise<Array<Number>> = getMaterialLeaves(collectionid, appInfo.api_url);
 			   obj.then( o  => getMaterialsTags(o, appInfo.api_url))
 			      .then( o =>console.log(o));
-						     
+
+			   getOntologyTree("acm", appInfo.api_url)
+			      .then( o =>console.log(o));
+			      
 			   return JSON.stringify(obj);
 		    	   }
 		    }

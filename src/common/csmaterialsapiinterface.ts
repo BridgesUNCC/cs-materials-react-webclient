@@ -1,4 +1,5 @@
 import {getJSONData} from "./util";
+import {OntologyData} from "./types";
 
 //returns a promise that will contain the metadata of a particular single material
 //params:
@@ -26,7 +27,7 @@ export function getMaterialMeta(materialid:Number, api_url: string){
 // as returned in the data field of by https://cs-materials-api.herokuapp.com/data/materials 
 //
 // params:
-// materialsids: an array of material ir
+// materialsids: an array of material id
 // api_url: base url of the api server
 export function getMaterials(materialids: Array<Number>, api_url: string) : Promise<any> {
     const url = api_url + "/data/materials?ids=" + materialids.toString();
@@ -178,6 +179,25 @@ export function getSimilarityData(materialids:Array<number>, searchapi_url: stri
 	    }
 	}
     });
+}
 
+export function getOntologyTree(tree_name: string, api_url: string) : Promise<OntologyData> {
+    const url = api_url + "/data/ontology_trees";
 
+    const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
+    return getJSONData(url, auth).then(resp => {
+        console.log(resp);
+        if (resp === undefined) {
+            console.log("API SERVER FAIL")
+	    return Promise.reject(new Error('API SERVER FAIL'));
+        } else {
+            if (resp['status'] === "OK") {
+                const ontology = resp["data"][tree_name];
+		return ontology;
+            }
+	    else {
+		return Promise.reject(new Error('API SERVER FAIL'));
+	    }
+        }
+    });    
 }
