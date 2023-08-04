@@ -12,7 +12,7 @@ export function getMaterialMeta(materialid:Number, api_url: string){
         promise = getJSONData(url, auth).then(resp => {
             if (resp === undefined) {
                 console.log("API SERVER FAIL")
-                return null; //TODO should this return a failed promise?
+                return Promise.reject(new Error('API SERVER FAIL'));
             } else {
                 if (resp['status'] === "OK") {
                     return resp['data'];
@@ -22,7 +22,10 @@ export function getMaterialMeta(materialid:Number, api_url: string){
     return promise;
     }
 
-// returns a list of all the materials part of a collection recursively.
+
+
+
+// returns (a promise of) a list of all the materials part of a collection recursively.
 // That is to say, each collection is expanded into the materials that compose it.
 // The collections themselves are not included in the list.
 //
@@ -120,14 +123,14 @@ export function getSimilarityData(materialids:Array<number>, searchapi_url: stri
     return getJSONData(url, {}).then(resp => {
         if (resp === undefined) {
             console.log("API SERVER FAIL")
-	    return Promise.reject("API FAIL");
+	    return Promise.reject(new Error('API SERVER FAIL'));
         }
 	else {
 	    if (resp['status'] === "OK") {
 		return resp['data'];
 	    }
 	    else {
-		return Promise.reject("API FAIL");
+		return Promise.reject(new Error('API SERVER FAIL'));
 	    }
 	}
     });
