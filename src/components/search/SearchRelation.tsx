@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
 /*
 Displays a similarity graph. This is an inner component of SimilarityWrapper.
 
-The component provides support to organize the materiasl in different sets that  are rendered with different visual attributes.
+The component provides support to organize the materials in different sets that  are rendered with different visual attributes.
 
 params:
 
@@ -46,19 +46,25 @@ ids: an Array<Array<number>> that indicates the different sets of materials to v
 
 names: usable strings to use as display for each materials.
 */
-			
+
 export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names, ids
                                                            }) => {
 
-    const ref = useRef(null);
+//    const ref = useRef(null);
+      //var containerRef : any;
     const classes = useStyles();
     var start_x: any
     var start_y: any
     var max_opacity: any = 0;
 
+    let containerRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
-      const svgElement = d3.select(ref.current);
-      let container = d3.select('#parent')
+    //      const svgElement = d3.select(ref.current);
+    //      let container = d3.select('#parent')
+    
+       
+    let container = d3.select(containerRef.current);
       let svg = container.append('svg').append('g')
       let widthAmount = 1400; //I would really like for this to be taken from the width and height of the contained div
       let heightAmount = 2000;
@@ -116,24 +122,24 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
                      .enter()
                      .append("line")
                      .attr("class", "link")
-                     .attr("x1", function(l) {
+                     .attr("x1", function(l:any) {
                        return l.x1
                      })
-                     .attr("x2", function(l) {
+                     .attr("x2", function(l:any) {
                        return l.x2
                      })
-                     .attr("y1", function (d) {
+                     .attr("y1", function (d:any) {
                        return d.y1;
                      })
-                     .attr("y2", function (d) {
+                     .attr("y2", function (d:any) {
                        return d.y2;
                      })
                      .attr("fill", "white")
-                     .attr("stroke", function(d){
+                     .attr("stroke", function(d:any){
                          return "white"
 
                      })
-                     .attr("opacity", function(d){
+                     .attr("opacity", function(d:any){
                        if(d.opacity < 0.2){
                          return 0.01
                        }else{
@@ -146,17 +152,17 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
         let node = g.append("g").attr("class", "nodes").selectAll("circle")
                     .data(nodes).enter()
                     .append('circle')
-                    .attr('r', function(d){
+                    .attr('r', function(d:any){
                       return d.size
                     })
                     .attr("stroke", "black")
-                    .attr("fill", function(d){
+                    .attr("fill", function(d:any){
                       return d.color
                     })
-                    .attr("transform", function (d) {
+                    .attr("transform", function (d:any) {
                       return "translate(" + ((d.x * 300)) + "," + ((d.y * 300)) + ")";
                     })
-                    .on("mouseover", d => {
+                    .on("mouseover", (d:any) => {
 			//console.log();
                       d3.select("#tooltip")
                       .style('opacity', 1)
@@ -167,7 +173,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
                       d3.select("#tooltips")
 
                     })
-                    .on("mouseout", d => {
+                    .on("mouseout", (d:any) => {
                       d3.select("#tooltip")
                       .style('opacity', 0)
                     })
@@ -175,9 +181,9 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
 	let textlabels =  g.append("g").attr("class", "nodes").selectAll("circle")
                     .data(nodes).enter()
                     .append('text')
-		    .text(d=> names[d.id])
+		    .text((d:any)=> names[d.id])
                     .attr("fill", "orange")
-                    .attr("transform", function (d) {
+                    .attr("transform", function (d:any) {
                       return "translate(" + ((d.x * 300+15)) + "," + ((d.y * 300+15)) + ")";
                     })
 
@@ -198,7 +204,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
 
 
     return (
-      <div id="parent" className={classes.textField}>
+      <div id="parent" className={classes.textField} ref={containerRef}>
         <div>
             <div id="tooltips">
               {/* For some reason sometimes its about 50 pixels off from the top even if I'm not messing with the size of the window */}
