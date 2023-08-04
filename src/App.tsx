@@ -17,6 +17,7 @@ import Button from "@material-ui/core/Button";
 import {Link} from "react-router-dom";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import {MaterialForm} from "./components/forms/MaterialForm";
+import {LineGraphWrapper} from "./components/linegraph/LinegraphWrapper";
 import {HarmonizationView} from "./components/harmonization_matrix/HarmonizationView";
 import OntologyWrapper from "./components/radial/OntologyWrapper";
 import {Search} from "./components/search/Search";
@@ -756,7 +757,21 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			       )}
 			   }
                     />
-		    
+
+		    <Route path="/testkrs" render={
+			       (route_props) => 			       {
+			       
+			       let ids1=[[1,2,3]];
+			       		
+			       return (
+			       <Container maxWidth="xl">
+			       		  <LineGraphWrapper api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} ids={ids1} />
+                               </Container>
+			       )}
+			   }
+                    />
+
+
 
 
 		    <Route path="/collectionsimilarity" render={
