@@ -223,8 +223,6 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
     return (
       <div className={classes.containerstyle} ref={containerRef}>
       <svg></svg>
-        <div>
-	Something to inspect!
             <div id="tooltips">
               {/* For some reason sometimes its about 50 pixels off from the top even if I'm not messing with the size of the window */}
               <div id="tooltip"  style={{'opacity': 0}}>
@@ -232,7 +230,6 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
                 <p><span id="value"></span></p>
               </div>
             </div>
-          </div>
       </div>
 
     )
