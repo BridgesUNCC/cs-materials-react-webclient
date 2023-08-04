@@ -26,7 +26,7 @@ class TreeVisualization extends Component{
 	    	this.draw()
 	    	return true
 	    }
-	    return false;
+	    return true;
 	  }
 
 

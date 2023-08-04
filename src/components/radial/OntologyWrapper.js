@@ -18,7 +18,6 @@ class OntologyWrapper extends Component {
             height: 500,
             text: '',
             tags: "",
-            radialdata: {data: {acm: {}, pdc: {}}},
             visual: "acm",
             temptags: "",
             dirty: false,
@@ -31,10 +30,7 @@ class OntologyWrapper extends Component {
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         let ontologyTree = await getOntologyTree(this.props.tree, api_url);
-
-        this.state.visual = this.props.tree
-
-        this.state.radialdata = ontologyTree
+        //radialdata = radialdata.data[tree];
 
         //@TODO FIXME ALL OF THIS
         // if (compare) {
@@ -44,7 +40,9 @@ class OntologyWrapper extends Component {
         //     this.setState({data: [radialdata, assignmentdata, assignmentdata2], loading: false})
         // } else {
         let assignmentdata = await getJSONData(api_url + "/data/ontology_data_old?ids=" + this.props.ids[0], auth);
-        this.setState({data: [this.state.radialdata, assignmentdata], loading: false, tags: this.props.tags})
+        if(assignmentdata){
+            this.setState({data: [ontologyTree, assignmentdata], loading: false, tags: this.props.tags, visual: this.props.tree})
+        }
         // }
     }
 
@@ -60,17 +58,9 @@ class OntologyWrapper extends Component {
       }
 
 
-    onTextFieldChange = (e)=> {
-      console.log(e)
-        let fields = this.state;
-        fields.temptags = e.currentTarget.value;
-        console.log(this.state)
-    };
-
     render() {
         return (
             <div>
-
                 {this.state.loading ? (
                     <div>loading...</div>
                     ) :

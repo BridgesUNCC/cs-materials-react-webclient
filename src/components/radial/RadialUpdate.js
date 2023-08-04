@@ -35,6 +35,7 @@ class RadialUpdate extends Component {
   constructor(){
     super()
     this.state = {
+      loading: true,
       open: false,
       trimming: false,
       grayRemoval: "0",
@@ -61,7 +62,7 @@ class RadialUpdate extends Component {
       this.drawRadial()
       return true
     }
-    return false 
+    return true 
   }
 
   handleClickOpen = () => {
@@ -133,8 +134,7 @@ class RadialUpdate extends Component {
     trimTree(ontology_data)
     layoutRadialLayer(ontology_data)
 
-    
-    radialTree = <TreeVisualization data={ontology_data}/>
+    this.setState({...this.state, ontology_data: ontology_data, loading:false});    
 
   }
 
@@ -211,7 +211,7 @@ class RadialUpdate extends Component {
           height: '35%',
         }}
       />
-      {radialTree}
+      {(this.state.loading)? (<div></div>) : (<TreeVisualization data={this.state.ontology_data}/>)}
       </div>
           <div id={"App" + this.props.id}>
             <div id="tooltips">
