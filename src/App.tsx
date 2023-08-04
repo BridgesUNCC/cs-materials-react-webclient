@@ -755,7 +755,14 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			   }
                     />
 
-							 
+		    <Route path="/testing" render={
+		    	   (route_props) => {
+			   let obj = getMaterialLeaves(178, appInfo.api_url);
+			   obj.then( o  => {console.log(o);});
+			   return JSON.stringify(obj);
+		    	   }
+		    }
+		    />
                     
                     <Route path="/login"/>
                     <Route path="/register"/>

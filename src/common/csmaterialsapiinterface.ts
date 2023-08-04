@@ -22,6 +22,10 @@ export function getMaterialMeta(materialid:Number, api_url: string){
     return promise;
     }
 
+// returns a list of all the materials part of a collection recursively.
+// That is to say, each collection is expanded into the materials that compose it.
+// The collections themselves are not included in the list.
+//
 //returns a promise that will contain a list of material ids.
 //params:
 //materialid: the id of the material to fetch
