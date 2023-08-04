@@ -9,6 +9,7 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import {Box, Checkbox, CircularProgress, Divider} from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import {getJSONData} from "../../common/util";
+import {getOntologyTree} from "../../common/csmaterialsapiinterface";
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
@@ -235,23 +236,15 @@ export const  OntologyTree: FunctionComponent<Props> = ({api_url, tree_name, sel
     };
 
     if (!treeInfo.fetched) {
-        const url = api_url + "/data/ontology_trees";
 
-        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
-        getJSONData(url, auth).then(resp => {
-            console.log(resp);
-            if (resp === undefined) {
-                console.log("API SERVER FAIL")
-            } else {
-                if (resp['status'] === "OK") {
-                    const ontology = resp["data"][tree_name];
-                    console.log(treeInfo.checked);
+    getOntologyTree(tree_name, api_url)
+    .then(ontology => {
+    	   console.log(treeInfo.checked);
 
-                    let expanded = treeInfo.expanded;
-                    setTreeInfo({...treeInfo, ontology, fetched: true, expanded});
-                }
-            }
-        });
+	   let expanded = treeInfo.expanded;
+	   setTreeInfo({...treeInfo, ontology, fetched: true, expanded});
+	   });
+
     }
 
     let expanded = treeInfo.expanded.map(e => e);
