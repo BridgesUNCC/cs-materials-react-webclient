@@ -604,11 +604,37 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                         </Container>
                     )}
                     />
-                    <Route path='/radial' render={(route_props) => (
+                    <Route path='/radial' render={(route_props) => {
+                       let query:string = route_props.location.search;
+                       const paramparser = new URLSearchParams(query);
+                       
+                       const p1 : string | null = paramparser.get('ids');
+                       const p2 : string | null = paramparser.get('id2');
+                       const ids : Array<Array<number> > = [];
+
+                       const treetype:string | null = paramparser.get('tree');
+                       const tags:string | null = paramparser.get('tags');
+
+                       if(tags){
+                          let tagList : Array<number> = [];
+                          tagList = tags.split(",").map(i=>Number(i));
+                       }
+                       if (p1) {
+                          let id1 : Array<number> = [];
+                          id1 = p1.split(",").map(i=>Number(i));
+                          ids.push(id1);
+                       }
+                       if (p2) {
+                          let id2 : Array<number> = [];
+                          id2 = p2.split(",").map(i=>Number(i));
+                          ids.push(id2);
+                       }
+                       return(
                         <Container maxWidth="xl">
-                            <OntologyWrapper {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id}/>
+                            <OntologyWrapper {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} ids={ids} tree={treetype} tags={tags}/>
                         </Container>
                     )}
+                   }
                     />
                     <Route path="/materials" render={(route_props) => (
                         <Container maxWidth="md">

@@ -35,6 +35,7 @@ class RadialUpdate extends Component {
   constructor(){
     super()
     this.state = {
+      loading: true,
       open: false,
       trimming: false,
       grayRemoval: "0",
@@ -47,21 +48,17 @@ class RadialUpdate extends Component {
   }
 
   componentDidMount() {
-    this.container = d3.select("#RadialContainer");
-    this.svg       = this.container.append("svg").append("g");
     this.drawRadial();
-    
   }
 
   shouldComponentUpdate(nextProps){
     if(this.props != nextProps){
       //this is updated from ontologywrapper so it clears all svg draws for a new render
-      this.props = nextProps;
-      this.svg.selectAll("*").remove()
+      this.props = nextProps
       this.drawRadial()
       return true
     }
-    return false 
+    return true
   }
 
   handleClickOpen = () => {
@@ -85,7 +82,8 @@ class RadialUpdate extends Component {
 
   handleSliderChange = (event, newValue) => {
     console.log(newValue)
-    this.sliderValue = newValue
+    this.state.treeSlider = newValue
+    console.log(this.state)
   };
 
   handleSlideLetGo = (event,newValue) => {
@@ -102,11 +100,16 @@ class RadialUpdate extends Component {
 
     let ontology_data             = JSON.parse(JSON.stringify(this.props.data[0]));
     let ontology_type             = JSON.parse(JSON.stringify(this.props.ontology_type)); 
-    //ontology_data                 = JSON.parse(JSON.stringify(ontology_data)) //deep clone the data
     let assignments               = JSON.parse(JSON.stringify(this.props.data[1]));
     let assignmentsArray          = assignments.assignments;
     let view                      = this.props.view || this.props.data.length === 3 ? "compare" : "first";
-    let temp1                     = this.props.tags.split(',');
+    let temp1
+    if(this.props.tags){
+      temp1                     = this.props.tags.split(',');
+      if(temp1[0] != ""){
+        trimming = true;
+      }
+    }
     let maxHits                   = 15;
     // let trimming         = false;
 
@@ -116,11 +119,6 @@ class RadialUpdate extends Component {
     var trimming = this.state.trimming
     var removeGray = this.state.grayRemoval
     var formatAfter = this.state.formatAfter
-
-
-    if(temp1[0] != ""){
-      trimming = true;
-    }
 
     const handleClick = () => {
       this.state.open = true
@@ -132,8 +130,7 @@ class RadialUpdate extends Component {
     trimTree(ontology_data)
     layoutRadialLayer(ontology_data)
 
-    
-    radialTree = <TreeVisualization data={ontology_data}/>
+    this.setState({...this.state, ontology_data: ontology_data, loading:false});    
 
   }
 
@@ -199,7 +196,7 @@ class RadialUpdate extends Component {
       <Slider
         min={0}
         max={20}
-        value={this.sliderValue}
+        value={this.state.treeSlider}
         onChange={this.handleSliderChange}
         onMouseUp={this.handleSlideLetGo}
         valueLabelDisplay="auto"
@@ -210,7 +207,8 @@ class RadialUpdate extends Component {
           height: '35%',
         }}
       />
-      {radialTree}
+      {(this.state.loading)? (<div></div>) : (<TreeVisualization data={this.state.ontology_data}/>)}
+ 
       </div>
           <div id={"App" + this.props.id}>
             <div id="tooltips">
