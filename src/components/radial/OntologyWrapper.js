@@ -3,6 +3,7 @@ import Radial from './Radial';
 import RadialUpdate from './RadialUpdate'
 import {Analyze} from "../analyze/Analyze";
 import {getJSONData} from "../../common/util";
+import {getOntologyTree} from "../../common/csmaterialsapiinterface";
 
 
 
@@ -21,7 +22,6 @@ class OntologyWrapper extends Component {
             visual: "acm",
             temptags: "",
             dirty: false,
-            treetype: "acm"
         };
     }
 
@@ -29,6 +29,13 @@ class OntologyWrapper extends Component {
         const api_url = this.props.api_url;
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
         const radialapi = this.props.api_url + "/data/ontology_trees";
+
+        getOntologyTree(this.props.treetype, api_url)
+        .then(ontology => {
+               console.log(ontology);
+           });
+
+
 
         let ids    = "";
         let tags   = "";
@@ -98,11 +105,6 @@ class OntologyWrapper extends Component {
         console.log(this.state)
     };
 
-    // {(this.props.location.search.split("tree=")[1].split("&")[0] === "acm")?
-    // <Analyze listOne={this.props.location.search.split("ids=")[1].split("&")[0]} user_id={this.props.user_id} currentLoc="radial" from="radial"/>
-    // :
-    // <Analyze listOne={this.props.location.search.split("ids=")[1].split("&")[0]} user_id={this.props.user_id} currentLoc="radialpdc" from="radial"/>
-    // }
     render() {
         return (
             <div>

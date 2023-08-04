@@ -85,7 +85,8 @@ class RadialUpdate extends Component {
 
   handleSliderChange = (event, newValue) => {
     console.log(newValue)
-    this.sliderValue = newValue
+    this.state.treeSlider = newValue
+    console.log(this.state)
   };
 
   handleSlideLetGo = (event,newValue) => {
@@ -102,7 +103,6 @@ class RadialUpdate extends Component {
 
     let ontology_data             = JSON.parse(JSON.stringify(this.props.data[0]));
     let ontology_type             = JSON.parse(JSON.stringify(this.props.ontology_type)); 
-    //ontology_data                 = JSON.parse(JSON.stringify(ontology_data)) //deep clone the data
     let assignments               = JSON.parse(JSON.stringify(this.props.data[1]));
     let assignmentsArray          = assignments.assignments;
     let view                      = this.props.view || this.props.data.length === 3 ? "compare" : "first";
@@ -199,7 +199,7 @@ class RadialUpdate extends Component {
       <Slider
         min={0}
         max={20}
-        value={this.sliderValue}
+        value={this.state.treeSlider}
         onChange={this.handleSliderChange}
         onMouseUp={this.handleSlideLetGo}
         valueLabelDisplay="auto"

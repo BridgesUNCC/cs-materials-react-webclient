@@ -122,22 +122,25 @@ class TreeVisualization extends Component{
 	          }
 	        })
 	        .on("mouseover", function(d){
-	          let currentNode = d.data;
-	          let breadcrumbs = [d.data.id];
+	          	console.log(d)
+	            let currentNode = d.data;
+	            let breadcrumbs = [currentNode];
 
-	          while(currentNode.parent){
-	            breadcrumbs.push(currentNode.parent);
-	            currentNode = findInTree(currentNode.parent)
-	          }
-
-	          let finalLabelString = "";
-	          for(let i = breadcrumbs.length - 1; i >= 0; i--){
-	            if(i === 0){
-	              finalLabelString += breadcrumbs[i].substring(breadcrumbs[i].lastIndexOf(":") + 1);
-	            }else{
-	              finalLabelString += breadcrumbs[i].substring(breadcrumbs[i].lastIndexOf(":") + 1) + " :: "
+	            while(currentNode.parent != null){
+	              console.log(currentNode)
+	              breadcrumbs.push(currentNode.parent);
+	              currentNode = currentNode.parent
 	            }
-	          }
+
+	            let finalLabelString = "";
+	            console.log(breadcrumbs)
+	            for(let i = breadcrumbs.length - 1; i >= 0; i--){
+	              if(i === 0){
+	                finalLabelString += breadcrumbs[i].title.substring(breadcrumbs[i].title.lastIndexOf(":") + 1);
+	              }else{
+	                finalLabelString += breadcrumbs[i].title.substring(breadcrumbs[i].title.lastIndexOf(":") + 1) + " :: "
+	              }
+	            }
 
 	          d3.select("#tooltip")
 	              .attr("transform", "translate(" + d.data.locationX + "," + d.data.locationY + ")")
@@ -145,18 +148,18 @@ class TreeVisualization extends Component{
 	              .style("color", "black")
 	              .text(finalLabelString);
 
-	          if(d.data.assignmentNames){
-	            for (let i = 0; i < d.data.assignmentNames.length; i++){
-	              let text = "";
-	              (i === d.data.assignmentNames.length - 1) ? text = d.data.assignmentNames[i] : text = d.data.assignmentNames[i];
-	              d3.select("#assignmenttooltip")
-	                  .select("#value")
-	                  .append('p')
-	                  .append("tspan")
-	                  .attr("dy", 25)
-	                  .attr('x', 0)
-	                  .style("color", "black")
-	                  .text(text)
+	          if(d.data.assignments){
+	              for (let i = 0; i < d.data.assignments.length; i++){
+	                let text = "";
+	                (i === d.data.assignments.length - 1) ? text = d.data.assignments[i].fields.title : text = d.data.assignments[i].fields.title;
+	                d3.select("#assignmenttooltip")
+	                    .select("#value")
+	                    .append('p')
+	                    .append("tspan")
+	                    .attr("dy", 25)
+	                    .attr('x', 0)
+	                    .style("color", "black")
+	                    .text(text)
 
 	            }
 	            if(d.data.firstTreeRatio){
