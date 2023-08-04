@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
         containerstyle: {
             marginTop: '0%',
             height: 600,
-            width: 600,
+            width: 1600,
         },
         margin: {
             margin: theme.spacing(0, 0),
@@ -56,12 +56,28 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
     var max_opacity: any = 0;
 
     let containerRef = useRef<HTMLDivElement>(null);
+      
 
-    useEffect(() => {
+      console.log( "in functioncomponent"+ ids.toString() );
+
     
-       
-    let container = d3.select(containerRef.current);
-      let svg = container.append('svg').append('g')
+    useEffect(() => {
+    console.log('useeffect');
+    if (containerRef.current == null) //container ain't loaded yet
+        return;
+		    let container = d3.select(containerRef.current);
+
+//    containerRef.current.innerHTML="";
+//          let svg = container.append('svg');
+          let svg = container.select('svg');
+
+    if (svg == null) return;
+       svg.html("");
+       //svgg.node().replaceChildren();
+       svg.selectAll("*").remove();
+       let svgg = svg.append('g');
+
+
       let widthAmount = 1400; //default values
       let heightAmount = 2000;
       let containernode = container.node();
@@ -69,7 +85,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
 	widthAmount = containernode.clientWidth;
 	heightAmount = containernode.clientHeight;
       }
-      const g = container.select('svg').attr('width', widthAmount).attr('height', heightAmount)
+      const g = svg.attr('width', widthAmount).attr('height', heightAmount)
           .select('g').attr('transform', 'translate(' + widthAmount / 2 + ',' + heightAmount / 3 + ')');
 
       let nodes: any[] = []
@@ -193,20 +209,22 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
 
         //uhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh | this part right here is so stupid and still dont understand it
         //                                      V took 3000 hours to find solution
-        container.select('svg').call(d3.zoom<any, any>()
+        svg.call(d3.zoom<any, any>()
             .scaleExtent([-1, 20])
             .on("zoom", zoomed));
 
         function zoomed() {
-          d3.select("g").attr("transform", d3.event.transform.translate(widthAmount / 2, heightAmount / 2).scale(1));
+          svg.select("g").attr("transform", d3.event.transform.translate(widthAmount / 2, heightAmount / 2).scale(1));
         }
     });
 
 
 
     return (
-      <div id="parent" className={classes.containerstyle} ref={containerRef}>
+      <div className={classes.containerstyle} ref={containerRef}>
+      <svg></svg>
         <div>
+	Something to inspect!
             <div id="tooltips">
               {/* For some reason sometimes its about 50 pixels off from the top even if I'm not messing with the size of the window */}
               <div id="tooltip"  style={{'opacity': 0}}>

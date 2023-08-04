@@ -742,17 +742,21 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
 		    <Route path="/simtest" render={
 			       (route_props) => 			       {
+			       
 			       let ids1=[[1,2,3]];
 			       let ids2=[[4,5,6]];
+			       		
 			       return (
 			       <Container maxWidth="xl">
 			       		  <SimilarityWrapper api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} ids={ids1} />
-					  <SimilarityWrapper api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} ids={ids2} />
+					  <SimilarityWrapper api_url={appInfo.api_url} searchapi_url={appInfo.searchapi_url} ids={ids2} />	
+
 
                                </Container>
 			       )}
 			   }
                     />
+		    
 
 
 		    <Route path="/collectionsimilarity" render={
