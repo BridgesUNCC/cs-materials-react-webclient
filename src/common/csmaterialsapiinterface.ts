@@ -22,7 +22,51 @@ export function getMaterialMeta(materialid:Number, api_url: string){
     return promise;
     }
 
+//returns (the promise of) the meta data and tags of a set of materials
+// as returned in the data field of by https://cs-materials-api.herokuapp.com/data/materials 
+//
+// params:
+// materialsids: an array of material ir
+// api_url: base url of the api server
+export function getMaterials(materialids: Array<Number>, api_url: string) : Promise<any> {
+    const url = api_url + "/data/materials?ids=" + materialids.toString();
+        const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
+        let promise;
+        promise = getJSONData(url, auth).then(resp => {
+            if (resp === undefined) {
+                console.log("API SERVER FAIL")
+                return Promise.reject(new Error('API SERVER FAIL'));
+            } else {
+                if (resp['status'] === "OK") {
+                    return resp['data'];
+                }
+            }
+        })
+    return promise;
+    
+}
+
+// for a given set of materials, give the tags of each materials individually.
+//
+// returns (the promise of) a map of materialid to the tags of that material
+// param:
+//materialsids: an array of id of materials
+// api_url: base url of the api server
+export function getMaterialsTags(materialids: Array<Number>, api_url: string) : Promise<Record<number, Array<number>>> {
+    return getMaterials(materialids, api_url).then (o => {
+	let mapping : Record<number, Array<number>> = {};
+	o.materials.forEach((m:any) => {
+	    let matid: number = Number(m["id"]);
+	    let tags: Array<number> = [];
+	    m.tags.forEach((t: any) => {
+		tags.push(Number(t.id));
+	    });
+	    mapping[matid] = tags;
+	});
+	return mapping;
+    });
+}
 
 
 // returns (a promise of) a list of all the materials part of a collection recursively.
