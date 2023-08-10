@@ -186,7 +186,7 @@ export function getOntologyTree(tree_name: string, api_url: string) : Promise<On
 
     const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
     return getJSONData(url, auth).then(resp => {
-        console.log(resp);
+//        console.log(resp);
         if (resp === undefined) {
             console.log("API SERVER FAIL")
 	    return Promise.reject(new Error('API SERVER FAIL'));

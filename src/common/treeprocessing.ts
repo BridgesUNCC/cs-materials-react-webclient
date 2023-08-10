@@ -9,7 +9,7 @@ export function allTagsInTree(tree: OntologyData, sorted: boolean = false): Arra
    });
 
    if (sorted) {
-     ret.sort();
+     ret.sort((a:Number, b:Number) =>  (Number(a) - Number(b))); //in javascript sort works on strings
    }
 
    return ret;
@@ -22,13 +22,28 @@ export function filterTagsInTree(tags: Array<Number>, tree: OntologyData): Array
    let ret : Array<Number> = [];
 
    let inTree = allTagsInTree(tree, true);
-   console.log(inTree);
 
    tags.forEach(t => {
-     if (inTree.indexOf(t) != -1) { //this is a linear search!
+     if (inTree.indexOf(t) != -1) { //this is a linear search! TODO: sub with binsearch
      	ret.push(t);
      }
    });
 
    return ret;
+}
+
+
+// returns all the unique tags in a mapping of materials to tags.
+// in otherwords, it transforms {12: [1,2], 13: [1,3]} into a set that contains 1,2,3
+//
+// This is meant to work on the objects returned by getMaterialsTags
+//
+export function uniqueTags(mapping : Record<number, Array<number>>) : Set<number> {
+  let s = new Set<number>();
+
+  for (let k in mapping) {
+      mapping[k].forEach(t => s.add(t));
+  }
+
+  return s;
 }

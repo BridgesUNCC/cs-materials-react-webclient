@@ -45,6 +45,7 @@ import {expandCollectionToListLeave} from './common/csmaterialsapiinterface';
 import {filterTagsInTree} from './common/treeprocessing';
 import {allTagsInTree} from './common/treeprocessing';
 import {OntologyData} from './common/types';
+import {uniqueTags} from './common/treeprocessing';
 
 import {
     BuildSnackbar,
@@ -829,7 +830,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
 			   let tree = getOntologyTree("acm", appInfo.api_url);
 			   Promise.all([mattags, tree]).then((values) => {
-			     let ob: Array<Number> = values[0][165];
+			     let ob: Array<Number> = Array.from(uniqueTags(values[0]));
 			     let tr: OntologyData = values[1];
 
 			     console.log("tags in mat");
