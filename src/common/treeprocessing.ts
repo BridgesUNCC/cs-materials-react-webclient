@@ -47,3 +47,29 @@ export function uniqueTags(mapping : Record<number, Array<number>>) : Set<number
 
   return s;
 }
+
+
+// count the tags in a mapping of materials to tags.
+// in otherwords, it transforms {12: [1,2], 13: [1,3]} into {1:2, 2:1, 3:1}
+//
+// This is meant to work on the objects returned by getMaterialsTags
+//
+export function countTags(mapping : Record<number, Array<number>>) : Record<number,number> {
+  let s : Record<number,number> = {};
+
+  for (let k in mapping) {
+      mapping[k].forEach(t => {
+        if (!(t in s)) {
+	  s[t] = 1;
+	}
+	else {
+	  s[t] += 1;
+	}
+      });
+  }
+
+
+
+  return s;
+}
+
