@@ -61,3 +61,7 @@ export function parse_query_variable(location: { search: string; }, name: string
     ret = location.search.split(`${name}=`)[1].split("&")[0];
   return ret;
 }
+
+export function deep_copy(o: any): any {
+  return JSON.parse(JSON.stringify(o));
+}

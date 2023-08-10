@@ -42,7 +42,9 @@ import {getMaterials} from './common/csmaterialsapiinterface';
 import {getMaterialsTags} from './common/csmaterialsapiinterface';
 import {getOntologyTree} from './common/csmaterialsapiinterface';
 import {expandCollectionToListLeave} from './common/csmaterialsapiinterface';
-
+import {filterTagsInTree} from './common/treeprocessing';
+import {allTagsInTree} from './common/treeprocessing';
+import {OntologyData} from './common/types';
 
 import {
     BuildSnackbar,
@@ -822,17 +824,27 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 		    	   (route_props) => {
 			   let collectionid = 178;
 			   let obj :Promise<Array<Number>> = getMaterialLeaves(collectionid, appInfo.api_url);
-			   obj.then( o  => getMaterialsTags(o, appInfo.api_url))
-			      .then( o =>console.log(o));
+			   let mattags = obj.then( mats => getMaterialsTags(mats, appInfo.api_url));
+			   //  let alltags = mattags.then(
 
-			   getOntologyTree("acm", appInfo.api_url)
-			      .then( o =>console.log(o));
-			      
+			   let tree = getOntologyTree("acm", appInfo.api_url);
+			   Promise.all([mattags, tree]).then((values) => {
+			     let ob: Array<Number> = values[0][165];
+			     let tr: OntologyData = values[1];
+
+			     console.log("tags in mat");
+			     console.log(ob);
+			     console.log("filtered");
+			     console.log(filterTagsInTree(ob, tr));
+			   });
+
 			   return JSON.stringify(obj);
 		    	   }
 		    }
 		    />
-                    
+
+
+
                     <Route path="/login"/>
                     <Route path="/register"/>
 
