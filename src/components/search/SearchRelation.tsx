@@ -15,6 +15,7 @@ interface Props {
     similarityData: any
     names: any
     ids: Array<Array<number>>
+    similarityPercentile?: number
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -45,9 +46,11 @@ similarityData: an object formated the way smartsearch returns similarity https:
 ids: an Array<Array<number>> that indicates the different sets of materials to visualize. It is assumed that the material ids contained in that list are in similarityData
 
 names: usable strings to use as display for each materials.
+
+similarityPercentile: only show the similarity edges that are over the similarity percentile (.99 only shows 1% of edges)
 */
 
-export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names, ids
+export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names, ids, similarityPercentile
                                                            }) => {
 
     const classes = useStyles();
@@ -121,7 +124,7 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
       }
 
 	  let simThreshold = 0;
-	  let percentile = .8;
+	  let percentile = similarityPercentile || .8;
 	  {
 	      let sims: Array<number> = [];
               for(const key in similarityData['similarity']){
