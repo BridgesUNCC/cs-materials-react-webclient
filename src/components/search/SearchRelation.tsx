@@ -119,18 +119,36 @@ export const SearchRelation: FunctionComponent<Props> = ({ similarityData, names
         }
         nodes.push(nodeJSON)
       }
+
+	  let simThreshold = 0;
+	  let percentile = .8;
+	  {
+	      let sims: Array<number> = [];
+              for(const key in similarityData['similarity']){
+		  for(const p in similarityData['similarity'][key]){
+		      let sim = similarityData['similarity'][key][p];
+		      sims.push(sim);
+		  }
+	      }
+				 sims.sort( (a,b) =>  Number(a)-Number(b));
+				 console.log(sims);
+				 simThreshold = sims[percentile*sims.length] || 0;
+				 
+	  }
      // console.log(similarityData['similarity'])
       for(const key in similarityData['similarity']){
-        for(const p in similarityData['similarity'][key]){
-          let linkJSON = {
-          'id': key + "X" + p,
-          'x1': similarityData['2dembedding'][key][0]* 300,
-          'y1': similarityData['2dembedding'][key][1]* 300,
-          'x2': similarityData['2dembedding'][p][0]* 300,
-          'y2': similarityData['2dembedding'][p][1]* 300,
-          'opacity': similarityData['similarity'][key][p],
-        }
-        links.push(linkJSON)
+          for(const p in similarityData['similarity'][key]){
+	      if (similarityData['similarity'][key][p]> simThreshold) {
+		  let linkJSON = {
+		      'id': key + "X" + p,
+		      'x1': similarityData['2dembedding'][key][0]* 300,
+		      'y1': similarityData['2dembedding'][key][1]* 300,
+		      'x2': similarityData['2dembedding'][p][0]* 300,
+		      'y2': similarityData['2dembedding'][p][1]* 300,
+		      'opacity': similarityData['similarity'][key][p],
+		  }
+		  links.push(linkJSON);
+	      }
         }
 
       }
