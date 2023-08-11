@@ -18,8 +18,8 @@ export function allTagsInTree(tree: OntologyData, sorted: boolean = false): Arra
 // returns a new list of tags that only retains those that appear in that tree.
 //
 //
-export function filterTagsInTree(tags: Array<Number>, tree: OntologyData): Array<Number> {
-   let ret : Array<Number> = [];
+export function filterTagsInTree(tags: Array<number>, tree: OntologyData): Array<number> {
+   let ret : Array<number> = [];
 
    let inTree = allTagsInTree(tree, true);
 

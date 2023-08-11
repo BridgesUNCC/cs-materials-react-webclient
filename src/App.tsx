@@ -831,14 +831,15 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
 			   let tree = getOntologyTree("acm", appInfo.api_url);
 			   Promise.all([mattags, tree]).then((values) => {
-			     let ob: Array<Number> = Array.from(uniqueTags(values[0]));
+			     let matt = values[0];
 			     let tr: OntologyData = values[1];
 
-			     console.log("tags in mat");
-			     console.log(ob);
-			     console.log("filtered");
-			     console.log(filterTagsInTree(ob, tr));
-			     console.log(countTags(values[0]));
+			     //filter out tags that are not in that tree
+			     for (let k in matt) {
+			       matt[k] = filterTagsInTree(matt[k], tr);
+			     }
+
+			     console.log(countTags(matt));
 			   });
 
 			   return JSON.stringify(obj);
