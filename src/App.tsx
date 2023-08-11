@@ -42,6 +42,7 @@ import {getMaterials} from './common/csmaterialsapiinterface';
 import {getMaterialsTags} from './common/csmaterialsapiinterface';
 import {getOntologyTree} from './common/csmaterialsapiinterface';
 import {expandCollectionToListLeave} from './common/csmaterialsapiinterface';
+import {acmCS13Core1} from './common/csmaterialsapiinterface';
 import {filterTagsInTree} from './common/treeprocessing';
 import {allTagsInTree} from './common/treeprocessing';
 import {OntologyData} from './common/types';
@@ -842,10 +843,15 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
 			     console.log(countTags(matt));
 
-
 			     let filtered = filterTree(tr, (o:OntologyData)=> (o.id%2 == 1));
 			     console.log("filtered");
 			     console.log(filtered);
+			     let core1 = acmCS13Core1();
+                             let ontologyTree = filterTree(tr, (o:OntologyData)=>{return core1.includes(o.id)});
+			     console.log("after filter");
+			     console.log(ontologyTree);
+
+
 			   });
 
 			   return JSON.stringify(obj);

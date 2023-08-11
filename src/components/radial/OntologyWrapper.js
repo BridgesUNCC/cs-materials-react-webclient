@@ -4,6 +4,8 @@ import RadialUpdate from './RadialUpdate'
 import {Analyze} from "../analyze/Analyze";
 import {getJSONData} from "../../common/util";
 import {getOntologyTree} from "../../common/csmaterialsapiinterface";
+import {acmCS13Core1} from "../../common/csmaterialsapiinterface";
+import {filterTree} from "../../common/treeprocessing";
 
 
 
@@ -30,7 +32,14 @@ class OntologyWrapper extends Component {
         const auth = {"Authorization": "bearer " + localStorage.getItem("access_token")};
 
         let ontologyTree = await getOntologyTree(this.props.tree, api_url);
-        //radialdata = radialdata.data[tree];
+	//
+	if (false) { //demo of core 1 filtering
+	    let core1 = acmCS13Core1();
+            ontologyTree = filterTree(ontologyTree, (o)=>{return core1.includes(o.id)});
+	    console.log("after filter");
+	    console.log(ontologyTree);
+	}
+        // radialdata = radialdata.data[tree];
 
         //@TODO FIXME ALL OF THIS
         // if (compare) {
@@ -52,6 +61,8 @@ class OntologyWrapper extends Component {
         if (prevProps && this.props.location.search !== prevProps.location.search && this.props.location.search.includes('ids')) {
             let data = this.state.data;
             data[0] = await getOntologyTree(this.props.tree, this.props.api_url);
+	    let core1 = acmCS13Core1();
+        data[0] = filterTree(data[0], (o)=>{core1.includes(o)});
             let vis = this.props.tree
             this.setState({...this.state, data, visual: this.props.tree});
         }
