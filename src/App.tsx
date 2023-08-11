@@ -47,6 +47,7 @@ import {allTagsInTree} from './common/treeprocessing';
 import {OntologyData} from './common/types';
 import {uniqueTags} from './common/treeprocessing';
 import {countTags} from './common/treeprocessing';
+import {filterTree} from './common/treeprocessing';
 
 import {
     BuildSnackbar,
@@ -840,6 +841,11 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			     }
 
 			     console.log(countTags(matt));
+
+
+			     let filtered = filterTree(tr, (o:OntologyData)=> (o.id%2 == 1));
+			     console.log("filtered");
+			     console.log(filtered);
 			   });
 
 			   return JSON.stringify(obj);

@@ -73,3 +73,27 @@ export function countTags(mapping : Record<number, Array<number>>) : Record<numb
   return s;
 }
 
+//filters an ontology tree based on a prediate on individual nodes.
+//If any node is retained, then all its parents up to the root are also kept.
+//If no nodes are retained, returns undefined.
+//the nodes returned are copies of the original tree. The passed tree is left untouched.
+export function filterTree (tree: OntologyData,
+                            predicate: (a: OntologyData) => boolean)
+			      : OntologyData | undefined {
+       let a: OntologyData|undefined = undefined;
+       let child : Array<OntologyData> = [];
+       a = Object.assign({}, tree);
+
+       tree.children.forEach(o => {
+         let local = filterTree(o, predicate);
+	 if (local != undefined) {
+	   child.push(local);
+	 }
+       });
+       a.children = child;
+       if (child.length == 0) {
+         if (predicate(a) == false)
+	   a = undefined;
+       }
+       return a;
+}
