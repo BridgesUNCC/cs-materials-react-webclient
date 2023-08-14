@@ -2,6 +2,9 @@ import {getJSONData} from "./util";
 import {OntologyData} from "./types";
 
 //returns a promise that will contain the metadata of a particular single material
+//
+//this includes entries in a collection.
+//
 //params:
 //materialid: the id of the material to fetch
 //api_url: base url of the api server
@@ -24,7 +27,9 @@ export function getMaterialMeta(materialid:Number, api_url: string){
     }
 
 //returns (the promise of) the meta data and tags of a set of materials
-// as returned in the data field of by https://cs-materials-api.herokuapp.com/data/materials 
+// as returned in the data field of by https://cs-materials-api.herokuapp.com/data/materials
+//
+//this does not include entries in a collection.
 //
 // params:
 // materialsids: an array of material id
@@ -85,13 +90,20 @@ export function getMaterialLeaves(materialid:number, api_url: string) : Promise<
 	    retvals.push(meta.id);
 	    return retvals;
 	}
+	let seen : Array<number> = [];
 	
 	const lam = async(mid:number) => {
 //	    console.log("unpacking: "+mid);
 	    return getMaterialMeta(mid, api_url).then(
 		(metain) => {
 		    if (metain.materials.length == 0) {
-			retvals.push(metain.id);
+			if (retvals.includes(metain.id) == false) {
+			    retvals.push(metain.id);
+			}
+			else {
+			    console.log("recursively nested collection? detected on :"+metain.id);
+			}
+
 			return retvals;
 		    }
 		    else {
@@ -99,7 +111,13 @@ export function getMaterialLeaves(materialid:number, api_url: string) : Promise<
 			let subt : any = [];
 			metain.materials.forEach(
 			    function (item:any, index:number){
-				subt.push(lam(item.id));
+				if (seen.includes(item.id) == false) {
+				    subt.push(lam(item.id));
+				}
+				else {
+				    console.log("recursively nested collection? detected on :"+item.id);
+				}
+
 			    }
 			);
 			return Promise.all(subt).then( (item)=> {
