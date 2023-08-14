@@ -12,7 +12,7 @@ export function getMaterialMeta(materialid:Number, api_url: string){
         let promise;
         promise = getJSONData(url, auth).then(resp => {
             if (resp === undefined) {
-                console.log("API SERVER FAIL")
+                console.log("API SERVER FAIL: "+url);
                 return Promise.reject(new Error('API SERVER FAIL'));
             } else {
                 if (resp['status'] === "OK") {
@@ -36,7 +36,7 @@ export function getMaterials(materialids: Array<Number>, api_url: string) : Prom
         let promise;
         promise = getJSONData(url, auth).then(resp => {
             if (resp === undefined) {
-                console.log("API SERVER FAIL")
+                console.log("API SERVER FAIL:" + url)
                 return Promise.reject(new Error('API SERVER FAIL'));
             } else {
                 if (resp['status'] === "OK") {
