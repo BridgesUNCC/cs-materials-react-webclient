@@ -860,7 +860,17 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 		    />
 		    <Route path="/testing2" render={
 		    	   (route_props) => {
-			     let collectionIds = [1210,1644,1669,1166,1035,1680,703,346,1678,808,351,733,1717,1718,1203,1132,998,1121,1695,178,179,1269,1490,266,828,177,1696,1697,805,584,1798];
+			   let CS1s= [1210,1669, 351, 1132, 1490, 1697 ];//1678 cause internal server error
+			   let OOPs=[703, 266]; //1121, 1696 causes internal server error
+			   let DSs=[1210, 703, 178, 177, 805 ]; //1717, 808, 1718 causes internal server error
+			   let ALGOs= [828, 584]; //and 346, but causes internal server error
+			   let SOFTENGs=[998, 1695]; //and 1644 and 1035 cause internal server error for unknown reasons
+			   let PDCs = [1166, 1203, 179];
+			   let OTHERs = [733, 1798]; //and 1680 but it causes internval server error
+			     //let collectionIds = [1210,1644,1669,1166,1035,1680,703,346,1678,808,351,733,1717,1718,1203,1132,998,1121,1695,178,179,1269,1490,266,828,177,1696,1697,805,584,1798];
+			     //let collectionIds = [1210,1644,1669,1166,1035,1680,703,346,1678,808];
+			     let all = [...CS1s, ...OOPs, ...DSs, ...ALGOs, ...SOFTENGs, ...PDCs, ...OTHERs];
+			     let collectionIds = all;
 
 			     let pr: any = {};
 			     let all_pr: Array<Promise<number>> = [];
