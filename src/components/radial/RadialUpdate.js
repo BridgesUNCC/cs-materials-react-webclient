@@ -22,7 +22,7 @@ import Slider from '@material-ui/core/Slider';
 
 import {buildClassificationTree} from "../../common/visualUtils";
 import {trimTree} from "../../common/visualUtils";
-import {layoutRadialLayer} from "../../common/visualUtils";
+
 
 
 var radialTree;
@@ -125,10 +125,9 @@ class RadialUpdate extends Component {
       return true
     };
 
-    console.log(ontology_type)
     buildClassificationTree(ontology_data, null, assignmentsArray, ontology_type, this.state.treeSlider)
     trimTree(ontology_data)
-    layoutRadialLayer(ontology_data)
+    
 
     this.setState({...this.state, ontology_data: ontology_data, loading:false});    
 
@@ -166,7 +165,7 @@ class RadialUpdate extends Component {
               </Select>
             </FormControl>
             <FormControl>
-              <InputLabel id="demo-dialog-select-label" id={"FormControl"}>Layout After Removal</InputLabel>
+              <InputLabel id="demo-dialog-select-label">Layout After Removal</InputLabel>
               <Select
                 labelId="demo-dialog-select-label"
                 value={this.state.formatAfter}//age
@@ -207,8 +206,7 @@ class RadialUpdate extends Component {
           height: '35%',
         }}
       />
-      {(this.state.loading)? (<div></div>) : (<TreeVisualization data={this.state.ontology_data}/>)}
- 
+      {(this.state.loading)? (<div></div>) : (<TreeVisualization data={this.state.ontology_data} layoutRadial={true}/>)}
       </div>
           <div id={"App" + this.props.id}>
             <div id="tooltips">

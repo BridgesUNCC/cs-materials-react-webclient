@@ -6,7 +6,7 @@ function styleTreeNode(node, hitThresh){
       node.hits += 1;
       node.color = "orange";
       node.size = (node.hits/maxHits) * 100 + 10;
-      
+      if(node.assignments.length > 0) node.label = node.label.concat(node.assignments[node.assignments.length-1].fields.title, ' \n')
       if(node.hits < hitThresh[0] || node.hits > hitThresh[1]){
       	console.log(hitThresh)
       	node.color = "grey";
@@ -77,13 +77,23 @@ export function buildClassificationTree(root, parent, assignmentsArray, ontology
       if(!root.size) root.size = 10;
       if(!root.assignments) root.assignments = [];
       if(!root.shapeType) root.shapeType = d3.symbolWye;
+      if(!root.label) root.label = "";
+      root.parent = parent;
+      if(!root.breadCrumbLabel){
+        root.breadCrumbLabel = "";
+        let current = root;
+        while(current != null){
+          root.breadCrumbLabel = root.breadCrumbLabel.concat(current.title, " \n")
+          current = current.parent;
+        }
+      }
       if(root.hide === false){
         root.hide = false
       }else{
         root.hide = true
       }
       //if(!root.hide) root.hide = true;
-      root.parent = parent;
+      
       if(ontologyType == "acm"){
       	for(let j = 0; j < assignmentsArray.length; j++){
 	        if(assignmentsArray[j].fields.classifications.includes("ACM-CS2013: " + root.title)){
@@ -113,14 +123,10 @@ export function buildClassificationTree(root, parent, assignmentsArray, ontology
 
 function countVertices(tree){
   let count = 1;
-  if(tree.hide === false){
-    count = 1;
-    if(tree.color === "blue" || tree.color === "orange"){
-      for(let i = 0; i < tree.children.length; i++){
-        let to = tree.children[i];
-        count += countVertices(to)
-      }
-    }
+  count = 1;
+  for(let i = 0; i < tree.children.length; i++){
+    let to = tree.children[i];
+    count += countVertices(to)
   }
   return count;
 }
