@@ -14,7 +14,7 @@ class TreeVisualization extends Component{
 	}
 
 	componentDidMount() {
-	    this.container = d3.select("#RadialContainer");
+	    this.container = d3.select("#TreeContainer");
 	    this.svg       = this.container.append("svg").append("g");
 	    this.draw();
   	}
@@ -213,7 +213,19 @@ class TreeVisualization extends Component{
   	}
 
   	render(){
-  		return <div></div>
+  		return <div>
+			<div id="tooltips">
+				<div id="tooltip" className="hidden">
+					<p><strong>Breadcrumbs: </strong></p>
+					<p><span id="value">100</span></p>
+				</div>
+				<div id="assignmenttooltip" className="hidden">
+					<p><b>Materials: </b></p>
+					<p id="value"></p>
+				</div>
+			</div>
+			<div id={"TreeContainer"}></div>
+		</div>
   	}
 
 }
