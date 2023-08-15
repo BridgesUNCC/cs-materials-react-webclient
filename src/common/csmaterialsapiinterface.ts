@@ -199,6 +199,11 @@ export function getSimilarityData(materialids:Array<number>, searchapi_url: stri
     });
 }
 
+//Returns an ontology tree as (a promise of) an OntologyData by name.
+//
+//params:
+//tree_name: the name of the tree as encoded in the database. Typically "pdc", and "acm"
+//api_url: base URL of the api server
 export function getOntologyTree(tree_name: string, api_url: string) : Promise<OntologyData> {
     const url = api_url + "/data/ontology_trees";
 

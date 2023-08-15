@@ -879,8 +879,8 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			         all_pr.push(getMaterialLeaves(id, appInfo.api_url)
 			           .then(matids => getMaterialsTags(matids, appInfo.api_url)
   			           .then(tags =>{
-				     pr[id] = tags;
-				     return 1;
+				     pr[id] = uniqueTags(tags);
+				     return 1; //return non sense to make the types work
 				     }))
 				   );
 				 }
