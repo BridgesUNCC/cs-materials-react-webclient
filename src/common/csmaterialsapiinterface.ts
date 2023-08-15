@@ -201,6 +201,8 @@ export function getSimilarityData(materialids:Array<number>, searchapi_url: stri
 
 //Returns an ontology tree as (a promise of) an OntologyData by name.
 //
+// TODO: Should this function cache the ontology tree?
+//
 //params:
 //tree_name: the name of the tree as encoded in the database. Typically "pdc", and "acm"
 //api_url: base URL of the api server
