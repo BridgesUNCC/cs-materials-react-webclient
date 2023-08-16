@@ -1,7 +1,7 @@
 // @TODO cleanup file to not require this disable
 /* eslint-disable */
 
-import React, {Component} from 'react';
+import React, {Component, PureComponent} from 'react';
 import * as d3 from "d3";
 import { makeStyles } from '@material-ui/core/styles';
 import {layoutRadialLayer} from "../../common/visualUtils";
@@ -19,7 +19,7 @@ class TreeVisualization extends Component{
 	    this.draw();
   	}
 
-  	shouldComponentUpdate(nextProps){
+/*  	shouldComponentUpdate(nextProps){
 	    //this is updated from ontologywrapper so it clears all svg draws for a new render
 	    if(this.props != nextProps){
 	    	this.props = nextProps
@@ -27,9 +27,11 @@ class TreeVisualization extends Component{
 	    	this.draw()
 	    	return true
 	    }
-	}
+	}*/
 
-
+    render(){	this.svg.selectAll("*").remove();
+		draw();
+    }
   	draw(){
   		const vWidth = 2000;
     	const vHeight = 1000;
