@@ -213,7 +213,7 @@ export function getOntologyTree(tree_name: string, api_url: string) : Promise<On
     return getJSONData(url, auth).then(resp => {
 //        console.log(resp);
         if (resp === undefined) {
-            console.log("API SERVER FAIL")
+            console.log("API SERVER FAIL: "+url)
 	    return Promise.reject(new Error('API SERVER FAIL'));
         } else {
             if (resp['status'] === "OK") {
@@ -221,7 +221,7 @@ export function getOntologyTree(tree_name: string, api_url: string) : Promise<On
 		return ontology;
             }
 	    else {
-		return Promise.reject(new Error('API SERVER FAIL'));
+		return Promise.reject(new Error('API SERVER FAIL:' + url));
 	    }
         }
     });    
