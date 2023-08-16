@@ -3,6 +3,8 @@
 
 import React, {FunctionComponent, Component, useEffect} from 'react';
 import TreeVisualization from './TreeVisualization'
+import {getOntologyTree} from '../../common/csmaterialsapiinterface';
+import {OntologyData} from '../../common/types';
 import * as d3 from "d3";
 
 
@@ -11,31 +13,16 @@ interface Props {
 }
 
 export const AcmCoreRadial : FunctionComponent<Props>  = ({
-api_url: string
+api_url
 }) => {
-	let tree= {label: "something",
-		     //		     color: "red",
-		     color: "#FF00EE",
-		     shapeType: d3.symbolStar,
-		     children:[{
-			 label:"somethingelse",
-			 size:3.0, 
-			 children:[]
-		     },{
-			 label:"somethingelse",
-			 opacity: .2,
-			 children:[]
-		     },{
-			 label:"somethingelse",
-			 children:[]
-		     },{
-			 label:"somethingelse",
-			 children:[]
-		     },{
-			 label:"somethingelse",
-			 children:[]
-		     }]};
-    return (
+ let [tree, setTree] = React.useState<OntologyData>({id:0,title:"",instance_of:"root",children:[]});
+ 
+useEffect(()=>{
+	getOntologyTree("acm", api_url)
+	.then(tr => {console.log(tr);setTree(tr);});
+	},[]);
+
+return (
 	    <TreeVisualization data={tree} layoutRadial={true}/>
     );
 };

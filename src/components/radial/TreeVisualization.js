@@ -7,7 +7,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import {layoutRadialLayer} from "../../common/visualUtils";
 
 
-class TreeVisualization extends Component{
+class TreeVisualization extends PureComponent{
 
 	constructor(){
 		super();
@@ -29,7 +29,8 @@ class TreeVisualization extends Component{
 	    }
 	}*/
 
-    render(){	this.svg.selectAll("*").remove();
+    render(){	console.log("render");
+		this.svg.selectAll("*").remove();
 		draw();
     }
   	draw(){
