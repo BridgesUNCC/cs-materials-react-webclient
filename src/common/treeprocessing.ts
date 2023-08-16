@@ -97,3 +97,12 @@ export function filterTree (tree: OntologyData,
        }
        return a;
 }
+
+//apply function f to all nodes in the tree
+export function applyTree(tree: OntologyData,
+                          f: (a: OntologyData) => void) : void {
+  f(tree);
+  tree.children.forEach(c => {
+    applyTree(c, f);
+  });  
+} 
