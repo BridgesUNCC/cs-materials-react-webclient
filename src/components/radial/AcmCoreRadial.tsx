@@ -1,14 +1,26 @@
 // @TODO cleanup file to not require this disable
 /* eslint-disable */
 
-import React, {Component} from 'react';
+import React, {Component, useEffect} from 'react';
 import TreeVisualization from './TreeVisualization'
 import * as d3 from "d3";
 
 
-class RadialTesting extends Component {
-    render(){
-	let mydata= {label: "something",
+interface Props {
+    api_url: string;
+}
+
+class AcmCoreRadial extends Component<Props> {
+      
+
+constructor(props: Props) {
+super(props)
+}
+
+
+
+ render() {
+	let tree= {label: "something",
 		     //		     color: "red",
 		     color: "#FF00EE",
 		     shapeType: d3.symbolStar,
@@ -31,9 +43,9 @@ class RadialTesting extends Component {
 			 children:[]
 		     }]};
     return (
-	    <TreeVisualization data={mydata} layoutRadial={true}/>
+	    <TreeVisualization data={tree} layoutRadial={true}/>
     );
-  }
+    }  
 }
 
-export default RadialTesting;
+export default AcmCoreRadial;

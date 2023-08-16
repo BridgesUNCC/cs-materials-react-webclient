@@ -51,6 +51,7 @@ import {countTags} from './common/treeprocessing';
 import {filterTree} from './common/treeprocessing';
 import TreeVisualization from './components/radial/TreeVisualization';
 import RadialTesting from './components/radial/RadialTesting';
+import AcmCoreRadial from './components/radial/AcmCoreRadial';
 
 
 import {
@@ -899,7 +900,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 		    />
 
 
-		    <Route path="/testing3" render={
+		    <Route path="/radialDemo" render={
 		    	   (route_props) => {
 			   
 			   return (
@@ -911,6 +912,17 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 		    }
 		    />
 
+		    <Route path="/AcmCoreRadial" render={
+		    	   (route_props) => {
+			   
+			   return (
+			       <Container maxWidth="xl">
+				   <AcmCoreRadial api_url={appInfo.api_url}/>
+                               </Container>
+			       );
+			   }
+		    }
+		    />
 
 
                     <Route path="/login"/>
