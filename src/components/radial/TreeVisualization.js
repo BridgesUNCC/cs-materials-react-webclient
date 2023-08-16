@@ -29,11 +29,8 @@ class TreeVisualization extends PureComponent{
 	    }
 	}*/
 
-    render(){	console.log("render");
-		this.svg.selectAll("*").remove();
-		draw();
-    }
-  	draw(){
+
+    draw(){
   		const vWidth = 2000;
     	const vHeight = 1000;
 
@@ -217,7 +214,13 @@ class TreeVisualization extends PureComponent{
 
   	}
 
-  	render(){
+    render(){
+	if (this.svg != undefined) {
+		console.log("render");
+		this.svg.selectAll("*").remove();
+	    this.draw();
+	}
+
   		return <div>
 			<div id="tooltips">
 				<div id="tooltip" className="hidden">
