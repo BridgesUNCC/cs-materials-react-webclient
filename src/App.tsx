@@ -52,6 +52,7 @@ import {filterTree} from './common/treeprocessing';
 import TreeVisualization from './components/radial/TreeVisualization';
 import RadialTesting from './components/radial/RadialTesting';
 import AcmCoreRadial from './components/radial/AcmCoreRadial';
+import RadialModel from './components/radial/RadialModel';
 
 
 import {
@@ -926,6 +927,54 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			   }
 		    }
 		    />
+
+		    <Route path="/RadialModel" render={
+		    	   (route_props) => {
+			   let CS1s= [1210,1669, 351, 1132, 1490, 1697 ];//1678 cause internal server error
+			   let OOPs=[703, 266]; //1121, 1696 causes internal server error
+			   let DSs=[1210, 703, 178, 177, 805 ]; //1717, 808, 1718 causes internal server error
+			   let ALGOs= [828, 584]; //and 346, but causes internal server error
+			   let SOFTENGs=[998, 1695]; //and 1644 and 1035 cause internal server error for unknown reasons
+			   let PDCs = [1166, 1203, 179];
+
+
+			   let threshold = .1;
+			   let courses = CS1s;
+
+			   //parse parameter:
+			   let search :string = route_props.location.search;
+			   const paramparser = new URLSearchParams(search);
+				   
+			   const thr_s : string | null = paramparser.get('thr');
+			   if (thr_s != null) {
+			      threshold = Number(thr_s);
+			   }
+			   const course_s : string | null = paramparser.get('course');
+			   if (course_s != null) {
+			     if (course_s === 'CS1') {
+			       courses = CS1s;
+			     }
+			     if (course_s === 'DS') {
+			       courses = DSs;
+			     }
+			     if (course_s === 'ALGO') {
+			       courses = ALGOs;
+			     }
+			     if (course_s === 'PDC') {
+			       courses = PDCs;
+			     }
+			   }
+
+
+			   return (
+			       <Container maxWidth="xl">
+				   <RadialModel courseIds={courses} api_url={appInfo.api_url} threshold={threshold}/>
+                               </Container>
+			       );
+			   }
+		    }
+		    />
+
 
 
                     <Route path="/login"/>
