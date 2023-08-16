@@ -874,12 +874,13 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
 			     let pr: any = {};
 			     let all_pr: Array<Promise<number>> = [];
+			     getOntologyTree("acm", appInfo.api_url).then(tree => {
 			     collectionIds.forEach(
 			       id => {
 			         all_pr.push(getMaterialLeaves(id, appInfo.api_url)
 			           .then(matids => getMaterialsTags(matids, appInfo.api_url)
   			           .then(tags =>{
-				     pr[id] = uniqueTags(tags);
+				     pr[id] = filterTagsInTree(Array.from(uniqueTags(tags)), tree);
 				     return 1; //return non sense to make the types work
 				     }))
 				   );
@@ -888,8 +889,10 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			     Promise.all(all_pr).then(
 			     (vals) => {
 			       console.log(pr);
+			       console.log(JSON.stringify(pr));
 			     }
 			     );
+			     });
 			     return "";
 			   }
 		    }
