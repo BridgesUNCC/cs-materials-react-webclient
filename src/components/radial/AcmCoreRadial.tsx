@@ -1,7 +1,7 @@
 // @TODO cleanup file to not require this disable
 /* eslint-disable */
 
-import React, {Component, useEffect} from 'react';
+import React, {FunctionComponent, Component, useEffect} from 'react';
 import TreeVisualization from './TreeVisualization'
 import * as d3 from "d3";
 
@@ -10,16 +10,9 @@ interface Props {
     api_url: string;
 }
 
-class AcmCoreRadial extends Component<Props> {
-      
-
-constructor(props: Props) {
-super(props)
-}
-
-
-
- render() {
+export const AcmCoreRadial : FunctionComponent<Props>  = ({
+api_url: string
+}) => {
 	let tree= {label: "something",
 		     //		     color: "red",
 		     color: "#FF00EE",
@@ -45,7 +38,6 @@ super(props)
     return (
 	    <TreeVisualization data={tree} layoutRadial={true}/>
     );
-    }  
-}
+};
 
 export default AcmCoreRadial;
