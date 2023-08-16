@@ -49,6 +49,9 @@ import {OntologyData} from './common/types';
 import {uniqueTags} from './common/treeprocessing';
 import {countTags} from './common/treeprocessing';
 import {filterTree} from './common/treeprocessing';
+import TreeVisualization from './components/radial/TreeVisualization';
+import RadialTesting from './components/radial/RadialTesting';
+
 
 import {
     BuildSnackbar,
@@ -894,6 +897,20 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			   }
 		    }
 		    />
+
+
+		    <Route path="/testing3" render={
+		    	   (route_props) => {
+			   
+			   return (
+			       <Container maxWidth="xl">
+				   <RadialTesting  />
+                               </Container>
+			       );
+			   }
+		    }
+		    />
+
 
 
                     <Route path="/login"/>

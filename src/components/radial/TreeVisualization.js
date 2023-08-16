@@ -99,7 +99,8 @@ class TreeVisualization extends Component{
 	        })
 	        .attr("y2", function (d) {
 	          return (d.target.data.locationY) ? d.target.data.locationY : d.target.y;
-	        });
+	        })
+		  .style("stroke-opacity", function(d) { return (d.target.data.opacity) ? d.target.data.opacity  : 0.8; });
 
 	    //creates divergent scale that interpolates from purple to orange in the range from 0-1 (0.5 = white)
 	    var colorDivergent = d3.scaleSequential(d3.interpolatePuOr).domain([0,1])
@@ -115,8 +116,9 @@ class TreeVisualization extends Component{
 	    	.attr("d", d3.symbol()
         		.size(function(d) { return (d.data.size) ? d.data.size * 5.0 : 50.0; })
         		.type(function(d) { return (d.data.shapeType) ? d.data.shapeType : d3.symbolCircle; }))
-	        	.style("fill-opacity", '0.8') // set the fill opacity
+	        	.style("fill-opacity", function(d) { return (d.data.opacity) ? d.data.opacity  : 0.8; })
 	        .style("stroke", "black")
+	          	.style("stroke-opacity", function(d) { return (d.data.opacity) ? d.data.opacity  : 0.8; })
 	        .style("fill", function (d) {
 	          if(!d.data.firstTreeHits && !d.data.secondTreeHits || view === "first"){
 	            return d.data.color
