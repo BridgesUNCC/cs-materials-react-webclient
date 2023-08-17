@@ -48,7 +48,7 @@ import {allTagsInTree} from './common/treeprocessing';
 import {OntologyData} from './common/types';
 import {uniqueTags} from './common/treeprocessing';
 import {countTags} from './common/treeprocessing';
-import {filterTree} from './common/treeprocessing';
+import {filterTree, applyTree} from './common/treeprocessing';
 import TreeVisualization from './components/radial/TreeVisualization';
 import RadialTesting from './components/radial/RadialTesting';
 import AcmCoreRadial from './components/radial/AcmCoreRadial';
@@ -875,11 +875,29 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			     //let collectionIds = [1210,1644,1669,1166,1035,1680,703,346,1678,808,351,733,1717,1718,1203,1132,998,1121,1695,178,179,1269,1490,266,828,177,1696,1697,805,584,1798];
 			     //let collectionIds = [1210,1644,1669,1166,1035,1680,703,346,1678,808];
 			     let all = [...CS1s, ...OOPs, ...DSs, ...ALGOs, ...SOFTENGs, ...PDCs, ...OTHERs];
-			     let collectionIds = all;
+			     let collectionIds = [...DSs, ...ALGOs];
 
 			     let pr: any = {};
 			     let all_pr: Array<Promise<number>> = [];
+			     let the_tree:OntologyData;
 			     getOntologyTree("acm", appInfo.api_url).then(tree => {
+			     the_tree = tree;
+			     let course_names:any = {};
+			     let tag_names:any = {};
+			     
+			     applyTree(tree, (a:OntologyData) => {
+			       tag_names[a.id] = a.title;
+			       });
+
+			       console.log(tag_names);
+
+			       getMaterials(collectionIds, appInfo.api_url).then((o)=> {
+			        o["materials"].forEach((mat:any)=>{
+				  course_names[mat.id] = mat.title;
+				});
+				console.log(course_names);
+			       });
+
 			     collectionIds.forEach(
 			       id => {
 			         all_pr.push(getMaterialLeaves(id, appInfo.api_url)
@@ -894,7 +912,8 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			     Promise.all(all_pr).then(
 			     (vals) => {
 			       console.log(pr);
-			       console.log(JSON.stringify(pr));
+			       //console.log(JSON.stringify(pr));
+			       
 			     }
 			     );
 			     });
