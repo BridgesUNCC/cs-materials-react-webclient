@@ -2,8 +2,8 @@ import React, {FunctionComponent,} from "react";
 import Dialog from '@material-ui/core/Dialog';
 import {OntologyTree} from './OntologyTree'
 import {OntologyData, TagData} from "../../common/types";
-import {AppBar, createStyles, fade, IconButton, Theme, Toolbar, Typography} from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
+import {AppBar, createStyles, IconButton, Theme, Toolbar, Typography} from "@material-ui/core";
+import {makeStyles, alpha} from "@material-ui/core/styles";
 import {DelayedSearch} from "./DelayedInput";
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import SaveIcon from "@material-ui/icons/Save";
@@ -44,9 +44,9 @@ const useStyles = makeStyles((theme: Theme) =>
         search: {
             position: 'relative',
             borderRadius: theme.shape.borderRadius,
-            backgroundColor: fade(theme.palette.common.white, 0.15),
+            backgroundColor: alpha(theme.palette.common.white, 0.15),
             '&:hover': {
-                backgroundColor: fade(theme.palette.common.white, 0.25),
+                backgroundColor: alpha(theme.palette.common.white, 0.25),
             },
             marginRight: theme.spacing(2),
             marginLeft: 0,

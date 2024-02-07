@@ -130,7 +130,7 @@ export const Forgot: FunctionComponent<ForgotProps> = ({updateId, setLoading, op
             <Grid
                 container
                 direction="column"
-                justify="flex-start"
+                justifyContent="flex-start"
             >
                 <Grid
                     item

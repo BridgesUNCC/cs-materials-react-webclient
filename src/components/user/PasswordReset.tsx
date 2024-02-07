@@ -232,7 +232,7 @@ export const PasswordReset: FunctionComponent<RegistrationProps> = ({
             <Grid
                 container
                 direction="column"
-                justify="flex-start"
+                justifyContent="flex-start"
             >
                 <Grid
                     item
