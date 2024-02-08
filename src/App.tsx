@@ -829,6 +829,100 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			   }
                     />
 
+
+		    <Route path="/filterkacm" render={
+		    	   (route_props) => {
+			   let CS1s= [1210,1669, 351, 1132, 1490, 1697 ];//1678 cause internal server error
+			   let OOPs=[703, 266]; //1121, 1696 causes internal server error
+			   let DSs=[1210, 703, 178, 177, 805 ]; //1717, 808, 1718 causes internal server error
+			   let ALGOs= [828, 584]; //and 346, but causes internal server error
+			   let SOFTENGs=[998, 1695]; //and 1644 and 1035 cause internal server error for unknown reasons
+			   let PDCs = [1166, 1203, 179];
+			   let OTHERs = [733, 1798]; //and 1680 but it causes internval server error
+			     //let collectionIds = [1210,1644,1669,1166,1035,1680,703,346,1678,808,351,733,1717,1718,1203,1132,998,1121,1695,178,179,1269,1490,266,828,177,1696,1697,805,584,1798];
+			     //let collectionIds = [1210,1644,1669,1166,1035,1680,703,346,1678,808];
+			     let all = [...CS1s, ...OOPs, ...DSs, ...ALGOs, ...SOFTENGs, ...PDCs, ...OTHERs];
+			     let collectionIds = [...CS1s];
+
+			     let pr: any = {};
+			     let all_pr: Array<Promise<number>> = [];
+			     let the_tree:OntologyData;
+			     getOntologyTree("acm", appInfo.api_url).then(tree => {
+			     the_tree = tree;
+			     let course_names:any = {};
+			     let tag_names:any = {};
+			     
+			     applyTree(tree, (a:OntologyData) => {
+			       tag_names[a.id] = a.title;
+			       });
+
+			       console.log(tag_names);
+
+			       //console.log(all);
+			       getMaterials(all, appInfo.api_url).then((o)=> {
+			       //console.log(o);
+			        o["materials"].forEach((mat:any)=>{
+				  course_names[mat.id] = mat.title;
+				});
+				console.log(course_names);
+			       });
+
+			     collectionIds.forEach(
+			       id => {
+			         all_pr.push(getMaterialLeaves(id, appInfo.api_url)
+			           .then(matids => getMaterialsTags(matids, appInfo.api_url)
+  			           .then(tags =>{
+				     pr[id] = filterTagsInTree(Array.from(uniqueTags(tags)), tree);
+				     return 1; //return non sense to make the types work
+				     }))
+				   );
+				 }
+			     );
+			     Promise.all(all_pr).then(
+			     (vals) => {
+			       console.log("all promise");
+			       console.log(vals);
+			       console.log(pr);
+
+			       let tagcount: Map<number, number> = new Map<number, number>();
+			       for (let id in pr) {
+			         //console.log(id);
+				 for (let tag in pr[id]) {
+				   let tagnumber:number = pr[id][tag];
+				   let prev:number = 0;
+				   
+				   if ( tagcount.has(tagnumber) ) {
+				      prev = tagcount.get(tagnumber) as number;
+				   }
+
+				   tagcount.set(tagnumber, prev+1);
+				 }
+			       }
+			       console.log(tagcount);
+			       let tagfiltered: Set<number> = new Set<number>();
+			       for (let [tagnumber, count] of tagcount) {
+			        //let tagnumber:number = tagcount[tag];
+				 //let count:number = tagcount.get(tagnumber) as number
+			         if ( count >= 3)
+				   tagfiltered.add(tagnumber);
+			       }
+			       let output = [];
+			       for (let tag of tagfiltered) {
+			         output.push([tag, tag_names[tag]]);
+			         //console.log(tag_names[tag]);
+			       }
+			       console.log(output);
+			       //console.log(JSON.stringify(pr));
+			       
+			     }
+			     );
+			     });
+			     return "";
+			   }
+		    }
+		    />
+
+
 		    <Route path="/testing" render={
 		    	   (route_props) => {
 			   let collectionid = 178;
@@ -875,7 +969,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			     //let collectionIds = [1210,1644,1669,1166,1035,1680,703,346,1678,808,351,733,1717,1718,1203,1132,998,1121,1695,178,179,1269,1490,266,828,177,1696,1697,805,584,1798];
 			     //let collectionIds = [1210,1644,1669,1166,1035,1680,703,346,1678,808];
 			     let all = [...CS1s, ...OOPs, ...DSs, ...ALGOs, ...SOFTENGs, ...PDCs, ...OTHERs];
-			     let collectionIds = [...DSs, ...ALGOs];
+			     let collectionIds = [...CS1s];
 
 			     let pr: any = {};
 			     let all_pr: Array<Promise<number>> = [];
