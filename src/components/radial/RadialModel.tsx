@@ -5,7 +5,7 @@ import React, {FunctionComponent, Component, useEffect} from 'react';
 import TreeVisualization from './TreeVisualization'
 import {getOntologyTree, getMaterialLeaves, getMaterialsTags} from '../../common/csmaterialsapiinterface';
 import {OntologyData} from '../../common/types';
-import {applyTree, uniqueTags, filterTree, countTags} from '../../common/treeprocessing';
+import {applyTree, filterTagsInTree, uniqueTags, filterTree, countTags} from '../../common/treeprocessing';
 import * as d3 from "d3";
 
 
@@ -48,11 +48,28 @@ useEffect(()=>{
 	    for (let id in pr) {
 	      alltags = alltags.concat(pr[id]);
 	    }
+	    //remove duplicates
+	    alltags = [...new Set(alltags)];
+
 	    let tagcount:Record<number, number> = countTags(pr);
+	    //restrict the tags to those appearing in the acm tree
+	    alltags = filterTagsInTree (alltags, ltree);
 
 	    //restrict the tree to tags that are included in one of the courses
 	    let ft = filterTree(ltree,
 	      (a:OntologyData) => (alltags.includes(a.id) && tagcount[a.id]>= threshold*courseIds.length));
+
+	    console.log(tagcount);
+	    let lcount:Record<number, number> = {};
+	    let countstr:string = "";
+	    alltags.forEach(t=> {
+	      lcount[t] = tagcount[t];
+	      countstr += tagcount[t]+"\n";
+	    });
+	    console.log(lcount);
+	    	    console.log(countstr);
+	    
+
 	    if (ft != undefined) {
               ltree = ft;
 

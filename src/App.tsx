@@ -891,7 +891,9 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 
 			       console.log(tag_names);
 
-			       getMaterials(collectionIds, appInfo.api_url).then((o)=> {
+			       console.log(all);
+			       getMaterials(all, appInfo.api_url).then((o)=> {
+			       console.log(o);
 			        o["materials"].forEach((mat:any)=>{
 				  course_names[mat.id] = mat.title;
 				});
