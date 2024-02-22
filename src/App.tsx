@@ -19,6 +19,7 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import {MaterialForm} from "./components/forms/MaterialForm";
 import {LineGraphWrapper} from "./components/linegraph/LinegraphWrapper";
 import {HarmonizationView} from "./components/harmonization_matrix/HarmonizationView";
+import { NMFView } from "./components/nmf_matrix/NMFView";
 import OntologyWrapper from "./components/radial/OntologyWrapper";
 import {Search} from "./components/search/Search";
 import {Analyze} from "./components/analyze/Analyze";
@@ -921,93 +922,12 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 		    }
 		    />
 
-<Route path="/testing_matrix" render={
-                (route_props) => {
-                    
-                    let DSs = [1210, 703, 178, 177, 805];
-                    // let collectionIds = [...DSs];
-                    let collectionIds = [177, 703];
-
-                    getMaterials(collectionIds, appInfo.api_url).then((o) => {
-                        let promises: Promise<void>[] = [];
-                        let collections: { [id: number]: { materials: number[], tags: Set<number> } } = {};
-                        o["materials"].forEach((material: any) => {
-                            if (material.material_type === "collection") {
-                                let promise = getMaterialLeaves(material.id, appInfo.api_url).then((leaves: number[]) => {
-                                    collections[material.id]= {
-                                        materials: leaves,
-                                        tags: new Set(material.tags.map((tag: { bloom: string, id: number }) => tag.id))
-                                    };
-                                }).catch((e) => {
-                                    console.log(`getMaterialLeaves: ${e}`);
-                                });
-                                promises.push(promise); 
-                            }
-                        });
-
-                        // Wait for all leaves (materials) to be fetched
-                        Promise.all(promises).then(() => {
-                            // Fetch tags for each material
-                            let tagPromises: Promise<void>[] = [];
-                            for (let collectionId in collections) {
-                                    let promise = getMaterialsTags(collections[collectionId].materials, appInfo.api_url).then((material: Record<number, number[]>) => {
-                                        for (let materialId in material) {
-                                            material[materialId].forEach(tag => collections[collectionId].tags.add(tag));
-                                        }
-                                    }).catch((e) => {
-                                        console.log(`getMaterialTags: ${e}`);
-                                    });
-                                    tagPromises.push(promise);
-                            }
-                            // Wait for all tags to be fetched
-                            Promise.all(tagPromises).then(() => {
-                                //  build the courses to acs tag matrix
-                                // C1 -> 100, 103, 105
-                                // C2 -> 99, 100, 103
-                                // build matrix
-                                // 100 103 105 99
-                                // __  99  100 103 105
-                                // C1  1   1   1   0
-                                // C2  1   1   0   1
-                                const collectionTags: { [course: number]: Set<number> } = {};
-                                for (const collectionId in collections) {
-                                    const tags = collections[collectionId].tags;
-                                    collectionTags[collectionId] = tags;
-                                }
-
-                                // Find all unique tags and sort them
-                                const allTagsSet = new Set<number>();
-                                for (const collectionId in collectionTags) {
-                                    collectionTags[collectionId].forEach(tag => allTagsSet.add(tag));
-                                }
-                                const allTags: number[] = Array.from(allTagsSet).sort((a, b) => a - b);
-
-                                // Build the courses to ACS tag matrix
-                                const matrix: { [course: number]: number[] } = {};
-                                for (const courseId in collectionTags) {
-                                    const tags = collectionTags[courseId];
-                                    matrix[courseId] = allTags.map(tag => tags.has(tag) ? 1 : 0);
-                                }
-
-                                // Output the matrix
-                                console.log('  ' + [...allTags].join(' '));
-                                for (const courseName in matrix) {
-                                    const row = matrix[courseName];
-                                    console.log(courseName + ' ' + row.join(' '));
-                                }
-
-                            });
-                        }).catch((e) => {
-                            console.log(`Error in Promise.all(): ${e}`);
-                        });
-                    }).catch((e) => {
-                        console.log(`getMaterials: ${e}`);
-                    });
-
-                    return "";
-                }
-		    }
-		    />
+<Route path="/testing_matrix" render={(route_props) => (
+                        <Container maxWidth="xl">
+                            <NMFView {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} />
+                        </Container>
+                    )}
+                    />
 
 
 		    <Route path="/radialDemo" render={
