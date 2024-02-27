@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 import { CircularProgress, Paper, TextField, Button } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { getMaterials, getMaterialLeaves, getMaterialsTags } from "../../common/csmaterialsapiinterface";
+import { getJSONData } from "../../common/util";
 import {RouteComponentProps} from "react-router";
 import {nmf} from "../../common/nmf";
 
@@ -48,16 +49,17 @@ export const NMFView: FunctionComponent<Props> = ({ api_url, location }) => {
         // localhost:3000/testing_matrix?ids=177,703,177,1210,805
         // let DSs = [178, 1210, 703, 177, 805];
         const collectionIds = location.search.split("ids=")[1].split(",").map(Number);
-        console.log(collectionIds);
+        // console.log(collectionIds);
         getMaterials(collectionIds, api_url).then((o) => {
             let promises: Promise<void>[] = [];
-            let collections: { [id: number]: { materials: number[], tags: Set<number> } } = {};
+            let collections: { [id: number]: { materials: number[], tags: {id: number, title: string, type: string}[], title: string } } = {};
             o["materials"].forEach((material: any) => {
                 if (material.material_type === "collection") {
                     let promise = getMaterialLeaves(material.id, api_url).then((leaves: number[]) => {
                         collections[material.id]= {
                             materials: leaves,
-                            tags: new Set(material.tags.map((tag: { bloom: string, id: number }) => tag.id))
+                            tags: [],
+                            title: material.title
                         };
                     }).catch((e) => {
                         console.log(`getMaterialLeaves: ${e}`);
@@ -69,19 +71,62 @@ export const NMFView: FunctionComponent<Props> = ({ api_url, location }) => {
             // Wait for all leaves (materials) to be fetched
             Promise.all(promises).then(() => {
                 // Fetch tags for each material
-                let tagPromises: Promise<void>[] = [];
-                for (let collectionId in collections) {
-                    let promise = getMaterialsTags(collections[collectionId].materials, api_url).then((material: Record<number, number[]>) => {
-                        for (let materialId in material) {
-                            material[materialId].forEach(tag => collections[collectionId].tags.add(tag));
+                const url = `${api_url}/data/materials/full?ids=${Object.values(collections).flatMap(collection => collection.materials).join(',')}`
+                const auth = {
+                    Authorization: "bearer " + localStorage.getItem("access_token"),
+                };
+                console.log(url);
+                getJSONData(url, auth).then((resp: {
+                    data: {
+                        materials: {
+                            created_at: string,
+                            description: string,
+                            id: number,
+                            instance_of: string,
+                            material_type: string,
+                            owner_id: number,
+                            tags: {
+                                bloom: string,
+                                id: number,
+                            }[],
+                        }[],
+                        tags: {
+                            id: number,
+                            title: string,
+                            type: string,
+                        }[],
+                        users?: {
+                            confirmed: boolean
+                            id: number,
+                            name: string,
+                            registered_on: string,
+                        }[],
+                    }
+                    status?: string,
+                }) => {
+                    if (resp === undefined) {
+                        console.log("API SERVER FAIL");
+                        return;
+                    }
+                    const materials = resp.data.materials;
+                    const tags = resp.data.tags;
+                    console.log(materials.length);
+                    console.log(tags.length);
+                    for (const material of materials) {
+                        let materialTags = [];
+                        if (material.tags !== undefined) {
+                            material.tags.forEach((tag) => {
+                                const detailedTag = tags.find((t) => t.id === tag.id);
+                                if (detailedTag.type !== "author" && detailedTag.type !== "course" && detailedTag.type !== "language") {
+                                    materialTags.push(detailedTag);
+                                }
+                            });
                         }
-                    }).catch((e) => {
-                        console.log(`getMaterialTags: ${e}`);
-                    });
-                    tagPromises.push(promise);
-                }
-                // Wait for all tags to be fetched
-                Promise.all(tagPromises).then(() => {
+                        collections[Object.keys(collections).find(c => collections[c].materials.includes(material.id))].tags.push(...materialTags);
+                    }
+                    console.log(collections);
+
+                    // Wait for all tags to be fetched
                     //  build collection to acs tag matrix
                     // C1 -> 100, 103, 105
                     // C2 -> 99, 100, 103
@@ -90,26 +135,40 @@ export const NMFView: FunctionComponent<Props> = ({ api_url, location }) => {
                     // __  99  100 103 105
                     // C1  1   1   1   0
                     // C2  1   1   0   1
-                    
+
                     // Find all unique tags and sort them
-                    const tempAllUniqueTags = new Set<number>();
+                    const allTags: {id: number, title: string, type: string}[] = [];
+                    // Track unique tag IDs to avoid duplicates
+                    const uniqueTagIds: Set<number> = new Set();
+
+                    // Iterate over each collection
                     for (const collectionId in collections) {
-                        collections[collectionId]["tags"].forEach(tag => tempAllUniqueTags.add(tag));
+                        const collection = collections[collectionId];
+                        
+                        // Iterate over tags in the collection
+                        for (const tag of collection.tags) {
+                            if (!uniqueTagIds.has(tag.id)) {
+                                uniqueTagIds.add(tag.id);
+                                allTags.push(tag);
+                            }
+                        }
                     }
-                    const allTags: number[] = Array.from(tempAllUniqueTags).sort((a, b) => a - b);
-                    
+
+                    allTags.sort((a, b) => a.id - b.id);
+
+
                     // Build collection to ACS tag matrix
                     const matrix: { [course: number]: number[] } = {};
                     for (const collectionId in collections) {
-                        const tags = collections[collectionId]["tags"];
-                        matrix[collectionId] = allTags.map(tag => tags.has(tag) ? 1 : 0);
+                        const tags = collections[collectionId]["tags"].map(tag => tag.id);
+                        matrix[collectionId] = allTags.map(tag => tags.includes(tag.id) ? 1 : 0);
                     }
                     
-                    console.log('  ' + [...allTags].join(' '));
-                    for (const courseName in matrix) {
-                        const row = matrix[courseName];
-                        console.log(courseName + ' ' + row.join(' '));
-                    }
+                    // console.log('  ' + [...allTags].join(' '));
+                    // for (const courseName in matrix) {
+                    //     const row = matrix[courseName];
+                    //     console.log(courseName + ' ' + row.join(' '));
+                    // }
 
                     // V (m=4 x n=377)
                     const realMatrix = Object.values(matrix)
@@ -119,7 +178,9 @@ export const NMFView: FunctionComponent<Props> = ({ api_url, location }) => {
                     const nmfMatrix = nmf.mu(realMatrix, k, maxIterations, tolerance);
                     
                     let course_model: NMFData = {
-                        courses: Object.keys(matrix),
+                        courses: Object.keys(matrix).map((courseID) => {
+                            return collections[courseID].title;
+                        }),
                         tags: allTags,
                         dimensions: k,
                         W: nmfMatrix.W,
@@ -154,7 +215,7 @@ export const NMFView: FunctionComponent<Props> = ({ api_url, location }) => {
                         d3.select(this)
                             .style('opacity', 1)
                         // get tag data
-                        document.getElementById('txt_id').innerHTML = 'Course Tag: ' + d%h_width;
+                        document.getElementById('txt_id').innerHTML = `Course Tag ${allTags[d%h_width].id}: (${allTags[d%h_width].type}) ${allTags[d%h_width].title}`;
                     }
                 
                     function mouseMoveHandler(evt, d) {
@@ -201,15 +262,12 @@ export const NMFView: FunctionComponent<Props> = ({ api_url, location }) => {
                     // compute range for opacity mapping
                     let w_matrix_vals = course_model.W.flat();
                     let w_vals = d3.range(w_width*w_height).map (j => [j, w_matrix_vals[j]]);
-                    let w_mat_range = [d3.min(w_matrix_vals), d3.max(w_matrix_vals)];
 
                     let course_vals = d3.range(w_height).map (j => [j, course_model.courses]);
-                
                 
                     // now the H matrix
                     let h_matrix_vals = course_model.H.flat();
                     let h_vals = d3.range(h_width*h_height).map (j => [j, h_matrix_vals[j]]);
-                    let h_mat_range = [d3.min(h_matrix_vals), d3.max(h_matrix_vals)];
 
                     // create a tooltip and mouse handlers
                     tooltip = d3.select("#my_heat_maps")
@@ -237,9 +295,6 @@ export const NMFView: FunctionComponent<Props> = ({ api_url, location }) => {
                         .attr("fill", d => d3.interpolateYlOrRd(d[1]))
                         .attr('stroke', 'black')
                         .attr('stroke-width', 0.2)
-                        .on('mouseover', mouseOverHandler)
-                        .on('mouseleave', mouseLeaveHandler)
-                        .on('mousemove', mouseMoveHandler)
 
                     // put in the course labels
                     svg.selectAll ('course_labels')
@@ -275,7 +330,7 @@ export const NMFView: FunctionComponent<Props> = ({ api_url, location }) => {
                         .on('mouseleave', mouseLeaveHandler)
                         .on('mousemove', mouseMoveHandler)
 
-                    let y_loc = (w_rect_size + w_padding)*w_height + (h_rect_size + h_padding)*h_height + h_offset;
+                    let y_loc = ((w_rect_size + w_padding)*w_height + (h_rect_size + h_padding)*h_height + h_offset) + 50;
                     svg.append('text')
                         .attr('x', 100)
                         .attr('y', y_loc)
@@ -284,10 +339,10 @@ export const NMFView: FunctionComponent<Props> = ({ api_url, location }) => {
                         .attr('font-family', 'Verdana')
                         .attr('text-anchor', 'start')
                         .text('Course Tag: ')
+                }).catch((e) => {
+                    console.log(`getJSONData: ${e}`);
+                });
             });
-        }).catch((e) => {
-            console.log(`Error in Promise.all(): ${e}`);
-        });
     }).catch((e) => {
         console.log(`getMaterials: ${e}`);
     });
