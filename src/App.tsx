@@ -779,6 +779,13 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			   }
                     />
 
+            <Route path="/nmf" render={(route_props) => (
+                    <Container maxWidth="xl">
+                        <NMFView {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} />
+                    </Container>
+                )}
+                />
+
 		    <Route path="/simtest" render={
 			       (route_props) => 			       {
 			       
@@ -921,13 +928,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			   }
 		    }
 		    />
-
-<Route path="/testing_matrix" render={(route_props) => (
-                        <Container maxWidth="xl">
-                            <NMFView {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} />
-                        </Container>
-                    )}
-                    />
 
 
 		    <Route path="/radialDemo" render={

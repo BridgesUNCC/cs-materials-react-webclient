@@ -22,6 +22,7 @@ import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 import ShowChartIcon from '@material-ui/icons/ShowChart';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import CompareIcon from '@material-ui/icons/Compare';
 import Collapse from '@material-ui/core/Collapse';
 import { SimilarityWrapper } from "../search/SimilarityWrapper";
 
@@ -285,6 +286,12 @@ export const Sidebar: FunctionComponent<Props> = (
                       <PeopleIcon />
                     </ListItemIcon>
                     <ListItemText primary="Subcollection Similarity View" />
+                  </ListItem>
+                  <ListItem className={classes.nested} button onClick={() => {setIndex(15)}} selected={selectedIndex === 15} component={Link} to={`/nmf?ids=${listOne}`}>
+                    <ListItemIcon>
+                      <CompareIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="NMF View" />
                   </ListItem>
 
                   {/* <ListItem className={classes.nested} button onClick={() => {setIndex(7)}} selected={selectedIndex === 7} component={Link} to={'/searchrelation?type=similarity&matID=' + listOne}>
