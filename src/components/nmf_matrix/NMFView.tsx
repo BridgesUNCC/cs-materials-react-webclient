@@ -53,7 +53,7 @@ export const NMFView: FunctionComponent<Props> = ({ api_url, location, history }
     const classes = useStyles();
     const urlSearchParams = new URLSearchParams(location.search);
     const collectionIds = urlSearchParams.get("ids")?.split(",").map(Number) || [];
-    const initialK = urlSearchParams.get("k") ? parseInt(urlSearchParams.get("k")!) : Math.round(collectionIds.length / 2);
+    const initialK = urlSearchParams.get("k") && parseInt(urlSearchParams.get("k")) > 0 ? parseInt(urlSearchParams.get("k")) : Math.round(collectionIds.length / 2);
     const initialOnlyOntology = urlSearchParams.get("onlyOntology") ? urlSearchParams.get("onlyOntology") === "true" : true;
     const [k, setK] = useState(initialK);
     const [onlyOntology, setOnlyOntology] = useState(initialOnlyOntology);
