@@ -19,6 +19,7 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import {MaterialForm} from "./components/forms/MaterialForm";
 import {LineGraphWrapper} from "./components/linegraph/LinegraphWrapper";
 import {HarmonizationView} from "./components/harmonization_matrix/HarmonizationView";
+import { NMFView } from "./components/nmf_matrix/NMFView";
 import OntologyWrapper from "./components/radial/OntologyWrapper";
 import {Search} from "./components/search/Search";
 import {Analyze} from "./components/analyze/Analyze";
@@ -574,7 +575,7 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
                                 Create, Analyze and Search for computer science materials that are classified against the ACM and PDC guidelines.
                             </Typography>
                             <div className={classes.heroButtons}>
-                                <Grid container spacing={2} justify="center">
+                                <Grid container spacing={2} justifyContent="center">
                                     <Grid item>
 
                                     </Grid>
@@ -778,6 +779,13 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			   }
                     />
 
+            <Route path="/nmf" render={(route_props) => (
+                    <Container maxWidth="xl">
+                        <NMFView {...route_props} api_url={appInfo.api_url} user_id={appInfo.user_id} />
+                    </Container>
+                )}
+                />
+
 		    <Route path="/simtest" render={
 			       (route_props) => 			       {
 			       
@@ -928,7 +936,6 @@ export const App: FunctionComponent<Props> = ({history, location}) => {
 			   let collectionid = 178;
 			   let obj :Promise<Array<Number>> = getMaterialLeaves(collectionid, appInfo.api_url);
 			   let mattags = obj.then( mats => getMaterialsTags(mats, appInfo.api_url));
-			   //  let alltags = mattags.then(
 
 			   let tree = getOntologyTree("acm", appInfo.api_url);
 			   Promise.all([mattags, tree]).then((values) => {

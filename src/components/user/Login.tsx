@@ -140,7 +140,7 @@ export const Login: FunctionComponent<LoginProps> = ({
             <Grid
                 container
                 direction="column"
-                justify="flex-start"
+                justifyContent="flex-start"
             >
                 <Grid
                     item

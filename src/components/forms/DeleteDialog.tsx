@@ -130,7 +130,7 @@ export const DeleteDialog: FunctionComponent<DeleteProps> = ({
                     <Grid
                         container
                         direction="column"
-                        justify="flex-start"
+                        justifyContent="flex-start"
                     >
                         <Grid item>
                             This deletion may be <b>irreversible</b>

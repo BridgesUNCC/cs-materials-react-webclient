@@ -780,7 +780,8 @@ export const MaterialForm: FunctionComponent<Props> = (
                     }
                     className={classes.textArea}
                     multiline
-                    rows={4}
+                    minRows={4}
+                    maxRows={4}
                     variant="outlined"
                     onChange={onTextFieldChange("description")}
                   />

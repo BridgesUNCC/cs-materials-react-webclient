@@ -174,7 +174,7 @@ export const Register: FunctionComponent<RegistrationProps> = ({updateId, openLo
             <Grid
                 container
                 direction="column"
-                justify="flex-start"
+                justifyContent="flex-start"
             >
                 <Grid
                     item

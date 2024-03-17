@@ -47,7 +47,7 @@ export const SimilarityWrapper: FunctionComponent<Props> = ({
 
     useEffect(() => {
 //	console.log("useEffect in SimilarityWrapper. renderIds are :"+renderIds.toString());
-	if (renderIds[0].length > 0)
+	if (renderIds[0] && renderIds[0].length > 0)
             updateGraph();
     }, [renderIds]);
 
