@@ -8,12 +8,6 @@ import { getJSONData } from "../../common/util";
 import {RouteComponentProps} from "react-router";
 import {nmf} from "../../common/nmf";
 
-// URLs
-// Testing set: "/nmf?ids=177,703,1210,805?k=3?onlyOntology=true"
-// CS1: "/nmf?ids=1210,1669,351,1132,1490,1697?k=3?onlyOntology=true"
-// DS: "/nmf?ids=1210,703,178,177,805?k=3?onlyOntology=true"
-// PDC: "/nmf?ids=1166,1203,179?k=2?onlyOntology=true"
-
 // TODO:
 // Sort tags by their 1st level tree node
 // preorder DFS order; record the order in which you see the tags, when you order them (INSIDE THE GROUP; e.g algo) you will see all the tags together by their 1st level tree node
@@ -421,14 +415,14 @@ export const NMFView: FunctionComponent<Props> = ({ api_url, location, history }
     return (
         <div>
             {error ? <h1 style={{
-                color: "red",
+                color: "#991b1b",
             }}>{error}</h1> : isLoading ? (
                 <CircularProgress />
             ) : (
                 <div>
                     <div
                         style={{
-                            textAlign: "#991b1b",
+                            textAlign: "left",
                         }}
                     >
                         <h1
